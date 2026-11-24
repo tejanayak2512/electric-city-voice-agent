@@ -1,0 +1,149 @@
+{% extends "department/department_base.html" %}
+
+{% block title %}01. Verify Payment &amp; Assign Transformer | Department Portal{% endblock %}
+
+{% block extra_css %}
+<style>
+    .verify-form { display: grid; grid-template-columns: 1.15fr 1.3fr auto; gap: 10px; align-items: end; min-width: 440px; }
+    .verify-form select, .verify-form input {
+        width: 100%; height: 36px; padding: 6px 10px; border: 1.5px solid #c6d8ed; border-radius: 7px;
+        font-family: inherit; font-size: 12.5px; background: #ffffff;
+    }
+    .btn-pay-verify {
+        height: 34px; padding: 0 12px; border: 0; border-radius: 7px;
+        background: linear-gradient(90deg, #15803d, #16a34a); color: #ffffff; font-weight: 700; font-size: 12px; cursor: pointer; white-space: nowrap;
+    }
+    .btn-verify {
+        height: 36px; padding: 0 13px; border: 0; border-radius: 7px;
+        background: linear-gradient(90deg, #06417f, #07549a); color: #ffffff; font-weight: 700; font-size: 12.5px; cursor: pointer; white-space: nowrap;
+    }
+    .btn-verify:disabled { opacity: 0.45; cursor: not-allowed; }
+    .btn-reject {
+        height: 36px; padding: 0 11px; border: 1px solid #fca5a5; border-radius: 7px;
+        background: #fef2f2; color: #b91c1c; font-weight: 700; font-size: 12.5px; cursor: pointer;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="panel-card" id="deptStep1">
+    <div class="panel-header">
+        <span><i class="fa-solid fa-magnifying-glass-location"></i> 01. New Requests &mdash; Verification 1 (Fee Payment) &amp; Verification 2 (Feeder Assignment)</span>
+        <span class="badge-status bs-blue">{{ page_obj.paginator.count }} Matching</span>
+    </div>
+    <div class="panel-body">
+        <form method="get" action="{% url 'department_verify_requests' %}" class="filter-toolbar" id="verifySearchForm">
+            <div class="filter-field search-wide">
+                <label for="verifySearchInput">Search Requests / TXN</label>
+                <input type="text" id="verifySearchInput" name="q" value="{{ search_q }}" placeholder="Application No, Request ID, TXN, Name, Address...">
+            </div>
+            <div class="filter-field">
+                <label for="verifyPropFilter">Connection Type</label>
+                <select id="verifyPropFilter" name="property_type" onchange="this.form.submit()">
+                    <option value="">All Categories</option>
+                    <option value="Domestic" {% if selected_property_type == "Domestic" %}selected{% endif %}>Domestic</option>
+                    <option value="Commercial" {% if selected_property_type == "Commercial" %}selected{% endif %}>Commercial</option>
+                </select>
+            </div>
+            <div class="filter-field">
+                <label for="verifyPayFilter">Fee Payment Status</label>
+                <select id="verifyPayFilter" name="payment_status" onchange="this.form.submit()">
+                    <option value="">All Payment States</option>
+                    <option value="paid_unverified" {% if selected_payment_status == "paid_unverified" %}selected{% endif %}>Paid &bull; Pending Verify</option>
+                    <option value="verified" {% if selected_payment_status == "verified" %}selected{% endif %}>Payment Verified</option>
+                    <option value="unpaid" {% if selected_payment_status == "unpaid" %}selected{% endif %}>Fee Unpaid</option>
+                </select>
+            </div>
+            <div class="filter-field" style="max-width:130px;">
+                <label for="verifyPerPage">Rows / Page</label>
+                <select id="verifyPerPage" name="per_page" onchange="this.form.submit()">
+                    {% for sz in per_page_choices %}
+                    <option value="{{ sz }}" {% if per_page == sz %}selected{% endif %}>{{ sz }} rows</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="filter-btn"><i class="fa-solid fa-magnifying-glass"></i> Search</button>
+            <a href="{% url 'department_verify_requests' %}" class="filter-reset">Reset</a>
+        </form>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Application No. &amp; Request ID</th>
+                        <th>Consumer &amp; Premises</th>
+                        <th>Verification 1: Connection Fee Payment</th>
+                        <th>Verification 2: Assign Feeder &amp; Forward to Admin</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for app in page_obj %}
+                    <tr>
+                        <td>
+                            <strong><code>{{ app.application_number }}</code></strong><br>
+                            <small style="color:#07549a;"><strong>{{ app.application_id }}</strong></small><br>
+                            <span class="badge-status bs-blue" style="margin-top:4px;">{{ app.property_type }}</span>
+                        </td>
+                        <td>
+                            <strong>{{ app.applicant_name }}</strong> (@{{ app.user.username }})<br>
+                            <small style="color:#365070;">{{ app.house_address }}</small><br>
+                            <small style="color:#4b698c;">ID: {{ app.id_proof_number }}{% if app.industry_type %} &bull; {{ app.industry_type }}{% endif %}</small>
+                        </td>
+                        <td>
+                            <strong>Fee: Rs {{ app.connection_fee_amount }}</strong><br>
+                            {% if not app.connection_fee_paid %}
+                                <span class="badge-status bs-red" style="margin-top:4px;">Unpaid (Waiting User)</span>
+                            {% elif not app.payment_verified %}
+                                <span class="badge-status" style="background:#fef3c7; color:#92400e; margin-top:4px;">
+                                    Paid &bull; <code>{{ app.connection_transaction_id }}</code>
+                                </span>
+                                <form method="post" action="{% url 'department_verify_payment' app.id %}" style="margin-top:7px; display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
+                                    {% csrf_token %}
+                                    <input type="text" name="payment_verification_remarks" placeholder="Verify receipt note..." style="height:34px; padding:4px 8px; border:1.5px solid #c6d8ed; border-radius:7px; font-size:12px; width:155px;">
+                                    <button type="submit" class="btn-pay-verify">
+                                        <i class="fa-solid fa-shield-check"></i> Verify Paid Charges
+                                    </button>
+                                </form>
+                            {% else %}
+                                <span class="badge-status bs-green" style="margin-top:4px;">
+                                    <i class="fa-solid fa-circle-check"></i> Payment Verified
+                                </span><br>
+                                <small style="color:#15803d;">{{ app.connection_receipt_number }} &bull; {{ app.payment_verified_by }}</small>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <form method="post" action="{% url 'department_verify_connection' app.id %}" class="verify-form">
+                                {% csrf_token %}
+                                <select name="transformer_id" required aria-label="Transformer for {{ app.application_id }}">
+                                    <option value="">-- Choose Substation &amp; Transformer --</option>
+                                    {% for item in fleet_items %}
+                                    <option value="{{ item.tf.id }}">
+                                        {{ item.tf.code }} &mdash; {{ item.tf.substation_name }} ({{ item.allocated_count }} Meters)
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                                <input type="text" name="department_remarks" placeholder="Field inspection remark...">
+                                <div style="display:flex; gap:6px;">
+                                    <button type="submit" name="action" value="verify" class="btn-verify" {% if not app.payment_verified %}title="Complete Verification 1 (Verify Paid Charges) first"{% endif %}>
+                                        <i class="fa-solid fa-paper-plane"></i> Forward
+                                    </button>
+                                    <button type="submit" name="action" value="reject" class="btn-reject" formnovalidate>Reject</button>
+                                </div>
+                            </form>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" style="text-align:center; color:#4b698c; padding:24px;">
+                            No pending verification requests match your search/filter.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% include "department/_pagination_bar.html" %}
+    </div>
+</section>
+{% endblock %}

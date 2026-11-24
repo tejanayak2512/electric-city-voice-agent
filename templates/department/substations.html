@@ -1,0 +1,15 @@
+{% extends "department/department_base.html" %}
+
+{% block title %}03. Substations &amp; Meters Bay | Department Portal{% endblock %}
+
+{% block content %}
+<section class="panel-card" id="deptStep3">
+    <div class="panel-header">
+        <span><i class="fa-solid fa-tower-broadcast"></i> 03. Substations, Step-Down Transformers &amp; Allocated Connected Meters</span>
+        <span class="badge-status bs-blue">{{ overall_grid.online }}/{{ overall_grid.total }} Feeders Online</span>
+    </div>
+    <div class="panel-body">
+        {% include "includes/_substation_transformers_bay.html" %}
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,175 @@
+{% extends "users/user_base.html" %}
+
+{% block title %}New Connection | Consumer Services{% endblock %}
+
+{% block content %}
+<section class="info-card">
+    <div class="info-card-header">
+        <span><i class="fa-solid fa-plug-circle-plus"></i> New Electricity Connection Application</span>
+        <a href="{% url 'user_connection_status' %}" class="apply-cancel-btn" style="height:34px; font-size:12px;">
+            <i class="fa-solid fa-clipboard-check"></i> View Connection Status
+        </a>
+    </div>
+    <div class="info-card-body">
+        {% if can_apply %}
+        <div class="flash-msg info" style="margin-bottom:18px;">
+            <i class="fa-solid fa-circle-info"></i>
+            Upon submission, a unique <strong>Application Number (APP-...)</strong> &amp; <strong>Request ID (REQ-...)</strong> are generated.
+            Pay the official <strong>New Connection Charges</strong> via DISCOM PowerPay Gateway to download your <strong>Application PDF</strong>
+            and unlock Payment Verification &amp; Substation Assignment.
+        </div>
+
+        <form method="post" action="{% url 'apply_connection' %}" id="applyConnectionForm">
+            {% csrf_token %}
+            <div class="apply-form-grid">
+                <div class="apply-field">
+                    <label for="appName">Applicant Full Name</label>
+                    <input type="text" id="appName" name="applicant_name" value="{{ conn_form.applicant_name.value|default:user_account.full_name }}" required>
+                    {% for e in conn_form.applicant_name.errors %}<span class="field-err">{{ e }}</span>{% endfor %}
+                </div>
+
+                <div class="apply-field">
+                    <label for="appMobile">Contact Mobile</label>
+                    <input type="tel" id="appMobile" name="mobile_number" value="{{ conn_form.mobile_number.value|default:user_account.mobile_number }}" required>
+                    {% for e in conn_form.mobile_number.errors %}<span class="field-err">{{ e }}</span>{% endfor %}
+                </div>
+
+                <div class="apply-field">
+                    <label for="appPropType">Connection Type</label>
+                    <select id="appPropType" name="property_type" required>
+                        <option value="Domestic" {% if conn_form.property_type.value == "Domestic" %}selected{% endif %}>Domestic (Rs {{ domestic_fee_info.total }} Conn. Fee)</option>
+                        <option value="Commercial" {% if conn_form.property_type.value == "Commercial" %}selected{% endif %}>Commercial (Rs {{ commercial_fee_info.total }} Conn. Fee)</option>
+                    </select>
+                    {% for e in conn_form.property_type.errors %}<span class="field-err">{{ e }}</span>{% endfor %}
+                </div>
+
+                <div class="apply-field {% if conn_form.property_type.value != 'Commercial' %}hidden{% endif %}" id="industryFieldGroup">
+                    <label for="appIndustryType">Industry Type (Commercial)</label>
+                    <select id="appIndustryType" name="industry_type">
+                        <option value="">-- Select Industry Type --</option>
+                        {% for val, label in industry_choices %}
+                        <option value="{{ val }}" {% if conn_form.industry_type.value == val %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                    {% for e in conn_form.industry_type.errors %}<span class="field-err">{{ e }}</span>{% endfor %}
+                </div>
+
+                <div class="apply-field full">
+                    <label for="appProof">ID Proof / License No.</label>
+                    <input type="text" id="appProof" name="id_proof_number" value="{{ conn_form.id_proof_number.value|default:'' }}" placeholder="e.g. AADHAAR123456" required>
+                    {% for e in conn_form.id_proof_number.errors %}<span class="field-err">{{ e }}</span>{% endfor %}
+                </div>
+
+                <div class="apply-field full">
+                    <label for="appAddress">Premises Service Address</label>
+                    <textarea id="appAddress" name="house_address" placeholder="Enter complete house or commercial unit address" required>{{ conn_form.house_address.value|default:'' }}</textarea>
+                    {% for e in conn_form.house_address.errors %}<span class="field-err">{{ e }}</span>{% endfor %}
+                </div>
+            </div>
+
+            <!-- ITEMIZED CONNECTION CHARGES SCHEDULE -->
+            <div id="newConnFeePreview" style="margin-top:16px; background:#f4f8fe; border:1.5px solid #bfd6f2; border-radius:11px; padding:14px 16px;">
+                <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
+                    <strong style="color:#082f66; font-size:14px;"><i class="fa-solid fa-file-invoice-dollar"></i> Official DISCOM New Connection Charges (<span id="connFeeCatLabel">Domestic</span>)</strong>
+                    <strong style="color:#07549a; font-size:17px;">Total Fee: Rs <span id="connFeeTotalVal">{{ domestic_fee_info.total }}</span></strong>
+                </div>
+                <div style="display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:10px; font-size:12.5px; color:#365070;">
+                    <div>Application &amp; Survey: <strong style="color:#082f66;">Rs <span id="connFeeProcVal">{{ domestic_fee_info.processing_fee }}</span></strong></div>
+                    <div>Service Line Charge: <strong style="color:#082f66;">Rs <span id="connFeeLineVal">{{ domestic_fee_info.service_line_charge }}</span></strong></div>
+                    <div>Meter Security Deposit: <strong style="color:#082f66;">Rs <span id="connFeeSecVal">{{ domestic_fee_info.security_deposit }}</span></strong></div>
+                </div>
+            </div>
+
+            <div class="modal-submit-row">
+                <button type="submit" class="apply-submit-btn">
+                    <i class="fa-solid fa-paper-plane"></i> Submit Application &amp; Proceed to Payment
+                </button>
+                <a href="{% url 'user_services' %}" class="apply-cancel-btn">Back to Services</a>
+            </div>
+        </form>
+        {% else %}
+        <div class="conn-empty-cta">
+            <div>
+                <h4>
+                    Application <code>{{ connection.application_number }}</code> &bull; Request ID <code>{{ connection.application_id }}</code>
+                </h4>
+                <p>
+                    Category: <strong>{{ connection.property_type }}</strong>{% if connection.industry_type %} ({{ connection.industry_type }}){% endif %}
+                    &bull; Connection Fee: <strong>Rs {{ connection.connection_fee_amount }}</strong>
+                    ({% if connection.connection_fee_paid %}<span style="color:#15803d;">Paid &bull; {{ connection.connection_transaction_id }}</span>{% else %}<span style="color:#b91c1c;">Unpaid</span>{% endif %})
+                    &bull; Payment Verification: <strong>{% if connection.payment_verified %}Verified{% else %}Pending{% endif %}</strong>
+                    &bull; Stage: <strong>{{ connection.status }}</strong>
+                </p>
+            </div>
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                {% if not connection.connection_fee_paid %}
+                <button type="button" class="open-conn-btn" style="background:linear-gradient(90deg, #15803d, #16a34a);" onclick="openConnFeeGateway()">
+                    <i class="fa-solid fa-credit-card"></i> Pay Rs {{ connection.connection_fee_amount }} Fee
+                </button>
+                {% else %}
+                <a href="{% url 'download_connection_pdf' connection.id %}" class="open-conn-btn">
+                    <i class="fa-solid fa-file-pdf"></i> Download Application PDF
+                </a>
+                {% endif %}
+                <a href="{% url 'user_connection_status' %}" class="apply-cancel-btn">
+                    <i class="fa-solid fa-clipboard-check"></i> Track Status
+                </a>
+                <a href="{% url 'user_power_simulation' %}" class="apply-cancel-btn">
+                    <i class="fa-solid fa-bolt"></i> Open Simulation
+                </a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    (function () {
+        const propTypeSelect = document.getElementById('appPropType');
+        const industryGroup = document.getElementById('industryFieldGroup');
+        const industrySelect = document.getElementById('appIndustryType');
+
+        const FEE_DATA = {
+            Domestic: {
+                total: "{{ domestic_fee_info.total }}",
+                proc: "{{ domestic_fee_info.processing_fee }}",
+                line: "{{ domestic_fee_info.service_line_charge }}",
+                sec: "{{ domestic_fee_info.security_deposit }}"
+            },
+            Commercial: {
+                total: "{{ commercial_fee_info.total }}",
+                proc: "{{ commercial_fee_info.processing_fee }}",
+                line: "{{ commercial_fee_info.service_line_charge }}",
+                sec: "{{ commercial_fee_info.security_deposit }}"
+            }
+        };
+
+        function syncIndustryVisibility() {
+            if (!propTypeSelect || !industryGroup || !industrySelect) return;
+            const isComm = propTypeSelect.value === 'Commercial';
+            industryGroup.classList.toggle('hidden', !isComm);
+            industrySelect.required = isComm;
+            if (!isComm) {
+                industrySelect.value = '';
+            }
+            const info = isComm ? FEE_DATA.Commercial : FEE_DATA.Domestic;
+            const catEl = document.getElementById('connFeeCatLabel');
+            const totEl = document.getElementById('connFeeTotalVal');
+            const procEl = document.getElementById('connFeeProcVal');
+            const lineEl = document.getElementById('connFeeLineVal');
+            const secEl = document.getElementById('connFeeSecVal');
+            if (catEl) catEl.textContent = isComm ? 'Commercial' : 'Domestic';
+            if (totEl) totEl.textContent = info.total;
+            if (procEl) procEl.textContent = info.proc;
+            if (lineEl) lineEl.textContent = info.line;
+            if (secEl) secEl.textContent = info.sec;
+        }
+        if (propTypeSelect) {
+            propTypeSelect.addEventListener('change', syncIndustryVisibility);
+            syncIndustryVisibility();
+        }
+    })();
+</script>
+{% endblock %}

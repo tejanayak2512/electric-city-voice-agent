@@ -1,0 +1,3694 @@
+{% extends "users/user_base.html" %}
+{% load static %}
+
+{% block title %}24/7 AI Voice Calling Agent | Electricity Department{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ==========================================================================
+       ENTERPRISE TELEPHONY CALLING AGENT - MYNTRA GRADE EXPERIENCE
+       ========================================================================== */
+
+    .voice-agent-container {
+        max-width: 1380px;
+        margin: 0 auto 35px;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+
+    /* BREADCRUMB & HERO */
+    .telephony-breadcrumb {
+        margin-bottom: 14px;
+        font-size: 13px;
+        font-weight: 600;
+        color: #07549a;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .telephony-breadcrumb a {
+        color: #07549a;
+        text-decoration: none;
+    }
+    .telephony-breadcrumb a:hover {
+        text-decoration: underline;
+    }
+
+    .telephony-hero-banner {
+        background: linear-gradient(125deg, #052349 0%, #073b75 45%, #08519c 100%);
+        color: #ffffff;
+        border-radius: 18px;
+        padding: 24px 30px;
+        margin-bottom: 22px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        box-shadow: 0 12px 32px rgba(5, 35, 73, 0.25);
+        position: relative;
+        overflow: hidden;
+    }
+    .telephony-hero-banner::after {
+        content: '';
+        position: absolute;
+        right: -30px;
+        bottom: -40px;
+        width: 240px;
+        height: 240px;
+        background: radial-gradient(circle, rgba(56, 189, 248, 0.18) 0%, rgba(255,255,255,0) 70%);
+        border-radius: 50%;
+        pointer-events: none;
+    }
+    .telephony-hero-left h2 {
+        font-size: 24px;
+        font-weight: 800;
+        margin: 0 0 6px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        letter-spacing: -0.3px;
+    }
+    .telephony-hero-left p {
+        font-size: 13.5px;
+        color: #dbeafe;
+        margin: 0;
+        line-height: 1.5;
+        max-width: 820px;
+    }
+    .hotline-badge-group {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 10px;
+    }
+    .hotline-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(255,255,255,0.15);
+        border: 1px solid rgba(255,255,255,0.25);
+        padding: 4px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 700;
+        color: #ffffff;
+    }
+
+    /* MAIN TWO-COLUMN GRID */
+    .call-layout-grid {
+        display: grid;
+        grid-template-columns: 500px 1fr;
+        gap: 24px;
+        align-items: start;
+    }
+    @media (max-width: 1120px) {
+        .call-layout-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* ==========================================================================
+       PHONE CALL CONSOLE (THE MYNTRA CALL HUD)
+       ========================================================================== */
+    .telephony-phone-console {
+        background: linear-gradient(180deg, #0b192e 0%, #081426 100%);
+        border-radius: 26px;
+        border: 2px solid #1e3a63;
+        box-shadow: 0 20px 50px rgba(7, 25, 54, 0.35), 0 0 0 1px rgba(255,255,255,0.06) inset;
+        overflow: hidden;
+        color: #ffffff;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+    }
+
+    /* TELEPHONY STATUS BAR */
+    .phone-status-bar {
+        background: rgba(4, 13, 27, 0.7);
+        padding: 10px 18px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 11.5px;
+        color: #94a3b8;
+        border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .carrier-info {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-weight: 700;
+        color: #38bdf8;
+    }
+    .carrier-info i {
+        font-size: 11px;
+    }
+    .call-encryption-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        color: #10b981;
+        font-weight: 600;
+    }
+
+    /* CALLER PROFILE HEADER */
+    .caller-header-info {
+        padding: 18px 22px 14px;
+        text-align: center;
+        background: rgba(14, 32, 59, 0.4);
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .telephony-service-title {
+        font-size: 12px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+        color: #38bdf8;
+        margin-bottom: 4px;
+    }
+    .telephony-agent-name {
+        font-size: 21px;
+        font-weight: 800;
+        color: #ffffff;
+        margin-bottom: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+    .telephony-agent-badge {
+        font-size: 12.5px;
+        color: #94a3b8;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+    }
+    .telephony-agent-badge span {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    /* CENTRAL CALL STAGE (AVATAR & PULSE) */
+    .central-call-stage {
+        padding: 26px 20px 18px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+    }
+
+    .telephony-avatar-wrapper {
+        position: relative;
+        width: 120px;
+        height: 120px;
+        margin: 0 auto 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .telephony-avatar-disc {
+        width: 104px;
+        height: 104px;
+        border-radius: 50%;
+        background: radial-gradient(circle, #0c4a6e 0%, #07294e 85%, #051b36 100%);
+        border: 3px solid #38bdf8;
+        box-shadow: 0 0 25px rgba(56, 189, 248, 0.35);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #ffffff;
+        font-size: 46px;
+        z-index: 3;
+        position: relative;
+        transition: all 0.3s ease;
+    }
+    .pulse-ring {
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        border-radius: 50%;
+        border: 2px solid rgba(56, 189, 248, 0.6);
+        opacity: 0;
+        pointer-events: none;
+    }
+    .pulse-ring-1 { animation: callPulse 2.4s infinite cubic-bezier(0.2, 0.8, 0.2, 1); }
+    .pulse-ring-2 { animation: callPulse 2.4s infinite 0.8s cubic-bezier(0.2, 0.8, 0.2, 1); }
+    .pulse-ring-3 { animation: callPulse 2.4s infinite 1.6s cubic-bezier(0.2, 0.8, 0.2, 1); }
+
+    .in-call .pulse-ring { opacity: 1; }
+    .in-call .telephony-avatar-disc {
+        border-color: #22c55e;
+        box-shadow: 0 0 35px rgba(34, 197, 94, 0.45);
+    }
+
+    @keyframes callPulse {
+        0% { transform: scale(0.85); opacity: 0.9; }
+        50% { transform: scale(1.35); opacity: 0.3; }
+        100% { transform: scale(1.65); opacity: 0; }
+    }
+
+    /* CALL STATE PILL */
+    .call-state-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        padding: 6px 18px;
+        border-radius: 999px;
+        background: rgba(15, 23, 42, 0.7);
+        border: 1px solid rgba(56, 189, 248, 0.25);
+        font-size: 13px;
+        font-weight: 700;
+        margin-bottom: 12px;
+        color: #e2e8f0;
+    }
+    .call-led-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #94a3b8;
+        transition: background-color 0.2s ease;
+    }
+    .call-duration-clock {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        font-size: 14px;
+        font-weight: 800;
+        color: #38bdf8;
+        letter-spacing: 0.5px;
+    }
+
+    /* BARGE-IN & REAL-TIME INTERRUPTION HUD */
+    .bargein-banner {
+        font-size: 11.5px;
+        font-weight: 700;
+        color: #38bdf8;
+        background: rgba(56, 189, 248, 0.15);
+        border: 1px solid rgba(56, 189, 248, 0.4);
+        border-radius: 999px;
+        padding: 4px 14px;
+        margin-bottom: 10px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        animation: bargeinPulse 1.6s infinite alternate;
+    }
+    .bargein-banner:hover {
+        background: rgba(56, 189, 248, 0.3);
+        border-color: #38bdf8;
+        transform: scale(1.03);
+    }
+    @keyframes bargeinPulse {
+        0% { box-shadow: 0 0 0 rgba(56, 189, 248, 0); }
+        100% { box-shadow: 0 0 14px rgba(56, 189, 248, 0.5); }
+    }
+
+    /* 24-BAR EQUALIZER AUDIO VISUALIZER */
+    .telephony-equalizer {
+        height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        padding: 0 20px;
+        width: 100%;
+        max-width: 380px;
+        margin-bottom: 12px;
+    }
+    .eq-bar {
+        flex: 1;
+        width: 4px;
+        min-height: 4px;
+        height: 4px;
+        background: #1e3a63;
+        border-radius: 3px;
+        transition: height 0.1s ease, background 0.2s ease;
+    }
+    .in-call .eq-bar {
+        background: linear-gradient(180deg, #38bdf8, #0284c7);
+        animation: eqAnimate 1.4s infinite ease-in-out;
+    }
+    .in-call .eq-bar:nth-child(2n) { animation-delay: 0.12s; }
+    .in-call .eq-bar:nth-child(3n) { animation-delay: 0.24s; }
+    .in-call .eq-bar:nth-child(4n) { animation-delay: 0.36s; }
+    .in-call .eq-bar:nth-child(5n) { animation-delay: 0.48s; }
+
+    .agent-speaking .eq-bar {
+        background: linear-gradient(180deg, #38bdf8, #0284c7) !important;
+        animation: eqAnimate 1.1s infinite ease-in-out !important;
+    }
+    .user-speaking .eq-bar {
+        background: linear-gradient(180deg, #22c55e, #10b981) !important;
+        animation: eqUserVoice 0.45s infinite ease-in-out !important;
+    }
+
+    @keyframes eqAnimate {
+        0%, 100% { height: 4px; }
+        50% { height: 32px; background: linear-gradient(180deg, #4ade80, #38bdf8); }
+    }
+    @keyframes eqUserVoice {
+        0%, 100% { height: 4px; }
+        50% { height: 38px; }
+    }
+
+    /* LIVE SPOKEN SUBTITLES & CAPTIONS HUD */
+    .telephony-caption-hud {
+        width: 90%;
+        max-width: 440px;
+        background: rgba(15, 23, 42, 0.85);
+        border: 1px solid rgba(56, 189, 248, 0.25);
+        border-radius: 14px;
+        padding: 12px 16px;
+        margin-bottom: 14px;
+        min-height: 54px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+    }
+    .caption-icon-wrap {
+        color: #38bdf8;
+        font-size: 18px;
+        flex-shrink: 0;
+    }
+    .caption-content-text {
+        font-size: 13px;
+        line-height: 1.45;
+        color: #e2e8f0;
+        font-style: italic;
+        word-break: break-word;
+    }
+
+    /* ==========================================================================
+       MYNTRA SIGNATURE AGENT TYPING INDICATOR BANNER
+       ========================================================================== */
+    .agent-typing-indicator {
+        display: none;
+        width: 90%;
+        max-width: 440px;
+        background: linear-gradient(90deg, rgba(6, 78, 119, 0.9), rgba(12, 74, 110, 0.9));
+        border: 1.5px solid #38bdf8;
+        border-radius: 12px;
+        padding: 10px 16px;
+        margin-bottom: 14px;
+        font-size: 12.5px;
+        font-weight: 700;
+        color: #ffffff;
+        box-shadow: 0 4px 16px rgba(56, 189, 248, 0.3);
+        animation: typingGlow 1.8s infinite alternate ease-in-out;
+    }
+    @keyframes typingGlow {
+        from { border-color: #38bdf8; box-shadow: 0 0 10px rgba(56, 189, 248, 0.3); }
+        to { border-color: #4ade80; box-shadow: 0 0 20px rgba(74, 222, 128, 0.45); }
+    }
+    .typing-inner-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+    }
+    .typing-text-wrap {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .keyboard-icon-jump {
+        color: #38bdf8;
+        font-size: 15px;
+        animation: keyboardJump 0.4s infinite alternate;
+    }
+    @keyframes keyboardJump {
+        from { transform: translateY(0); }
+        to { transform: translateY(-3px); }
+    }
+    .typing-dots span {
+        display: inline-block;
+        width: 4px;
+        height: 4px;
+        border-radius: 50%;
+        background: #ffffff;
+        margin: 0 1px;
+        animation: dotBounce 1.2s infinite;
+    }
+    .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes dotBounce {
+        0%, 100% { opacity: 0.2; transform: translateY(0); }
+        50% { opacity: 1; transform: translateY(-3px); }
+    }
+
+    /* ACTIVE REGISTERED COMPLAINT TICKET HUD */
+    .active-complaint-ticket {
+        display: none;
+        width: 90%;
+        max-width: 440px;
+        background: linear-gradient(135deg, #064e3b 0%, #065f46 100%);
+        border: 2px solid #34d399;
+        border-radius: 14px;
+        padding: 14px 18px;
+        margin-bottom: 14px;
+        color: #ffffff;
+        box-shadow: 0 8px 24px rgba(5, 150, 105, 0.35);
+        animation: slideDownTicket 0.35s ease-out;
+    }
+    @keyframes slideDownTicket {
+        from { transform: translateY(-10px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+    .ticket-header-line {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 8px;
+    }
+    .ticket-header-line strong {
+        font-size: 13.5px;
+        color: #a7f3d0;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .ticket-pills-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        font-size: 12px;
+        margin-bottom: 8px;
+    }
+    .ticket-pill {
+        background: rgba(0,0,0,0.3);
+        border: 1px solid rgba(255,255,255,0.25);
+        padding: 3px 8px;
+        border-radius: 6px;
+        font-family: ui-monospace, monospace;
+        font-weight: 700;
+    }
+    .ticket-sla-text {
+        font-size: 12px;
+        color: #ecfdf5;
+        line-height: 1.4;
+    }
+
+    /* ACTIVE INVOICE & RECEIPT HUD CARD */
+    .active-invoice-card {
+        display: none;
+        width: 92%;
+        max-width: 460px;
+        background: #ffffff;
+        color: #0f172a;
+        border: 2px solid #38bdf8;
+        border-radius: 14px;
+        padding: 14px 16px;
+        margin-bottom: 14px;
+        box-shadow: 0 10px 30px rgba(2, 132, 199, 0.35);
+        animation: slideDownTicket 0.35s ease-out;
+        text-align: left;
+    }
+    .invoice-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        margin-bottom: 8px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid #e2e8f0;
+    }
+    .inv-head-left {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-wrap: wrap;
+    }
+    .inv-badge-discom {
+        background: #0369a1;
+        color: #ffffff;
+        font-size: 10px;
+        font-weight: 800;
+        padding: 3px 8px;
+        border-radius: 6px;
+        letter-spacing: 0.5px;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+    .inv-badge-status {
+        font-size: 10.5px;
+        font-weight: 800;
+        padding: 3px 8px;
+        border-radius: 6px;
+        letter-spacing: 0.5px;
+    }
+    .inv-badge-status.paid {
+        background: #dcfce7;
+        color: #15803d;
+        border: 1px solid #86efac;
+    }
+    .inv-badge-status.due {
+        background: #fef3c7;
+        color: #b45309;
+        border: 1px solid #fde68a;
+    }
+    .inv-head-actions {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .inv-btn-print {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        background: #0284c7;
+        color: #ffffff;
+        border: none;
+        border-radius: 6px;
+        padding: 4px 10px;
+        font-size: 11px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .inv-btn-print:hover {
+        background: #0369a1;
+        transform: translateY(-1px);
+    }
+    .inv-btn-download {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        background: #dc2626;
+        color: #ffffff;
+        border-radius: 6px;
+        padding: 4px 9px;
+        font-size: 11px;
+        font-weight: 700;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+    .inv-btn-download:hover {
+        background: #b91c1c;
+        color: #ffffff;
+        transform: translateY(-1px);
+    }
+    .invoice-title-block h4 {
+        margin: 0 0 2px 0;
+        font-size: 13px;
+        font-weight: 800;
+        color: #0f172a;
+    }
+    .invoice-title-block p {
+        margin: 0 0 8px 0;
+        font-size: 11px;
+        color: #64748b;
+    }
+    .invoice-grid-details {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 6px 12px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 8px 10px;
+        margin-bottom: 8px;
+    }
+    .inv-item {
+        display: flex;
+        flex-direction: column;
+        gap: 1px;
+    }
+    .inv-label {
+        font-size: 9.5px;
+        font-weight: 700;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+    }
+    .inv-val {
+        font-size: 11.5px;
+        font-weight: 600;
+        color: #1e293b;
+    }
+    .inv-item.highlight {
+        grid-column: span 2;
+        padding-top: 5px;
+        margin-top: 2px;
+        border-top: 1px dashed #cbd5e1;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .inv-item.highlight .inv-label {
+        font-size: 11px;
+        font-weight: 800;
+        color: #0f172a;
+    }
+    .inv-val.total {
+        font-size: 14px;
+        font-weight: 900;
+        color: #15803d;
+    }
+    .invoice-footer-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 10px;
+        color: #64748b;
+        flex-wrap: wrap;
+        gap: 4px;
+    }
+    .invoice-footer-meta strong {
+        color: #1e293b;
+    }
+
+    /* ACTIVE QUALITY ASSURANCE & FEEDBACK HUD CARD */
+    .active-feedback-card {
+        display: none;
+        width: 92%;
+        max-width: 460px;
+        background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%);
+        color: #f8fafc;
+        border: 2px solid #ec4899;
+        border-radius: 14px;
+        padding: 14px 16px;
+        margin-bottom: 14px;
+        box-shadow: 0 10px 30px rgba(236, 72, 153, 0.35);
+        animation: slideDownTicket 0.35s ease-out;
+        text-align: left;
+    }
+    .feedback-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        margin-bottom: 8px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid rgba(236, 72, 153, 0.3);
+    }
+    .fb-badge-agent {
+        background: #ec4899;
+        color: #ffffff;
+        font-size: 10px;
+        font-weight: 800;
+        padding: 3px 8px;
+        border-radius: 6px;
+        letter-spacing: 0.5px;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+    .fb-title {
+        font-size: 12px;
+        font-weight: 700;
+        color: #fbcfe8;
+    }
+    .fb-scale-badge {
+        font-size: 10px;
+        font-weight: 800;
+        padding: 2px 7px;
+        border-radius: 999px;
+        background: rgba(236, 72, 153, 0.2);
+        color: #f472b6;
+        border: 1px solid rgba(236, 72, 153, 0.4);
+    }
+    .fb-prompt-text {
+        font-size: 11.5px;
+        color: #cbd5e1;
+        margin: 0 0 10px 0;
+        line-height: 1.4;
+    }
+    .feedback-stars-row {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 6px;
+        margin-bottom: 8px;
+    }
+    .fb-star-btn {
+        background: rgba(255, 255, 255, 0.08);
+        border: 1.5px solid rgba(236, 72, 153, 0.4);
+        border-radius: 8px;
+        padding: 6px 2px;
+        color: #ffffff;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    .fb-star-btn:hover {
+        background: rgba(236, 72, 153, 0.25);
+        border-color: #ec4899;
+        transform: translateY(-2px);
+    }
+    .fb-star-btn.selected {
+        background: #ec4899;
+        border-color: #f472b6;
+        color: #ffffff;
+        box-shadow: 0 0 12px rgba(236, 72, 153, 0.6);
+    }
+    .fb-digit {
+        font-size: 12.5px;
+        font-weight: 800;
+        color: #fde047;
+    }
+    .fb-star-btn.selected .fb-digit {
+        color: #ffffff;
+    }
+    .fb-label {
+        font-size: 9px;
+        font-weight: 600;
+        color: #94a3b8;
+        margin-top: 2px;
+    }
+    .fb-star-btn.selected .fb-label {
+        color: #fdf2f8;
+    }
+    .fb-recorded-msg {
+        background: rgba(34, 197, 94, 0.15);
+        border: 1px solid #22c55e;
+        color: #4ade80;
+        font-size: 11px;
+        font-weight: 700;
+        padding: 6px 10px;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        animation: fadeIn 0.3s ease;
+    }
+
+    /* Print styling: clean printable tax invoice */
+    @media print {
+        body * {
+            visibility: hidden !important;
+        }
+        #activeInvoiceCard, #activeInvoiceCard * {
+            visibility: visible !important;
+        }
+        #activeInvoiceCard {
+            display: block !important;
+            position: fixed !important;
+            left: 20px !important;
+            top: 20px !important;
+            width: 90% !important;
+            max-width: 650px !important;
+            margin: 0 auto !important;
+            padding: 24px !important;
+            border: 2px solid #063b78 !important;
+            box-shadow: none !important;
+            background: #ffffff !important;
+            color: #000000 !important;
+        }
+        .inv-head-actions {
+            display: none !important;
+        }
+    }
+
+    /* TELEPHONY CONTROLS FOOTER */
+    .telephony-controls-footer {
+        padding: 18px 22px 22px;
+        background: rgba(4, 13, 27, 0.7);
+        border-top: 1px solid rgba(255,255,255,0.08);
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+    }
+
+    /* PRIMARY START/END CALL BUTTONS */
+    .primary-call-actions {
+        display: flex;
+        gap: 12px;
+    }
+    .btn-start-call {
+        flex: 1;
+        height: 56px;
+        background: linear-gradient(90deg, #16a34a, #15803d);
+        color: #ffffff;
+        border: 0;
+        border-radius: 14px;
+        font-size: 16px;
+        font-weight: 800;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        box-shadow: 0 6px 20px rgba(22, 163, 74, 0.4);
+        transition: all 0.2s ease;
+    }
+    .btn-start-call:hover {
+        background: linear-gradient(90deg, #15803d, #166534);
+        transform: translateY(-2px);
+    }
+
+    .btn-end-call {
+        flex: 1;
+        height: 56px;
+        background: linear-gradient(90deg, #dc2626, #b91c1c);
+        color: #ffffff;
+        border: 0;
+        border-radius: 14px;
+        font-size: 16px;
+        font-weight: 800;
+        cursor: pointer;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        box-shadow: 0 6px 20px rgba(220, 38, 38, 0.4);
+        transition: all 0.2s ease;
+    }
+    .btn-end-call:hover {
+        background: linear-gradient(90deg, #b91c1c, #991b1b);
+    }
+
+    /* SECONDARY TELEPHONY BUTTONS (MIC, SPEAKER, KEYPAD, KEYBOARD) */
+    .secondary-call-actions {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+    }
+    .call-ctrl-btn {
+        height: 48px;
+        border: 1px solid rgba(255,255,255,0.15);
+        background: rgba(30, 41, 59, 0.7);
+        color: #f1f5f9;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        transition: all 0.18s ease;
+    }
+    .call-ctrl-btn i { font-size: 15px; }
+    .call-ctrl-btn:hover {
+        background: rgba(51, 65, 85, 0.85);
+        border-color: #38bdf8;
+    }
+    .call-ctrl-btn.active {
+        background: #0284c7;
+        border-color: #38bdf8;
+        color: #ffffff;
+    }
+    .call-ctrl-btn.muted, .call-ctrl-btn.off {
+        background: #7f1d1d;
+        color: #fca5a5;
+        border-color: #f87171;
+    }
+
+    /* ==========================================================================
+       DTMF NUMERIC PHONE KEYPAD (0-9, *, #)
+       ========================================================================== */
+    .telephony-dialpad-drawer {
+        display: none;
+        background: rgba(15, 23, 42, 0.95);
+        border-top: 1px solid rgba(56, 189, 248, 0.25);
+        padding: 16px 24px;
+    }
+    .telephony-dialpad-drawer.open {
+        display: block;
+    }
+    .dialpad-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        max-width: 340px;
+        margin: 0 auto;
+    }
+    .dial-btn {
+        height: 52px;
+        border-radius: 14px;
+        background: rgba(30, 41, 59, 0.85);
+        border: 1.5px solid rgba(255,255,255,0.12);
+        color: #ffffff;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.12s ease;
+    }
+    .dial-btn:hover {
+        background: rgba(56, 189, 248, 0.2);
+        border-color: #38bdf8;
+        transform: translateY(-1px);
+    }
+    .dial-btn:active {
+        background: #0284c7;
+        transform: scale(0.96);
+    }
+    .dial-digit {
+        font-size: 18px;
+        font-weight: 800;
+        line-height: 1;
+    }
+    .dial-letters {
+        font-size: 9.5px;
+        font-weight: 700;
+        color: #94a3b8;
+        letter-spacing: 0.5px;
+        margin-top: 2px;
+    }
+
+    /* ==========================================================================
+       INTEGRATED KEYBOARD INPUT TERMINAL (WITH MECHANICAL KEYBOARD SOUNDS)
+       ========================================================================== */
+    .telephony-keyboard-drawer {
+        display: none;
+        background: rgba(15, 23, 42, 0.95);
+        border-top: 1px solid rgba(56, 189, 248, 0.25);
+        padding: 16px 20px;
+    }
+    .telephony-keyboard-drawer.open {
+        display: block;
+    }
+    .keyboard-input-group {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+    .telephony-text-input {
+        flex: 1;
+        height: 44px;
+        border-radius: 12px;
+        border: 1.5px solid #334155;
+        background: #0f172a;
+        color: #f8fafc;
+        padding: 0 14px;
+        font-size: 13.5px;
+        outline: none;
+        transition: all 0.2s ease;
+    }
+    .telephony-text-input:focus {
+        border-color: #38bdf8;
+        box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.25);
+    }
+    .telephony-send-btn {
+        height: 44px;
+        padding: 0 18px;
+        border-radius: 12px;
+        background: linear-gradient(90deg, #0284c7, #0369a1);
+        color: #ffffff;
+        border: 0;
+        font-size: 13.5px;
+        font-weight: 700;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .telephony-send-btn:hover {
+        background: linear-gradient(90deg, #0369a1, #075985);
+    }
+
+    /* TELEPHONY QUICK CHIPS */
+    .telephony-quick-chips {
+        display: flex;
+        gap: 6px;
+        overflow-x: auto;
+        padding-bottom: 4px;
+    }
+    .telephony-chip {
+        white-space: nowrap;
+        background: rgba(30, 41, 59, 0.7);
+        border: 1px solid rgba(255,255,255,0.12);
+        color: #93c5fd;
+        padding: 5px 12px;
+        border-radius: 999px;
+        font-size: 11.5px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.15s ease;
+    }
+    .telephony-chip:hover {
+        background: rgba(56, 189, 248, 0.25);
+        color: #ffffff;
+        border-color: #38bdf8;
+    }
+
+    /* ==========================================================================
+       RIGHT COLUMN: INFORMATION DASHBOARD (TRANSCRIPT, COMPLAINTS, HISTORY)
+       ========================================================================== */
+    .dashboard-panel-card {
+        background: #ffffff;
+        border: 1px solid #c7d8eb;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(6, 47, 96, 0.08);
+        display: flex;
+        flex-direction: column;
+        min-height: 640px;
+    }
+
+    /* TABS HEADER */
+    .dash-tabs-bar {
+        display: flex;
+        align-items: center;
+        background: #f8fafc;
+        border-bottom: 1.5px solid #e2e8f0;
+        padding: 0 14px;
+        gap: 4px;
+        overflow-x: auto;
+    }
+    .dash-tab-btn {
+        padding: 14px 18px;
+        border: 0;
+        background: transparent;
+        color: #475569;
+        font-size: 13.5px;
+        font-weight: 700;
+        cursor: pointer;
+        border-bottom: 3px solid transparent;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        white-space: nowrap;
+        transition: all 0.2s ease;
+    }
+    .dash-tab-btn:hover { color: #07549a; }
+    .dash-tab-btn.active {
+        color: #06417f;
+        border-bottom-color: #06417f;
+        background: #ffffff;
+    }
+
+    .dash-tab-content {
+        flex: 1;
+        padding: 22px;
+        display: none;
+        flex-direction: column;
+    }
+    .dash-tab-content.active {
+        display: flex;
+    }
+
+    /* TRANSCRIPT STREAM */
+    .transcript-stream {
+        flex: 1;
+        max-height: 480px;
+        min-height: 360px;
+        overflow-y: auto;
+        padding: 16px;
+        background: #f8fbff;
+        border: 1px solid #e2edf8;
+        border-radius: 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+    .chat-bubble {
+        max-width: 84%;
+        padding: 13px 18px;
+        border-radius: 16px;
+        font-size: 13.5px;
+        line-height: 1.55;
+        position: relative;
+    }
+    .bubble-ai {
+        align-self: flex-start;
+        background: #ffffff;
+        border: 1.5px solid #c7dcf5;
+        color: #082f66;
+        border-bottom-left-radius: 4px;
+        box-shadow: 0 4px 12px rgba(8, 47, 96, 0.05);
+    }
+    .bubble-user {
+        align-self: flex-end;
+        background: linear-gradient(135deg, #07549a, #063b78);
+        color: #ffffff;
+        border-bottom-right-radius: 4px;
+        box-shadow: 0 4px 14px rgba(7, 84, 154, 0.25);
+    }
+    .bubble-meta {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        font-size: 11px;
+        margin-bottom: 5px;
+        opacity: 0.85;
+    }
+    .bubble-latency {
+        background: rgba(0,0,0,0.12);
+        padding: 1px 7px;
+        border-radius: 4px;
+        font-weight: 700;
+        font-family: ui-monospace, monospace;
+    }
+
+    /* COMPLAINTS & TELEMETRY TABLES */
+    .cmp-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+    }
+    .cmp-table th {
+        background: #f1f5f9;
+        color: #334155;
+        padding: 12px 14px;
+        text-align: left;
+        font-weight: 700;
+        border-bottom: 1.5px solid #cbd5e1;
+    }
+    .cmp-table td {
+        padding: 12px 14px;
+        border-bottom: 1px solid #e2e8f0;
+        color: #1e293b;
+    }
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 3px 9px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 700;
+    }
+    .sb-reg { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+    .sb-prog { background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
+    .sb-res { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+
+    .telemetry-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 16px;
+    }
+    .telem-card {
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        padding: 18px;
+        background: #f8fafc;
+    }
+    .telem-card h4 {
+        color: #082f66;
+        font-size: 14px;
+        font-weight: 800;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .telem-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 6px 0;
+        border-bottom: 1px dashed #e2e8f0;
+        font-size: 12.5px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="voice-agent-container">
+
+    <!-- BREADCRUMB -->
+    <div class="telephony-breadcrumb">
+        <a href="{% url 'user_home' %}"><i class="fa-solid fa-house"></i> User Home</a> &gt;
+        <a href="{% url 'user_services' %}">Services</a> &gt;
+        <span style="color: #082f66; font-weight: 800;">24/7 AI-Powered Voice Calling Agent</span>
+    </div>
+
+    <!-- HERO BANNER WITH HOTLINES -->
+    <div class="telephony-hero-banner">
+        <div class="telephony-hero-left">
+            <div class="hotline-badge-group">
+                <span class="hotline-badge"><i class="fa-solid fa-tower-broadcast"></i> IEEE Telephony Voice Engine</span>
+                <span class="hotline-badge"><i class="fa-solid fa-keyboard"></i> Authentic Typing Acoustics</span>
+                <span class="hotline-badge"><i class="fa-solid fa-phone"></i> DISCOM Hotline: 1912 / 1800-425-0022</span>
+            </div>
+            <h2 style="margin-top: 8px;"><i class="fa-solid fa-headset"></i> 24/7 AI-Powered Voice Calling Agent</h2>
+            <p>
+                Real-time 1-to-1 telephonic voice assistant with simulated call-center keyboard acoustics, live DTMF keypad,
+                instant power outage reporting, and direct database LLM grounding. Talk naturally or enter your details.
+            </p>
+        </div>
+        <div style="text-align: right; z-index: 1;">
+            <div style="font-size: 12px; color: #dbeafe; margin-bottom: 4px;">Service Status</div>
+            <div style="background: rgba(22, 163, 74, 0.9); color: #ffffff; padding: 7px 16px; border-radius: 20px; font-weight: 800; font-size: 13px; display: inline-flex; align-items: center; gap: 8px;">
+                <span style="width: 8px; height: 8px; border-radius: 50%; background: #ffffff; display: inline-block;"></span> Online 24/7/365
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN TWO-COLUMN CALLING GRID -->
+    <div class="call-layout-grid">
+
+        <!-- ==============================================================
+             LEFT COLUMN: THE PHONE CALL CONSOLE (MYNTRA AI CALLING HUD)
+             ============================================================== -->
+        <div class="telephony-phone-console" id="telephonyCard">
+
+            <!-- PHONE STATUS BAR -->
+            <div class="phone-status-bar">
+                <div class="carrier-info">
+                    <i class="fa-solid fa-signal"></i>
+                    <span>4G VoLTE HD VOICE</span>
+                </div>
+                <div class="call-encryption-tag">
+                    <i class="fa-solid fa-lock"></i>
+                    <span>256-Bit Encrypted Telephony</span>
+                </div>
+                <div style="font-family: monospace; font-size: 11px;">
+                    LINE #4
+                </div>
+            </div>
+
+            <!-- CALLER IDENTIFICATION -->
+            <div class="caller-header-info">
+                <div class="telephony-service-title">Electricity Consumer Care Interactive IVR</div>
+                <div class="telephony-agent-name" id="telephonyAgentNameDisplay">
+                    <i class="fa-solid fa-robot" style="color: #38bdf8;" id="agentNameIcon"></i> <span id="agentNameHeader">24/7 Automated IVR System</span>
+                </div>
+                <div style="margin: 4px auto 8px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: rgba(2, 132, 199, 0.15); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 999px; padding: 4px 14px;">
+                    <span style="font-size: 11.5px; color: #93c5fd; font-weight: 700;"><i class="fa-solid fa-users"></i> Available Agent:</span>
+                    <select id="agentSelectDropdown" style="background: rgba(15, 23, 42, 0.95); color: #38bdf8; border: 1px solid #38bdf8; border-radius: 6px; padding: 3px 8px; font-size: 11.5px; font-weight: 700; outline: none; cursor: pointer;">
+                        {% for a in available_agents %}
+                        <option value="{{ a.id }}" {% if a.agent_number == 1 %}selected{% endif %}>{{ a.short_name }} - {{ a.officer_name }} ({{ a.role|truncatechars:28 }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="telephony-agent-badge" style="flex-wrap: wrap; gap: 8px 12px; margin-top: 6px;">
+                    {% if user_account %}
+                    <span style="color: #4ade80; font-weight: 800;"><i class="fa-solid fa-circle-check"></i> {{ user_account.full_name }}</span>
+                    <span><i class="fa-solid fa-phone"></i> {{ user_account.mobile_number }}</span>
+                    <span><i class="fa-solid fa-hashtag"></i> Req: <strong style="color: #38bdf8;">{{ kb.caller_profile.request_id|default:"Pending" }}</strong></span>
+                    <span><i class="fa-solid fa-bolt"></i> Meter: <strong style="color: #4ade80;">{{ kb.caller_profile.meter_number|default:"Pending Allotment" }}</strong></span>
+                    {% if kb.caller_profile.connection_status %}
+                    <span style="background: rgba(56, 189, 248, 0.2); border: 1px solid rgba(56, 189, 248, 0.4); padding: 2px 8px; border-radius: 6px; font-weight: 700; color: #38bdf8;">{{ kb.caller_profile.connection_status }}</span>
+                    {% endif %}
+                    {% else %}
+                    <span><i class="fa-solid fa-user"></i> Valued Consumer (Guest Call)</span>
+                    <span style="color: #f59e0b;"><i class="fa-solid fa-circle-info"></i> Sign in to verify meter</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- CENTRAL CALL STAGE -->
+            <div class="central-call-stage">
+
+                <!-- ANIMATED CALLER AVATAR WITH RIPPLE RINGS -->
+                <div class="telephony-avatar-wrapper">
+                    <div class="pulse-ring pulse-ring-1"></div>
+                    <div class="pulse-ring pulse-ring-2"></div>
+                    <div class="pulse-ring pulse-ring-3"></div>
+                    <div class="telephony-avatar-disc" id="telephonyAvatar" style="background: #06417f;">
+                        <i class="fa-solid fa-robot"></i>
+                    </div>
+                </div>
+
+                <!-- CALL STATUS PILL & TIMER -->
+                <div class="call-state-pill">
+                    <span class="call-led-dot" id="callStatusIndicator"></span>
+                    <span id="callStatusText">Ready to Call</span>
+                    <span class="call-duration-clock" id="callDurationTimer">00:00</span>
+                </div>
+
+                <!-- BARGE-IN INTERRUPT PILL -->
+                <div class="bargein-banner" id="bargeinBanner" style="display: none;" title="Click or speak anytime to interrupt the agent">
+                    <i class="fa-solid fa-microphone-lines"></i>
+                    <span>Speak or tap to interrupt</span>
+                </div>
+
+                <!-- 24-BAR AUDIO EQUALIZER -->
+                <div class="telephony-equalizer" id="equalizerVisualizer">
+                    <div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div>
+                    <div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div>
+                    <div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div>
+                    <div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div>
+                    <div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div>
+                    <div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div>
+                </div>
+
+                <!-- LIVE SPOKEN SUBTITLES (HUD) -->
+                <div class="telephony-caption-hud">
+                    <div class="caption-icon-wrap"><i class="fa-solid fa-waveform-lines"></i></div>
+                    <div class="caption-content-text" id="liveSpeechCaption">
+                        Click 'Start Voice Call' or press 1 to begin real-time telephonic assistance...
+                    </div>
+                </div>
+
+                <!-- MYNTRA-STYLE REAL-TIME KEYBOARD TYPING INDICATOR -->
+                <div class="agent-typing-indicator" id="agentTypingIndicator">
+                    <div class="typing-inner-row">
+                        <div class="typing-text-wrap">
+                            <i class="fa-solid fa-keyboard keyboard-icon-jump"></i>
+                            <span id="typingLabelText">Agent is accessing DISCOM database &amp; typing notes...</span>
+                        </div>
+                        <div class="typing-dots">
+                            <span></span><span></span><span></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ACTIVE REGISTERED COMPLAINT TICKET CARD -->
+                <div class="active-complaint-ticket" id="activeComplaintCard">
+                    <div class="ticket-header-line">
+                        <strong><i class="fa-solid fa-circle-check"></i> Outage Complaint Registered</strong>
+                        <span class="ticket-pill" id="acPriority" style="color: #fef08a;">NORMAL</span>
+                    </div>
+                    <div class="ticket-pills-row">
+                        <span>Ticket: <strong class="ticket-pill" id="acCompNum">CMP-...</strong></span>
+                        <span>Tracking ID: <strong class="ticket-pill" id="acCompId">...</strong></span>
+                    </div>
+                    <div class="ticket-sla-text" id="acResolution">
+                        Estimated Resolution: Within 2 to 4 hours. Field Line Crew Dispatched!
+                    </div>
+                </div>
+
+                <!-- ACTIVE INVOICE & RECEIPT CARD (PRINTABLE & DOWNLOADABLE) -->
+                <div class="active-invoice-card" id="activeInvoiceCard">
+                    <div class="invoice-card-header">
+                        <div class="inv-head-left">
+                            <span class="inv-badge-discom"><i class="fa-solid fa-bolt"></i> STATE DISCOM</span>
+                            <span class="inv-badge-status paid" id="invStatusBadge">PAID IN FULL</span>
+                        </div>
+                        <div class="inv-head-actions">
+                            <button type="button" class="inv-btn-print" id="invPrintBtn" title="Print Tax Invoice">
+                                <i class="fa-solid fa-print"></i> Print Invoice
+                            </button>
+                            <a href="#" class="inv-btn-download" id="invPdfBtn" target="_blank" title="Download Official PDF">
+                                <i class="fa-solid fa-file-pdf"></i> Download PDF
+                            </a>
+                        </div>
+                    </div>
+                    <div class="invoice-title-block">
+                        <h4>Official Electricity Tax Invoice &amp; Receipt</h4>
+                        <p>Consumer Bill No: <strong id="invBillNo">--</strong> &bull; Billing Cycle: <strong id="invBillMonth">--</strong></p>
+                    </div>
+                    <div class="invoice-grid-details">
+                        <div class="inv-item">
+                            <span class="inv-label">Meter Number</span>
+                            <span class="inv-val" id="invMeterNo">--</span>
+                        </div>
+                        <div class="inv-item">
+                            <span class="inv-label">Consumer Name</span>
+                            <span class="inv-val" id="invConsumerName">--</span>
+                        </div>
+                        <div class="inv-item">
+                            <span class="inv-label">Units Billed</span>
+                            <span class="inv-val" id="invUnits">-- kWh</span>
+                        </div>
+                        <div class="inv-item">
+                            <span class="inv-label">Energy Charge</span>
+                            <span class="inv-val" id="invEnergy">₹ --</span>
+                        </div>
+                        <div class="inv-item">
+                            <span class="inv-label">Fixed / Base Fare</span>
+                            <span class="inv-val" id="invBaseFare">₹ --</span>
+                        </div>
+                        <div class="inv-item highlight">
+                            <span class="inv-label">Net Amount Paid</span>
+                            <span class="inv-val total" id="invTotalAmount">₹ --</span>
+                        </div>
+                    </div>
+                    <div class="invoice-footer-meta">
+                        <span><i class="fa-solid fa-receipt"></i> TXN: <strong id="invTxnId">--</strong></span>
+                        <span><i class="fa-regular fa-calendar-check"></i> <strong id="invPaidDate">--</strong></span>
+                    </div>
+                </div>
+
+                <!-- ACTIVE QUALITY ASSURANCE & FEEDBACK CARD (0 TO 5 RATING) -->
+                <div class="active-feedback-card" id="activeFeedbackCard" style="display: none;">
+                    <div class="feedback-card-header">
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <span class="fb-badge-agent"><i class="fa-solid fa-star"></i> OFFICER RITU</span>
+                            <span class="fb-title">Quality Assurance &amp; CSAT Feedback</span>
+                        </div>
+                        <span class="fb-scale-badge">Scale 0 to 5</span>
+                    </div>
+                    <p class="fb-prompt-text">How would you rate your support experience today? Tap a rating or speak your score:</p>
+                    <div class="feedback-stars-row">
+                        <button type="button" class="fb-star-btn" data-rating="0" title="0 - Very Poor">
+                            <span class="fb-digit">0</span>
+                            <span class="fb-label">Terrible</span>
+                        </button>
+                        <button type="button" class="fb-star-btn" data-rating="1" title="1 - Poor">
+                            <span class="fb-digit">1 ★</span>
+                            <span class="fb-label">Poor</span>
+                        </button>
+                        <button type="button" class="fb-star-btn" data-rating="2" title="2 - Fair">
+                            <span class="fb-digit">2 ★</span>
+                            <span class="fb-label">Fair</span>
+                        </button>
+                        <button type="button" class="fb-star-btn" data-rating="3" title="3 - Good">
+                            <span class="fb-digit">3 ★</span>
+                            <span class="fb-label">Good</span>
+                        </button>
+                        <button type="button" class="fb-star-btn" data-rating="4" title="4 - Very Good">
+                            <span class="fb-digit">4 ★</span>
+                            <span class="fb-label">Very Good</span>
+                        </button>
+                        <button type="button" class="fb-star-btn" data-rating="5" title="5 - Excellent">
+                            <span class="fb-digit">5 ★</span>
+                            <span class="fb-label">Excellent</span>
+                        </button>
+                    </div>
+                    <div class="fb-recorded-msg" id="fbRecordedMsg" style="display:none;">
+                        <i class="fa-solid fa-circle-check"></i> <span id="fbRecordedText">Rating Recorded! Thank you!</span>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- DTMF NUMERIC PHONE KEYPAD (COLLAPSIBLE DRAWER) -->
+            <div class="telephony-dialpad-drawer" id="dialpadDrawer">
+                <div style="font-size: 11.5px; color: #94a3b8; text-align: center; margin-bottom: 10px; font-weight: 700;" id="dialpadHeader">
+                    <i class="fa-solid fa-calculator"></i> TOUCH-TONE TELEPHONY DIALPAD (0-9, *, #)
+                </div>
+                <div class="dialpad-grid">
+                    <button type="button" class="dial-btn" data-digit="1" data-prompt="1">
+                        <span class="dial-digit">1</span>
+                        <span class="dial-letters">._@</span>
+                    </button>
+                    <button type="button" class="dial-btn" data-digit="2" data-prompt="2">
+                        <span class="dial-digit">2</span>
+                        <span class="dial-letters">ABC</span>
+                    </button>
+                    <button type="button" class="dial-btn" data-digit="3" data-prompt="3">
+                        <span class="dial-digit">3</span>
+                        <span class="dial-letters">DEF</span>
+                    </button>
+                    <button type="button" class="dial-btn" data-digit="4" data-prompt="4">
+                        <span class="dial-digit">4</span>
+                        <span class="dial-letters">GHI</span>
+                    </button>
+                    <button type="button" class="dial-btn" data-digit="5" data-prompt="5">
+                        <span class="dial-digit">5</span>
+                        <span class="dial-letters">JKL</span>
+                    </button>
+                    <button type="button" class="dial-btn" data-digit="6" data-prompt="6">
+                        <span class="dial-digit">6</span>
+                        <span class="dial-letters">MNO</span>
+                    </button>
+                    <button type="button" class="dial-btn" data-digit="7" data-prompt="7">
+                        <span class="dial-digit">7</span>
+                        <span class="dial-letters">PQRS</span>
+                    </button>
+                    <button type="button" class="dial-btn" data-digit="8" data-prompt="8">
+                        <span class="dial-digit">8</span>
+                        <span class="dial-letters">TUV</span>
+                    </button>
+                    <button type="button" class="dial-btn" data-digit="9" data-prompt="9">
+                        <span class="dial-digit">9</span>
+                        <span class="dial-letters">WXYZ</span>
+                    </button>
+                    <button type="button" class="dial-btn" data-digit="*" data-prompt="*">
+                        <span class="dial-digit">*</span>
+                        <span class="dial-letters">*</span>
+                    </button>
+                    <button type="button" class="dial-btn" data-digit="0" data-prompt="0">
+                        <span class="dial-digit">0</span>
+                        <span class="dial-letters">+</span>
+                    </button>
+                    <button type="button" class="dial-btn" data-digit="#" data-prompt="#">
+                        <span class="dial-digit">#</span>
+                        <span class="dial-letters">#</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- KEYBOARD INPUT TERMINAL (COLLAPSIBLE DRAWER) -->
+            <div class="telephony-keyboard-drawer" id="keyboardDrawer">
+                <div style="font-size: 11.5px; color: #94a3b8; margin-bottom: 8px; font-weight: 700; display: flex; justify-content: space-between;">
+                    <span><i class="fa-solid fa-keyboard"></i> MANUAL INPUT (Type Option 1-9, 0, or Text)</span>
+                    <span style="color: #38bdf8;">Press Enter to Send</span>
+                </div>
+                <div class="keyboard-input-group">
+                    <input type="text" id="callerInputText" class="telephony-text-input" placeholder="Type option (1-9, 0) or ask your agent..." autocomplete="off">
+                    <button type="button" class="telephony-send-btn" id="sendBtn">
+                        <i class="fa-solid fa-paper-plane"></i> Send
+                    </button>
+                </div>
+                <div class="telephony-quick-chips">
+                    <button type="button" class="telephony-chip" data-prompt="1">
+                        ⚡ 1: Power Outages & Supply Cuts
+                    </button>
+                    <button type="button" class="telephony-chip" data-prompt="2">
+                        🗼 2: High Voltage Grid Telemetry
+                    </button>
+                    <button type="button" class="telephony-chip" data-prompt="3">
+                        💵 3: Billing, Tariffs & Meter Ledgers
+                    </button>
+                    <button type="button" class="telephony-chip" data-prompt="4">
+                        🔥 4: Sparks, Fire & Electrical Hazards
+                    </button>
+                    <button type="button" class="telephony-chip" data-prompt="5">
+                        📊 5: Transformer Diagnostics
+                    </button>
+                    <button type="button" class="telephony-chip" data-prompt="6">
+                        📟 6: Smart Meter Faults & Display
+                    </button>
+                    <button type="button" class="telephony-chip" data-prompt="7">
+                        📝 7: Citizen Grievance & SLA Escalations
+                    </button>
+                    <button type="button" class="telephony-chip" data-prompt="8">
+                        🚚 8: Field Line Crew Dispatch
+                    </button>
+                    <button type="button" class="telephony-chip" data-prompt="9">
+                        🏭 9: Commercial Bulk Accounts
+                    </button>
+                    <button type="button" class="telephony-chip" data-prompt="0">
+                        👔 0: Senior Shift In-Charge Supervisor
+                    </button>
+                    <button type="button" class="telephony-chip" data-prompt="*">
+                        🔄 *: Return to Main IVR Menu
+                    </button>
+                </div>
+            </div>
+
+            <!-- TELEPHONY CONTROLS FOOTER -->
+            <div class="telephony-controls-footer">
+
+                <!-- PRIMARY CALL ACTIONS -->
+                <div class="primary-call-actions">
+                    <button type="button" class="btn-start-call" id="startCallBtn">
+                        <i class="fa-solid fa-phone-volume"></i>
+                        <span>Start Voice Call</span>
+                    </button>
+                    <button type="button" class="btn-end-call" id="endCallBtn">
+                        <i class="fa-solid fa-phone-slash"></i>
+                        <span>End Call</span>
+                    </button>
+                </div>
+
+                <!-- SECONDARY CONTROLS -->
+                <div class="secondary-call-actions">
+                    <button type="button" class="call-ctrl-btn" id="micToggleBtn" title="Mute / Unmute Microphone">
+                        <i class="fa-solid fa-microphone"></i>
+                        <span id="micLabel">Mic ON</span>
+                    </button>
+
+                    <button type="button" class="call-ctrl-btn" id="speakerToggleBtn" title="Turn Spoken Voice Audio ON / OFF">
+                        <i class="fa-solid fa-volume-high"></i>
+                        <span id="speakerLabel">Voice ON</span>
+                    </button>
+
+                    <button type="button" class="call-ctrl-btn" id="dialpadToggleBtn" title="Toggle DTMF Dialpad">
+                        <i class="fa-solid fa-hashtag"></i>
+                        <span>Keypad</span>
+                    </button>
+
+                    <button type="button" class="call-ctrl-btn" id="keyboardToggleBtn" title="Toggle Keyboard Text Input">
+                        <i class="fa-solid fa-keyboard"></i>
+                        <span>Type</span>
+                    </button>
+                </div>
+
+                <!-- CALL METRICS -->
+                <div style="display: flex; justify-content: space-between; font-size: 11.5px; color: #94a3b8; padding-top: 4px;">
+                    <span>Session: <strong id="sessionIdShort" style="color: #f1f5f9; font-family: monospace;">Disconnected</strong></span>
+                    <span>Acoustic FX: <strong style="color: #4ade80;">Active (Web Audio)</strong></span>
+                    <span>Latency: <strong id="avgLatencyDisplay" style="color: #38bdf8;">~0.5s</strong></span>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- ==============================================================
+             RIGHT COLUMN: REAL-TIME INFORMATION DASHBOARD (TRANSCRIPT & DATA)
+             ============================================================== -->
+        <div class="dashboard-panel-card">
+
+            <!-- TABS BAR -->
+            <div class="dash-tabs-bar">
+                <button type="button" class="dash-tab-btn active" data-tab="tab-transcript">
+                    <i class="fa-solid fa-comments"></i> Live Call Transcript
+                </button>
+                <button type="button" class="dash-tab-btn" data-tab="tab-complaints">
+                    <i class="fa-solid fa-file-shield"></i> Registered Complaints ({{ my_complaints|length }})
+                </button>
+                <button type="button" class="dash-tab-btn" data-tab="tab-history">
+                    <i class="fa-solid fa-clock-rotate-left"></i> Previous Calls ({{ recent_calls|length }})
+                </button>
+                <button type="button" class="dash-tab-btn" data-tab="tab-telemetry">
+                    <i class="fa-solid fa-database"></i> Grid Telemetry &amp; Tariffs
+                </button>
+                <button type="button" class="dash-tab-btn" data-tab="tab-agents">
+                    <i class="fa-solid fa-users"></i> Available Agents ({{ available_agents|length|default:10 }})
+                </button>
+            </div>
+
+            <!-- TAB 1: LIVE CALL TRANSCRIPT -->
+            <div class="dash-tab-content active" id="tab-transcript">
+                <div class="transcript-stream" id="transcriptStream">
+                    <div class="chat-bubble bubble-ai">
+                        <div class="bubble-meta">
+                            <span><i class="fa-solid fa-headset"></i> Officer Priya &bull; DISCOM AI Agent</span>
+                            <span class="bubble-latency">0.5s</span>
+                        </div>
+                        <div>
+                            Welcome to the Electricity Department 24/7 Consumer Care AI Voice Agent!
+                            Press <strong>Start Voice Call</strong> to speak naturally via your microphone, or use the interactive DTMF keypad and keyboard below.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: REGISTERED COMPLAINTS -->
+            <div class="dash-tab-content" id="tab-complaints">
+                <h3 style="font-size: 16px; font-weight: 800; color: #082f66; margin-bottom: 12px;">
+                    <i class="fa-solid fa-clipboard-list"></i> Your Registered Outages &amp; Complaints
+                </h3>
+                {% if my_complaints %}
+                <div style="overflow-x: auto;">
+                    <table class="cmp-table">
+                        <thead>
+                            <tr>
+                                <th>Complaint No.</th>
+                                <th>Tracking ID</th>
+                                <th>Issue Type</th>
+                                <th>Location</th>
+                                <th>Priority</th>
+                                <th>Status</th>
+                                <th>Est. Resolution</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for c in my_complaints %}
+                            <tr>
+                                <td><strong>{{ c.complaint_number }}</strong></td>
+                                <td><span style="font-family: monospace; background: #f1f5f9; padding: 2px 7px; border-radius: 4px; font-weight: 700;">{{ c.complaint_id }}</span></td>
+                                <td>{{ c.issue_type }}</td>
+                                <td>{{ c.location }}</td>
+                                <td>
+                                    {% if c.priority == 'CRITICAL_HAZARD' %}
+                                    <span style="color: #dc2626; font-weight: 800;"><i class="fa-solid fa-circle-exclamation"></i> Critical</span>
+                                    {% elif c.priority == 'HIGH' %}
+                                    <span style="color: #ea580c; font-weight: 700;">High</span>
+                                    {% else %}
+                                    <span style="color: #0284c7;">Normal</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if c.status == 'RESOLVED' %}
+                                    <span class="status-badge sb-res"><i class="fa-solid fa-check"></i> Resolved</span>
+                                    {% elif c.status == 'IN_PROGRESS' or c.status == 'ASSIGNED' %}
+                                    <span class="status-badge sb-prog"><i class="fa-solid fa-person-digging"></i> In Progress</span>
+                                    {% else %}
+                                    <span class="status-badge sb-reg"><i class="fa-solid fa-clock"></i> Registered</span>
+                                    {% endif %}
+                                </td>
+                                <td style="font-size: 12px;">{{ c.estimated_resolution }}</td>
+                                <td style="font-size: 12px; color: #64748b;">{{ c.created_at|date:"M d, H:i" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div style="text-align: center; padding: 40px; color: #64748b;">
+                    <i class="fa-solid fa-shield-check" style="font-size: 42px; color: #16a34a; margin-bottom: 10px;"></i>
+                    <p style="font-weight: 700;">No active complaints registered.</p>
+                    <p style="font-size: 13px;">If you experience a power cut or observe sparking, call the AI Voice Agent to file a report.</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- TAB 3: CALL HISTORY -->
+            <div class="dash-tab-content" id="tab-history">
+                <h3 style="font-size: 16px; font-weight: 800; color: #082f66; margin-bottom: 12px;">
+                    <i class="fa-solid fa-phone-arrow-down-left"></i> Previous Voice Calling Sessions
+                </h3>
+                {% if recent_calls %}
+                <div style="overflow-x: auto;">
+                    <table class="cmp-table">
+                        <thead>
+                            <tr>
+                                <th>Session ID</th>
+                                <th>Caller</th>
+                                <th>Intent</th>
+                                <th>Duration</th>
+                                <th>Status</th>
+                                <th>Avg Latency</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for s in recent_calls %}
+                            <tr>
+                                <td><code style="font-weight: 700;">{{ s.session_id|slice:":8" }}...</code></td>
+                                <td>{{ s.caller_name }}</td>
+                                <td>{{ s.get_call_intent_display }}</td>
+                                <td>{{ s.duration_seconds }}s</td>
+                                <td>
+                                    {% if s.status == 'COMPLETED' %}
+                                    <span class="status-badge sb-res">Completed</span>
+                                    {% else %}
+                                    <span class="status-badge sb-reg">{{ s.status }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ s.avg_latency_ms }} ms</td>
+                                <td style="font-size: 12px; color: #64748b;">{{ s.started_at|date:"M d, H:i" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div style="text-align: center; padding: 40px; color: #64748b;">
+                    <i class="fa-solid fa-headset" style="font-size: 42px; color: #07549a; margin-bottom: 10px;"></i>
+                    <p style="font-weight: 700;">No previous calls logged.</p>
+                    <p style="font-size: 13px;">Click Start Voice Call to initiate your first call session.</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- TAB 4: LIVE TELEMETRY & TARIFFS -->
+            <div class="dash-tab-content" id="tab-telemetry">
+                <h3 style="font-size: 16px; font-weight: 800; color: #082f66; margin-bottom: 14px;">
+                    <i class="fa-solid fa-microchip"></i> Live Substation Telemetry &amp; Active Fares
+                </h3>
+                <div class="telemetry-grid">
+                    <div class="telem-card">
+                        <h4><i class="fa-solid fa-tower-broadcast"></i> Your Connection Telemetry</h4>
+                        {% if kb.caller_profile %}
+                        <div class="telem-item"><span>Consumer:</span><strong>{{ kb.caller_profile.full_name }} ({{ kb.caller_profile.mobile }})</strong></div>
+                        <div class="telem-item"><span>Request ID:</span><strong style="color: #0284c7; font-family: monospace;">{{ kb.caller_profile.request_id }}</strong></div>
+                        <div class="telem-item"><span>Meter Number:</span><strong style="color: #16a34a; font-family: monospace;">{{ kb.caller_profile.meter_number }}</strong></div>
+                        <div class="telem-item"><span>Connection Status:</span><span class="status-badge sb-res">{{ kb.caller_profile.connection_status }}</span></div>
+                        <div class="telem-item"><span>Sanctioned Load:</span><strong>{{ kb.caller_profile.requested_load_kw }}</strong></div>
+                        <div class="telem-item"><span>Address:</span><strong style="font-size: 12px; max-width: 200px; text-align: right;">{{ kb.caller_profile.house_address }}</strong></div>
+                        <div class="telem-item"><span>Transformer:</span><strong>{{ kb.caller_profile.transformer }} ({{ kb.caller_profile.transformer_code }})</strong></div>
+                        <div class="telem-item"><span>Premise Breaker:</span><strong>{% if kb.caller_profile.house_power_on %}<span style="color: #16a34a;">ON</span>{% else %}<span style="color: #dc2626;">OFF</span>{% endif %}</strong></div>
+                        <div class="telem-item"><span>Supply Status:</span><strong>{% if kb.caller_profile.effective_power_supply %}<span style="color: #16a34a;">LIVE</span>{% else %}<span style="color: #dc2626;">OUTAGE</span>{% endif %}</strong></div>
+                        {% else %}
+                        <p style="font-size: 13px; color: #64748b;">Sign in with your user account to automatically verify and view your premise connection telemetry.</p>
+                        {% endif %}
+                    </div>
+
+                    <div class="telem-card">
+                        <h4><i class="fa-solid fa-file-invoice-dollar"></i> Active Tariffs</h4>
+                        <div class="telem-item"><span>Domestic Base Price:</span><strong>Rs {{ kb.tariffs.domestic_base_price }}</strong></div>
+                        <div class="telem-item"><span>Domestic Unit Rate:</span><strong>Rs {{ kb.tariffs.domestic_unit_rate }}/kWh</strong></div>
+                        <div class="telem-item"><span>Commercial Base Price:</span><strong>Rs {{ kb.tariffs.commercial_base_price }}</strong></div>
+                        <div class="telem-item"><span>Commercial Unit Rate:</span><strong>Rs {{ kb.tariffs.commercial_unit_rate }}/kWh</strong></div>
+                    </div>
+
+                    <div class="telem-card">
+                        <h4><i class="fa-solid fa-clock"></i> Resolution SLA Targets</h4>
+                        <div class="telem-item"><span>Emergency Hazard:</span><strong style="color: #dc2626;">Within 30 to 45 mins</strong></div>
+                        <div class="telem-item"><span>Area Power Cut:</span><strong>Within 1 to 2 hours</strong></div>
+                        <div class="telem-item"><span>Single Premise Outage:</span><strong>Within 2 to 4 hours</strong></div>
+                        <div class="telem-item"><span>Meter Display Fault:</span><strong>Within 24 to 48 hours</strong></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 5: AVAILABLE AGENTS (10 LIVE TELEPHONY EXECUTIVES) -->
+            <div class="dash-tab-content" id="tab-agents">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">
+                    <div>
+                        <h3 style="font-size: 16px; font-weight: 800; color: #082f66; margin: 0 0 4px;">
+                            <i class="fa-solid fa-users"></i> Available Call Center Agents (Agent 1 to Agent 10)
+                        </h3>
+                        <p style="font-size: 12.5px; color: #64748b; margin: 0;">
+                            Select any available agent below to connect directly with them for a 1-to-1 telephone conversation.
+                        </p>
+                    </div>
+                    <span style="background: #dcfce7; color: #166534; font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 999px; border: 1px solid #86efac;">
+                        <span style="display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #22c55e; margin-right: 4px;"></span>
+                        10 Live Voice Agents
+                    </span>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px;">
+                    {% for a in available_agents %}
+                    <div style="background: #f8fafc; border: 1.5px solid #cbd5e1; border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 10px; transition: all 0.2s ease;">
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <span style="font-size: 11px; font-weight: 800; background: #07549a; color: #ffffff; padding: 2px 8px; border-radius: 4px; text-transform: uppercase;">
+                                {{ a.short_name }}
+                            </span>
+                            {% if a.status == 'AVAILABLE' %}
+                            <span style="font-size: 11px; font-weight: 700; color: #16a34a; background: #dcfce7; border: 1px solid #86efac; padding: 2px 7px; border-radius: 999px;">
+                                &bull; Available
+                            </span>
+                            {% else %}
+                            <span style="font-size: 11px; font-weight: 700; color: #64748b; background: #e2e8f0; padding: 2px 7px; border-radius: 999px;">
+                                &bull; {{ a.status }}
+                            </span>
+                            {% endif %}
+                        </div>
+
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div style="width: 44px; height: 44px; border-radius: 50%; background: {{ a.avatar_color }}; color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0;">
+                                <i class="fa-solid {{ a.avatar_icon }}"></i>
+                            </div>
+                            <div style="min-width: 0;">
+                                <div style="font-size: 14px; font-weight: 800; color: #082f66;">{{ a.name }}</div>
+                                <div style="font-size: 11.5px; color: #0284c7; font-weight: 700;">{{ a.role }}</div>
+                            </div>
+                        </div>
+
+                        <div style="font-size: 11.5px; color: #475569; line-height: 1.4;">
+                            {{ a.description|truncatechars:95 }}
+                        </div>
+
+                        <div style="margin-top: auto; padding-top: 6px; display: flex; gap: 8px;">
+                            <button type="button"
+                                    class="telephony-chip"
+                                    style="flex: 1; height: 32px; display: inline-flex; align-items: center; justify-content: center; background: #0284c7; color: #ffffff; border: 0; font-size: 11.5px; font-weight: 700; border-radius: 8px; cursor: pointer;"
+                                    onclick="connectDirectlyToAgent({{ a.id }}, '{{ a.name }}', '{{ a.short_name }}')">
+                                <i class="fa-solid fa-phone-arrow-up-right" style="margin-right: 4px;"></i> Connect to {{ a.short_name }}
+                            </button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+/**
+ * --------------------------------------------------------------------------
+ * MYNTRA-GRADE TELEPHONY AUDIO & CALL ENGINE (WEB AUDIO API)
+ * Features:
+ * 1. Realistic Mechanical Keyboard Typing Acoustics (Key clicks, clacks, spacebars)
+ * 2. Rapid Multi-Keystroke Typing Bursts during database access / ticket filing
+ * 3. ITU-T DTMF Touch-Tone Keypad Synthesis (Dual frequencies for 0-9, *, #)
+ * 4. Realistic Telephony Dial Tone, Call Connect Chime, and Hangup Busy Tone
+ * 5. Hands-Free Continuous Voice Conversation Loop (STT -> Typing Sound -> TTS)
+ * 6. Keystroke Sound Listener on physical keyboard typing
+ * --------------------------------------------------------------------------
+ */
+class TelephonyAudioEngine {
+    constructor() {
+        this.ctx = null;
+        this.typingTimeout = null;
+        this.isTypingActive = false;
+        this.dtmfFrequencies = {
+            '1': [697, 1209], '2': [697, 1336], '3': [697, 1477],
+            '4': [770, 1209], '5': [770, 1336], '6': [770, 1477],
+            '7': [852, 1209], '8': [852, 1336], '9': [852, 1477],
+            '*': [941, 1209], '0': [941, 1336], '#': [941, 1477]
+        };
+    }
+
+    init() {
+        if (!this.ctx) {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            this.ctx = new AudioContext();
+        }
+        if (this.ctx.state === 'suspended') {
+            this.ctx.resume();
+        }
+    }
+
+    // Single mechanical keystroke sound (tactile actuation click + bottom-out clack)
+    playKeyStroke(keyType = 'regular') {
+        this.init();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        const sampleRate = this.ctx.sampleRate;
+
+        // 1. High frequency tactile switch click (noise burst)
+        const clickDuration = 0.022; // 22ms
+        const bufferSize = Math.floor(sampleRate * clickDuration);
+        const buffer = this.ctx.createBuffer(1, bufferSize, sampleRate);
+        const channelData = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+            const decay = Math.exp(-i / (sampleRate * 0.0035));
+            channelData[i] = (Math.random() * 2 - 1) * decay;
+        }
+
+        const noiseSrc = this.ctx.createBufferSource();
+        noiseSrc.buffer = buffer;
+
+        const bandpass = this.ctx.createBiquadFilter();
+        bandpass.type = 'bandpass';
+
+        // Add realistic micro-pitch jitter (±15%) so every stroke is unique
+        const pitchJitter = 0.88 + Math.random() * 0.24;
+        let centerFreq = 3200 * pitchJitter;
+        let qVal = 3.6;
+
+        if (keyType === 'space') {
+            centerFreq = 1500 * pitchJitter;
+            qVal = 2.0;
+        } else if (keyType === 'enter') {
+            centerFreq = 2100 * pitchJitter;
+            qVal = 2.4;
+        }
+
+        bandpass.frequency.setValueAtTime(centerFreq, now);
+        bandpass.Q.setValueAtTime(qVal, now);
+
+        const clickGain = this.ctx.createGain();
+        clickGain.gain.setValueAtTime(0.18, now);
+        clickGain.gain.exponentialRampToValueAtTime(0.001, now + clickDuration);
+
+        noiseSrc.connect(bandpass);
+        bandpass.connect(clickGain);
+        clickGain.connect(this.ctx.destination);
+        noiseSrc.start(now);
+
+        // 2. Low-frequency bottom-out clack (keycap bottoming out)
+        const clackOsc = this.ctx.createOscillator();
+        const clackGain = this.ctx.createGain();
+        clackOsc.type = keyType === 'space' ? 'triangle' : 'sine';
+
+        let clackFreq = (keyType === 'space' ? 440 : (keyType === 'enter' ? 700 : 1080)) * pitchJitter;
+        clackOsc.frequency.setValueAtTime(clackFreq, now + 0.003);
+        clackOsc.frequency.exponentialRampToValueAtTime(clackFreq * 0.55, now + 0.032);
+
+        clackGain.gain.setValueAtTime(0.001, now);
+        clackGain.gain.linearRampToValueAtTime(0.14, now + 0.004);
+        clackGain.gain.exponentialRampToValueAtTime(0.001, now + 0.035);
+
+        clackOsc.connect(clackGain);
+        clackGain.connect(this.ctx.destination);
+        clackOsc.start(now + 0.003);
+        clackOsc.stop(now + 0.038);
+    }
+
+    // Multi-keystroke typing bursts (mimics customer care operator typing notes into terminal)
+    startTypingBurst(durationMs = 1800, onComplete) {
+        this.init();
+        this.stopTypingBurst();
+        this.isTypingActive = true;
+
+        const startTime = Date.now();
+        const nextKeystroke = () => {
+            if (!this.isTypingActive) return;
+            const elapsed = Date.now() - startTime;
+            if (elapsed >= durationMs) {
+                this.stopTypingBurst();
+                if (onComplete) onComplete();
+                return;
+            }
+
+            const r = Math.random();
+            let keyType = 'regular';
+            if (r < 0.12) keyType = 'space';
+            else if (r > 0.94) keyType = 'enter';
+
+            this.playKeyStroke(keyType);
+
+            // Realistic human typing cadence (65ms - 130ms, with occasional pause)
+            let delay = Math.floor(65 + Math.random() * 65);
+            if (Math.random() < 0.16) delay += 110;
+
+            this.typingTimeout = setTimeout(nextKeystroke, delay);
+        };
+
+        nextKeystroke();
+    }
+
+    stopTypingBurst() {
+        this.isTypingActive = false;
+        if (this.typingTimeout) {
+            clearTimeout(this.typingTimeout);
+            this.typingTimeout = null;
+        }
+    }
+
+    // ITU-T Standard DTMF Touch-Tone Synthesis
+    playDTMF(char) {
+        this.init();
+        if (!this.ctx) return;
+        const freqs = this.dtmfFrequencies[char];
+        if (!freqs) {
+            this.playKeyStroke('regular');
+            return;
+        }
+
+        const now = this.ctx.currentTime;
+        const dur = 0.14;
+
+        const osc1 = this.ctx.createOscillator();
+        const osc2 = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        osc1.type = 'sine';
+        osc1.frequency.setValueAtTime(freqs[0], now);
+        osc2.type = 'sine';
+        osc2.frequency.setValueAtTime(freqs[1], now);
+
+        gain.gain.setValueAtTime(0.14, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + dur);
+
+        osc1.connect(gain);
+        osc2.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc1.start(now);
+        osc2.start(now);
+        osc1.stop(now + dur);
+        osc2.stop(now + dur);
+    }
+
+    // Telephony Dial Tone (350Hz + 440Hz dual frequency)
+    playDialTone(duration = 1.0) {
+        this.init();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        const osc1 = this.ctx.createOscillator();
+        const osc2 = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        osc1.type = 'sine';
+        osc1.frequency.setValueAtTime(350, now);
+        osc2.type = 'sine';
+        osc2.frequency.setValueAtTime(440, now);
+
+        gain.gain.setValueAtTime(0.09, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
+        osc1.connect(gain);
+        osc2.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc1.start(now);
+        osc2.start(now);
+        osc1.stop(now + duration);
+        osc2.stop(now + duration);
+    }
+
+    // Call Connect Chime (3-tone arpeggio)
+    playConnectChime() {
+        this.init();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        const notes = [
+            { f: 523.25, t: 0, d: 0.12 },
+            { f: 659.25, t: 0.09, d: 0.14 },
+            { f: 783.99, t: 0.20, d: 0.24 }
+        ];
+        notes.forEach(n => {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(n.f, now + n.t);
+            gain.gain.setValueAtTime(0.12, now + n.t);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + n.t + n.d);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(now + n.t);
+            osc.stop(now + n.t + n.d);
+        });
+    }
+
+    // Telephony Hangup Busy Tone (Dual tone 480Hz + 620Hz fast busy bursts)
+    playHangupTone() {
+        this.init();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        [0, 0.32].forEach(offset => {
+            const osc1 = this.ctx.createOscillator();
+            const osc2 = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc1.type = 'sine';
+            osc1.frequency.setValueAtTime(480, now + offset);
+            osc2.type = 'sine';
+            osc2.frequency.setValueAtTime(620, now + offset);
+            gain.gain.setValueAtTime(0.12, now + offset);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + offset + 0.24);
+            osc1.connect(gain);
+            osc2.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc1.start(now + offset);
+            osc2.start(now + offset);
+            osc1.stop(now + offset + 0.24);
+            osc2.stop(now + offset + 0.24);
+        });
+    }
+
+    // Realistic Telephone Ringback Tone (440Hz + 480Hz modulated ringing cadence)
+    playTelephoneRingback(durationSec = 1.6, onComplete) {
+        this.init();
+        if (!this.ctx) { if (onComplete) onComplete(); return; }
+        const now = this.ctx.currentTime;
+
+        const bursts = [
+            { start: 0, dur: 0.85 },
+            { start: 1.05, dur: 0.45 }
+        ];
+
+        bursts.forEach(b => {
+            const osc1 = this.ctx.createOscillator();
+            const osc2 = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+
+            osc1.type = 'sine';
+            osc1.frequency.setValueAtTime(440, now + b.start);
+            osc2.type = 'sine';
+            osc2.frequency.setValueAtTime(480, now + b.start);
+
+            gain.gain.setValueAtTime(0.001, now + b.start);
+            gain.gain.linearRampToValueAtTime(0.09, now + b.start + 0.05);
+            gain.gain.setValueAtTime(0.09, now + b.start + b.dur - 0.05);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + b.start + b.dur);
+
+            osc1.connect(gain);
+            osc2.connect(gain);
+            gain.connect(this.ctx.destination);
+
+            osc1.start(now + b.start);
+            osc2.start(now + b.start);
+            osc1.stop(now + b.start + b.dur);
+            osc2.stop(now + b.start + b.dur);
+        });
+
+        if (onComplete) {
+            setTimeout(onComplete, durationSec * 1000);
+        }
+    }
+
+    // Gentle Listening Ready Chime (Soft double pip indicating mic is active and agent is listening)
+    playReadyChime() {
+        this.init();
+        if (!this.ctx) return;
+        const now = this.ctx.currentTime;
+        const notes = [
+            { f: 659.25, t: 0, d: 0.06 },   // E5
+            { f: 880.00, t: 0.055, d: 0.09 } // A5
+        ];
+        notes.forEach(n => {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(n.f, now + n.t);
+            gain.gain.setValueAtTime(0.08, now + n.t);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + n.t + n.d);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(now + n.t);
+            osc.stop(now + n.t + n.d);
+        });
+    }
+}
+
+// Instantiate Sound Engine
+const soundEngine = new TelephonyAudioEngine();
+
+document.addEventListener("DOMContentLoaded", function () {
+    // State Variables
+    let currentSessionId = null;
+    let isCallActive = false;
+    let isMuted = false;
+    let isSpeakerOn = true;
+    let callTimerInterval = null;
+    let callSeconds = 0;
+    let recognition = null;
+    let isRecognizing = false;
+    let silenceDebounceTimer = null;
+    let currentAssignedAgent = null;
+    let isProcessingTurn = false;
+    let isListeningAllowed = false;
+    let isAgentSpeaking = false;
+    let currentlySpokenText = "";
+    let lastAgentSpokenText = "";
+    let lastAgentSpeechEndTime = 0;
+    let speechAccumulator = "";
+    let lastSubmittedText = "";
+    let lastSubmitTime = 0;
+    let activeHardwareMicStream = null;
+
+    // Acquire OS/browser-level Acoustic Echo Cancellation & Noise Suppression
+    async function initHardwareAEC() {
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+            try {
+                if (!activeHardwareMicStream) {
+                    activeHardwareMicStream = await navigator.mediaDevices.getUserMedia({
+                        audio: {
+                            echoCancellation: true,
+                            noiseSuppression: true,
+                            autoGainControl: true,
+                            sampleRate: 48000
+                        }
+                    });
+                    console.log("Hardware Acoustic Echo Cancellation & Noise Suppression active.");
+                }
+            } catch (e) {
+                console.warn("Hardware AEC audio stream notice:", e);
+            }
+        }
+    }
+
+    // Elements
+    const card = document.getElementById("telephonyCard");
+    const startBtn = document.getElementById("startCallBtn");
+    const endBtn = document.getElementById("endCallBtn");
+    const micBtn = document.getElementById("micToggleBtn");
+    const micLabel = document.getElementById("micLabel");
+    const speakerBtn = document.getElementById("speakerToggleBtn");
+    const speakerLabel = document.getElementById("speakerLabel");
+    const dialpadToggleBtn = document.getElementById("dialpadToggleBtn");
+    const keyboardToggleBtn = document.getElementById("keyboardToggleBtn");
+    const dialpadDrawer = document.getElementById("dialpadDrawer");
+    const keyboardDrawer = document.getElementById("keyboardDrawer");
+    const bargeBanner = document.getElementById("bargeinBanner");
+
+    const statusText = document.getElementById("callStatusText");
+    const statusIndicator = document.getElementById("callStatusIndicator");
+    const timerDisplay = document.getElementById("callDurationTimer");
+    const captionText = document.getElementById("liveSpeechCaption");
+    const typingIndicator = document.getElementById("agentTypingIndicator");
+    const typingLabelText = document.getElementById("typingLabelText");
+    const stream = document.getElementById("transcriptStream");
+    const inputField = document.getElementById("callerInputText");
+    const sendBtn = document.getElementById("sendBtn");
+    const sessionIdDisplay = document.getElementById("sessionIdShort");
+    const latencyDisplay = document.getElementById("avgLatencyDisplay");
+
+    // Active Complaint Card elements
+    const acCard = document.getElementById("activeComplaintCard");
+    const acNum = document.getElementById("acCompNum");
+    const acId = document.getElementById("acCompId");
+    const acPriority = document.getElementById("acPriority");
+    const acRes = document.getElementById("acResolution");
+
+    // Active Invoice Card elements
+    const invCard = document.getElementById("activeInvoiceCard");
+    const invBillNo = document.getElementById("invBillNo");
+    const invBillMonth = document.getElementById("invBillMonth");
+    const invMeterNo = document.getElementById("invMeterNo");
+    const invConsumerName = document.getElementById("invConsumerName");
+    const invUnits = document.getElementById("invUnits");
+    const invEnergy = document.getElementById("invEnergy");
+    const invBaseFare = document.getElementById("invBaseFare");
+    const invTotalAmount = document.getElementById("invTotalAmount");
+    const invTxnId = document.getElementById("invTxnId");
+    const invPaidDate = document.getElementById("invPaidDate");
+    const invStatusBadge = document.getElementById("invStatusBadge");
+    const invPdfBtn = document.getElementById("invPdfBtn");
+    const invPrintBtn = document.getElementById("invPrintBtn");
+
+    if (invPrintBtn) {
+        invPrintBtn.addEventListener("click", function(e) {
+            e.stopPropagation();
+            window.print();
+        });
+    }
+
+    // Instant Barge-In / Interruption Handler
+    function triggerInstantBargeIn(reason = "User interrupted") {
+        if (isAgentSpeaking || currentNeuralAudio || (window.speechSynthesis && window.speechSynthesis.speaking)) {
+            console.log("Instant Barge-In triggered:", reason);
+            if (currentNeuralAudio) {
+                try {
+                    currentNeuralAudio.pause();
+                    currentNeuralAudio.src = "";
+                } catch (e) {}
+                currentNeuralAudio = null;
+            }
+            if (window.speechSynthesis) {
+                window.speechSynthesis.cancel();
+            }
+            isAgentSpeaking = false;
+            soundEngine.stopTypingBurst();
+            card.classList.remove("agent-speaking");
+            if (bargeBanner) bargeBanner.style.display = "none";
+            soundEngine.playReadyChime();
+            statusText.textContent = "Listening to you... (Interrupted)";
+            statusIndicator.style.background = "#22c55e";
+            captionText.textContent = `${reason}. Listening to your voice...`;
+            if (recognition && !isRecognizing && isCallActive && !isMuted) {
+                try { recognition.start(); } catch (e) {}
+            }
+        }
+    }
+
+    // Attach Mechanical Keystroke Sound & Interruption to physical typing
+    if (inputField) {
+        inputField.addEventListener("keydown", function (e) {
+            triggerInstantBargeIn("Typing started");
+            let kType = 'regular';
+            if (e.key === ' ') kType = 'space';
+            else if (e.key === 'Enter') kType = 'enter';
+            soundEngine.playKeyStroke(kType);
+
+            if (e.key === "Enter") {
+                e.preventDefault();
+                if (!isCallActive) {
+                    captionText.textContent = 'Call is ended/inactive. Click "Start Voice Call" above to place your call first.';
+                    return;
+                }
+                handleSendMessage(inputField.value);
+            }
+        });
+    }
+
+    // Click Avatar Disc to immediately interrupt agent and speak
+    const avatarDisc = document.getElementById("telephonyAvatar");
+    if (avatarDisc) {
+        avatarDisc.style.cursor = "pointer";
+        avatarDisc.title = "Click anytime to interrupt agent and speak";
+        avatarDisc.addEventListener("click", function() {
+            triggerInstantBargeIn("Agent interrupted");
+        });
+    }
+
+    // Click Barge-In Banner to interrupt agent
+    if (bargeBanner) {
+        bargeBanner.addEventListener("click", function() {
+            triggerInstantBargeIn("Agent interrupted");
+        });
+    }
+
+    // Spacebar or Escape Key Instant Interruption
+    document.addEventListener("keydown", function (e) {
+        if ((e.code === "Space" && e.target === document.body) || e.key === "Escape") {
+            if (isCallActive && (isAgentSpeaking || (window.speechSynthesis && window.speechSynthesis.speaking))) {
+                e.preventDefault();
+                triggerInstantBargeIn("Interrupted via keypress");
+            }
+        }
+    });
+
+    // Toggle DTMF Dialpad Drawer
+    dialpadToggleBtn.addEventListener("click", function () {
+        dialpadDrawer.classList.toggle("open");
+        dialpadToggleBtn.classList.toggle("active");
+        soundEngine.playKeyStroke('regular');
+    });
+
+    // Toggle Keyboard Input Drawer
+    keyboardToggleBtn.addEventListener("click", function () {
+        keyboardDrawer.classList.toggle("open");
+        keyboardToggleBtn.classList.toggle("active");
+        if (keyboardDrawer.classList.contains("open")) {
+            setTimeout(() => inputField.focus(), 100);
+        }
+        soundEngine.playKeyStroke('regular');
+    });
+
+    // DTMF Dialpad Clicks with instant speech barge-in
+    document.querySelectorAll(".dial-btn").forEach(btn => {
+        btn.addEventListener("click", function () {
+            const digit = this.dataset.digit;
+            const prompt = this.dataset.prompt;
+            soundEngine.playDTMF(digit);
+
+            // If call is ended or inactive, play DTMF feedback tone but NEVER auto-connect or start a call!
+            if (!isCallActive) {
+                captionText.textContent = `Key [${digit}] pressed. Click "Start Voice Call" above to place your call.`;
+                return;
+            }
+
+            triggerInstantBargeIn("Keypad dialed");
+            captionText.textContent = `Dialed Key [${digit}]: "${prompt}"`;
+            handleSendMessage(prompt);
+        });
+    });
+
+    // Tab Switching Logic
+    document.querySelectorAll(".dash-tab-btn").forEach(btn => {
+        btn.addEventListener("click", function () {
+            document.querySelectorAll(".dash-tab-btn").forEach(b => b.classList.remove("active"));
+            document.querySelectorAll(".dash-tab-content").forEach(c => c.classList.remove("active"));
+            this.classList.add("active");
+            const target = document.getElementById(this.dataset.tab);
+            if (target) { target.classList.add("active"); }
+            soundEngine.playKeyStroke('regular');
+        });
+    });
+
+    // Robust Multi-Layer Acoustic Echo Suppression (Prevents microphone from re-transcribing speaker audio)
+    function isAcousticEcho(input, agentSpoken) {
+        if (!input) return false;
+        const targetAgentSpeech = agentSpoken || currentlySpokenText || lastAgentSpokenText;
+        if (!targetAgentSpeech) return false;
+
+        const u = input.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim();
+        const a = targetAgentSpeech.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim();
+        if (!u || !a) return false;
+
+        // Feedback prompt echo safety guard: if the mic picked up the bot asking for a rating
+        const isEchoingFeedbackPrompt = (
+            (u.includes("scale of zero to five") || u.includes("scale of 0 to 5") || u.includes("rate your support") || u.includes("didnt quite catch") || u.includes("didnt quite get"))
+            && !u.includes("number") && !u.includes("i give") && !u.includes("star")
+        );
+        if (isEchoingFeedbackPrompt) {
+            console.log("Suppressed feedback prompt echo:", input);
+            return true;
+        }
+
+        // Acoustic echo can occur if the agent is actively speaking OR if the speaker just finished in the last 6.0 seconds (speech recognition audio buffer)
+        const isActivelyPlaying = isAgentSpeaking || (currentNeuralAudio && !currentNeuralAudio.paused);
+        const isRecentSpeechBuffer = (Date.now() - lastAgentSpeechEndTime) < 6000;
+        if (!isActivelyPlaying && !isRecentSpeechBuffer) {
+            return false;
+        }
+
+        // 1. Direct verbatim substring check (catches "connecting to", "welcome to", "electricity department")
+        if (u.length >= 3 && a.includes(u)) {
+            return true;
+        }
+
+        // 2. Word-level containment check: if words captured by mic are overwhelmingly from the agent's utterance
+        const uWords = u.split(/\s+/).filter(w => w.length >= 2);
+        if (uWords.length > 0) {
+            let matchingWords = 0;
+            for (const w of uWords) {
+                if (a.includes(w)) {
+                    matchingWords++;
+                }
+            }
+            const ratio = matchingWords / uWords.length;
+            if (ratio >= 0.55) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    // Web Speech API - Full-Duplex Continuous Speech Recognition with Barge-In & ChatGPT-style Cadence
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (SpeechRecognition) {
+        recognition = new SpeechRecognition();
+        recognition.continuous = true;
+        recognition.interimResults = true;
+        recognition.lang = "en-IN";
+
+        recognition.onstart = function () {
+            isRecognizing = true;
+        };
+
+        recognition.onresult = function (event) {
+            // Drop mic events immediately if call is ended or inactive
+            if (!isCallActive) {
+                return;
+            }
+            clearTimeout(callInactivityTimer);
+            clearTimeout(ivrInactivityTimer);
+            agentSilenceCount = 0;
+            ivrRepromptCount = 0;
+            feedbackSilenceCount = 0;
+
+            let interimTranscript = '';
+            let finalTranscript = '';
+
+            for (let i = event.resultIndex; i < event.results.length; ++i) {
+                if (event.results[i].isFinal) {
+                    finalTranscript += event.results[i][0].transcript;
+                } else {
+                    interimTranscript += event.results[i][0].transcript;
+                }
+            }
+
+            const currentSpoken = ((finalTranscript ? speechAccumulator + ' ' + finalTranscript : speechAccumulator) + ' ' + interimTranscript).trim();
+            if (!currentSpoken) return;
+
+            const isAudioActive = isAgentSpeaking || (currentNeuralAudio && !currentNeuralAudio.paused);
+
+            // 1. STRICT SPEAKER ECHO SUPPRESSION:
+            if (isAudioActive) {
+                // Agent/IVR is actively speaking audio through the speakers:
+                // Drop all audio picked up by the microphone to prevent speaker echo/feedback
+                clearTimeout(silenceDebounceTimer);
+                speechAccumulator = '';
+                return;
+            }
+
+            // Check if microphone delivered delayed buffered echo of speaker output
+            if (isAcousticEcho(currentSpoken, currentlySpokenText || lastAgentSpokenText)) {
+                clearTimeout(silenceDebounceTimer);
+                speechAccumulator = '';
+                return;
+            }
+            if (finalTranscript.trim()) {
+                speechAccumulator += ' ' + finalTranscript.trim();
+            }
+
+            const cleanSpoken = (speechAccumulator + ' ' + interimTranscript).trim();
+            if (!cleanSpoken) return;
+
+            // 2. NOISE GATE: Filter out phantom single-word artifacts caused by room/distant noise
+            const lowerSpoken = cleanSpoken.toLowerCase().replace(/[^a-z0-9]/g, '');
+            const phantomNoiseWords = ["foreign", "um", "uh", "ah", "eh", "er", "hmm", "hm", "oh", "ha", "huh"];
+            if (phantomNoiseWords.includes(lowerSpoken)) {
+                console.log("Filtered ambient noise artifact:", cleanSpoken);
+                clearTimeout(silenceDebounceTimer);
+                speechAccumulator = '';
+                return;
+            }
+
+            // Real-time audio waveform and caption updating
+            card.classList.add("user-speaking");
+            captionText.textContent = `Listening: "${cleanSpoken}"`;
+
+            // 2. NATURAL SILENCE DEBOUNCE (ChatGPT Voice Cadence):
+            // Dynamic continuation detection prevents premature cutoffs when the caller pauses mid-sentence or takes a breath
+            clearTimeout(silenceDebounceTimer);
+
+            const words = cleanSpoken.split(/\s+/).filter(Boolean);
+            const lastWord = words.length > 0 ? words[words.length - 1].toLowerCase().replace(/[^a-z0-9]/g, '') : '';
+
+            // Trailing conjunctions, prepositions, auxiliary verbs, or question words indicate the caller is in the middle of a clause
+            const continuationWords = [
+                "the", "a", "an", "of", "for", "in", "to", "at", "on", "with", "by", "from",
+                "and", "or", "but", "so", "because", "as", "if", "whether",
+                "is", "are", "was", "were", "be", "been", "have", "has", "had",
+                "what", "why", "how", "when", "where", "which", "who",
+                "my", "your", "our", "their", "this", "that", "these", "those",
+                "please", "like", "about", "can", "could", "will", "would", "shall", "should"
+            ];
+
+            let debounceDelay = 1500; // Base natural telephone cadence (1.5s)
+
+            if (words.length === 1 && (/^[0-9*#]$/.test(words[0]) || ["yes", "no", "sure", "ok", "okay", "cancel"].includes(words[0].toLowerCase()))) {
+                debounceDelay = 900;
+            } else if (continuationWords.includes(lastWord)) {
+                // Caller paused on a continuation word (e.g. "for the power of...") -> wait 2300ms for next word
+                debounceDelay = 2300;
+            } else if (words.length <= 2) {
+                // Short phrase (e.g. "tell my") -> wait 2100ms
+                debounceDelay = 2100;
+            }
+
+            silenceDebounceTimer = setTimeout(() => {
+                if (!isCallActive) return;
+                const turnText = (speechAccumulator + ' ' + interimTranscript).trim();
+                card.classList.remove("user-speaking");
+
+                // Never auto-submit while agent is currently speaking
+                if (isAgentSpeaking || (currentNeuralAudio && !currentNeuralAudio.paused)) {
+                    return;
+                }
+
+                // If turn was marked processing but agent is no longer speaking or playing, unlock loop
+                if (isProcessingTurn) {
+                    console.log("Turn processing in flight, awaiting response...");
+                    return;
+                }
+
+                // Check for acoustic echo bleed before submitting (active playback or recent speaker buffer)
+                if (isAcousticEcho(turnText, currentlySpokenText || lastAgentSpokenText)) {
+                    console.log("Discarded acoustic speaker echo before send:", turnText);
+                    speechAccumulator = '';
+                    return;
+                }
+
+                // Process speech with length >= 1 (supports single-digit spoken options "1", "2", "8", "0")
+                if (turnText.length >= 1 && isCallActive && !isMuted && !isProcessingTurn) {
+                    const now = Date.now();
+                    if (turnText === lastSubmittedText && (now - lastSubmitTime) < 2500) {
+                        return; // Deduplicate
+                    }
+                    lastSubmittedText = turnText;
+                    lastSubmitTime = now;
+
+                    speechAccumulator = '';
+                    captionText.textContent = `You: "${turnText}"`;
+
+                    handleSendMessage(turnText);
+                }
+            }, debounceDelay);
+        };
+
+        recognition.onerror = function (event) {
+            console.warn("Speech recognition notice:", event.error);
+            if (event.error === "no-speech") {
+                card.classList.remove("user-speaking");
+            }
+        };
+
+        recognition.onend = function () {
+            isRecognizing = false;
+            card.classList.remove("user-speaking");
+            // Auto-restart continuous listening while call is live, unmuted, and not awaiting server
+            if (isCallActive && !isMuted && !isProcessingTurn) {
+                try { recognition.start(); } catch (e) {}
+            }
+        };
+    }
+
+    // In-Call Silence & Inactivity Reprompt Engine (IVR, Live Officers & Feedback Stage)
+    let callInactivityTimer = null;
+    let ivrInactivityTimer = null;
+    let ivrRepromptCount = 0;
+    let agentSilenceCount = 0;
+    let feedbackSilenceCount = 0;
+
+    function resetCallInactivityTimer() {
+        clearTimeout(callInactivityTimer);
+        clearTimeout(ivrInactivityTimer);
+
+        if (!isCallActive || isProcessingTurn || isAgentSpeaking) {
+            return;
+        }
+
+        const isFeedback = (window.activeCallState && window.activeCallState.is_feedback_stage) || (currentAssignedAgent && currentAssignedAgent.agent_number === 11);
+        const isIvr = (!currentAssignedAgent || (window.activeCallState && window.activeCallState.is_ivr_active));
+
+        if (isIvr) {
+            // IVR silence cadence (11s)
+            callInactivityTimer = setTimeout(() => {
+                if (!isCallActive || isProcessingTurn || isAgentSpeaking || currentAssignedAgent) return;
+                ivrRepromptCount++;
+                if (ivrRepromptCount === 1) {
+                    console.log("IVR Silence Reprompt 1 fired");
+                    sendActualMessage("no input reprompt 1", true);
+                } else if (ivrRepromptCount === 2) {
+                    console.log("IVR Silence Reprompt 2 (Repeat Menu) fired");
+                    sendActualMessage("*", true);
+                } else {
+                    console.log("IVR Silence Reprompt 3 (Auto Supervisor) fired");
+                    sendActualMessage("0", true);
+                }
+            }, 11000);
+
+        } else if (isFeedback) {
+            // Feedback stage silence cadence (9s)
+            callInactivityTimer = setTimeout(() => {
+                if (!isCallActive || isProcessingTurn || isAgentSpeaking) return;
+                feedbackSilenceCount++;
+                if (feedbackSilenceCount === 1) {
+                    console.log("Feedback Silence Reprompt 1 fired");
+                    sendActualMessage("no input feedback reprompt 1", true);
+                } else {
+                    console.log("Feedback Silence Timeout 2 (Auto Hangup) fired");
+                    sendActualMessage("no input feedback reprompt 2", true);
+                }
+            }, 9000);
+
+        } else {
+            // Live DISCOM Officer silence cadence (10s)
+            callInactivityTimer = setTimeout(() => {
+                if (!isCallActive || isProcessingTurn || isAgentSpeaking) return;
+                agentSilenceCount++;
+                if (agentSilenceCount === 1) {
+                    // Stage 1: "Hello, are you there? Please describe your issue"
+                    console.log("Agent Silence Reprompt 1 ('Are you there') fired");
+                    sendActualMessage("no input agent reprompt 1", true);
+                } else if (agentSilenceCount === 2) {
+                    // Stage 2: "I haven't heard a response. Are you still there, or should I transfer to feedback?"
+                    console.log("Agent Silence Reprompt 2 ('Transfer to feedback?') fired");
+                    sendActualMessage("no input agent reprompt 2", true);
+                } else {
+                    // Stage 3: Auto-transfer to Feedback Desk (Officer Ritu)
+                    console.log("Agent Silence Reprompt 3 (Auto-transfer to Feedback Desk) fired");
+                    sendActualMessage("no input agent reprompt 3", true);
+                }
+            }, 10000);
+        }
+        ivrInactivityTimer = callInactivityTimer;
+    }
+
+    function resetIvrInactivityTimer() {
+        resetCallInactivityTimer();
+    }
+
+    // Dynamic Touch-Tone Dialpad Mode (Authentic Standard Telephony Keypad)
+    function updateDialpadMode(isIvr, agentData) {
+        const header = document.getElementById("dialpadHeader");
+        const standardLabels = {
+            "1": "._@",
+            "2": "ABC",
+            "3": "DEF",
+            "4": "GHI",
+            "5": "JKL",
+            "6": "MNO",
+            "7": "PQRS",
+            "8": "TUV",
+            "9": "WXYZ",
+            "*": "*",
+            "0": "+",
+            "#": "#"
+        };
+
+        if (header) {
+            if (isIvr) {
+                header.innerHTML = '<i class="fa-solid fa-calculator"></i> TOUCH-TONE TELEPHONY DIALPAD (0-9, *, #)';
+            } else {
+                const agTitle = agentData ? (agentData.officer_name || agentData.short_name) : "Officer";
+                header.innerHTML = `<i class="fa-solid fa-calculator"></i> TOUCH-TONE KEYPAD (Connected: ${agTitle})`;
+            }
+        }
+
+        document.querySelectorAll(".dial-btn").forEach(btn => {
+            const digit = btn.dataset.digit;
+            const letterSpan = btn.querySelector(".dial-letters");
+            if (letterSpan && standardLabels[digit]) {
+                letterSpan.textContent = standardLabels[digit];
+            }
+        });
+    }
+
+    // Set Console HUD to Automated IVR Mode
+    function setIvrModeHUD() {
+        currentAssignedAgent = null;
+        clearTimeout(ivrInactivityTimer);
+        updateDialpadMode(true);
+        const nameHeader = document.getElementById("agentNameHeader");
+        if (nameHeader) {
+            nameHeader.textContent = "24/7 Automated IVR System";
+        }
+        const nameIcon = document.getElementById("agentNameIcon");
+        if (nameIcon) {
+            nameIcon.className = "fa-solid fa-robot";
+        }
+        const avatarDisc = document.getElementById("telephonyAvatar");
+        if (avatarDisc) {
+            avatarDisc.style.background = "#06417f";
+            avatarDisc.innerHTML = '<i class="fa-solid fa-robot"></i>';
+        }
+        if (isCallActive) {
+            statusText.textContent = "IVR Interactive Mode (Say or Dial 0-9)";
+            statusIndicator.style.background = "#f59e0b";
+        } else {
+            statusText.textContent = "Call Concluded • Ready to Call";
+            statusIndicator.style.background = "#94a3b8";
+        }
+        if (bargeBanner) bargeBanner.style.display = "none";
+    }
+
+    // Apply Agent Profile to Console HUD
+    function applyAgentProfile(agentData) {
+        if (!agentData) return;
+        const agentChanged = !currentAssignedAgent || currentAssignedAgent.id !== agentData.id;
+        currentAssignedAgent = agentData;
+
+        // ONLY reset inactivity counters if the assigned officer actually changed, preventing repetitive loops
+        if (agentChanged) {
+            clearTimeout(callInactivityTimer);
+            clearTimeout(ivrInactivityTimer);
+            ivrRepromptCount = 0;
+            agentSilenceCount = 0;
+            feedbackSilenceCount = 0;
+        }
+
+        // Switch touch-tone dialpad from department routing to In-Call telephony letters
+        updateDialpadMode(false, agentData);
+
+        const nameHeader = document.getElementById("agentNameHeader");
+        if (nameHeader) {
+            nameHeader.textContent = agentData.name;
+        }
+        const nameIcon = document.getElementById("agentNameIcon");
+        if (nameIcon) {
+            nameIcon.className = "fa-solid fa-headset";
+        }
+        const avatarDisc = document.getElementById("telephonyAvatar");
+        if (avatarDisc) {
+            if (agentData.avatar_color) {
+                avatarDisc.style.background = agentData.avatar_color;
+            }
+            if (agentData.avatar_icon) {
+                avatarDisc.innerHTML = `<i class="fa-solid ${agentData.avatar_icon}"></i>`;
+            }
+        }
+        const selDropdown = document.getElementById("agentSelectDropdown");
+        if (selDropdown && agentData.id) {
+            selDropdown.value = agentData.id;
+        }
+    }
+
+    // Text to Speech (SpeechSynthesis API with Gender Voice Selection & Full-Duplex Barge-In Support)
+    function speakText(text, callback) {
+        if (!isSpeakerOn || !window.speechSynthesis) {
+            if (callback) callback();
+            return;
+        }
+        if (currentNeuralAudio && !currentNeuralAudio.paused) {
+            // Neural audio is currently playing; avoid overlapping double voice!
+            if (callback) callback();
+            return;
+        }
+        window.speechSynthesis.cancel();
+
+        // Strip markdown and raw symbol syntax
+        let cleanSpeech = text.replace(/[*#_`]/g, '');
+
+        isAgentSpeaking = true;
+        currentlySpokenText = cleanSpeech.toLowerCase();
+
+        const utter = new SpeechSynthesisUtterance(cleanSpeech);
+        let rate = 0.96;   // Natural, conversational telephone customer care speed
+        let pitch = 1.02;  // Warm, expressive female customer care tone
+        let isMale = currentAssignedAgent && currentAssignedAgent.gender === "MALE";
+
+        // Select best available natural female customer service voice
+        const voices = window.speechSynthesis.getVoices();
+        let preferred = null;
+
+        if (isMale) {
+            // When explicitly connected to male agent persona (e.g. Officer Vikram)
+            preferred = voices.find(v => (v.lang === "en-IN" || v.lang === "en_IN") && (v.name.includes("Male") || v.name.includes("Ravi") || v.name.includes("David") || v.name.includes("George")));
+            if (!preferred) {
+                preferred = voices.find(v => (v.name.includes("Male") || v.name.includes("David") || v.name.includes("Mark") || v.name.includes("George") || v.name.includes("Guy") || v.name.includes("James")) && v.lang.startsWith("en"));
+            }
+            if (!preferred) {
+                preferred = voices.find(v => v.lang.includes("en-IN") || v.lang.includes("en_IN"));
+            }
+            rate = (currentAssignedAgent && currentAssignedAgent.voice_rate) ? currentAssignedAgent.voice_rate : 0.96;
+            pitch = (currentAssignedAgent && currentAssignedAgent.voice_pitch) ? currentAssignedAgent.voice_pitch : 0.95;
+        } else {
+            // Default female customer service representative voice (Officer Priya, Ananya, Sneha, Kavita, Pooja, or IVR)
+            // 1. Top Indian English Natural / Online female voices
+            preferred = voices.find(v => (v.name.includes("Neerja") || v.name.includes("Heera")) && (v.lang === "en-IN" || v.lang === "en_IN"));
+            // 2. High-quality natural online female voices
+            if (!preferred) {
+                preferred = voices.find(v => (v.name.includes("Jenny") || v.name.includes("Aria") || v.name.includes("Neerja") || v.name.includes("Natural")) && (v.name.includes("Online") || v.name.includes("Natural")) && v.lang.startsWith("en"));
+            }
+            // 3. Google UK English Female / Google US English / Samantha
+            if (!preferred) {
+                preferred = voices.find(v => (v.name.includes("Google UK English Female") || v.name.includes("Samantha") || v.name.includes("Female")) && v.lang.startsWith("en"));
+            }
+            // 4. Any Indian English voice
+            if (!preferred) {
+                preferred = voices.find(v => v.lang.includes("en-IN") || v.lang.includes("en_IN"));
+            }
+            // 5. Any English female voice
+            if (!preferred) {
+                preferred = voices.find(v => (v.name.includes("Female") || v.name.includes("Zira") || v.name.includes("Karen") || v.name.includes("Victoria")) && v.lang.startsWith("en"));
+            }
+        }
+        if (!preferred) {
+            preferred = voices.find(v => v.lang.startsWith("en"));
+        }
+        if (preferred) {
+            utter.voice = preferred;
+        }
+
+        utter.rate = rate;
+        utter.pitch = pitch;
+
+        utter.onstart = function () {
+            isAgentSpeaking = true;
+            isListeningAllowed = false;
+            card.classList.add("agent-speaking");
+            card.classList.remove("user-speaking");
+
+            const agentTitle = currentAssignedAgent ? `${currentAssignedAgent.name} speaking...` : "Automated IVR speaking...";
+            statusText.textContent = `${agentTitle} (Tap avatar or press key to speak)`;
+            statusIndicator.style.background = "#38bdf8";
+
+            if (bargeBanner) bargeBanner.style.display = "inline-flex";
+
+            // Half-duplex echo protection: pause speech recognition while speaking
+            if (recognition && isRecognizing) {
+                try { recognition.abort(); } catch (e) {}
+                isRecognizing = false;
+            }
+        };
+
+        utter.onend = function () {
+            if (currentlySpokenText) {
+                lastAgentSpokenText = currentlySpokenText;
+                lastAgentSpeechEndTime = Date.now();
+            }
+            isAgentSpeaking = false;
+            isProcessingTurn = false;
+            card.classList.remove("agent-speaking");
+            if (bargeBanner) bargeBanner.style.display = "none";
+
+            if (isCallActive && !isMuted) {
+                isListeningAllowed = true;
+                soundEngine.playReadyChime();
+                statusText.textContent = currentAssignedAgent ? "Listening to you... (Speak now)" : "IVR listening for key or speech (e.g. 1 to 9, 0)";
+                statusIndicator.style.background = "#22c55e";
+                captionText.textContent = "Listening to you... Please speak clearly into your microphone.";
+
+                // 250ms guard delay for speaker reverb to settle before starting mic
+                setTimeout(() => {
+                    if (isCallActive && !isAgentSpeaking && !isMuted) {
+                        speechAccumulator = '';
+                        if (recognition && !isRecognizing) {
+                            try { recognition.start(); } catch (e) {}
+                        }
+                    }
+                }, 250);
+                resetCallInactivityTimer();
+            }
+            if (callback) callback();
+        };
+
+        utter.onerror = function () {
+            if (currentlySpokenText) {
+                lastAgentSpokenText = currentlySpokenText;
+                lastAgentSpeechEndTime = Date.now();
+            }
+            isAgentSpeaking = false;
+            isProcessingTurn = false;
+            card.classList.remove("agent-speaking");
+            if (bargeBanner) bargeBanner.style.display = "none";
+
+            if (isCallActive && !isMuted) {
+                isListeningAllowed = true;
+                if (recognition && !isRecognizing) {
+                    try { recognition.start(); } catch (e) {}
+                }
+                resetCallInactivityTimer();
+            }
+            if (callback) callback();
+        };
+
+        window.speechSynthesis.speak(utter);
+    }
+
+    function stopAllAudioPlayback() {
+        if (currentlySpokenText) {
+            lastAgentSpokenText = currentlySpokenText;
+            lastAgentSpeechEndTime = Date.now();
+        }
+        if (currentNeuralAudio) {
+            try {
+                currentNeuralAudio.pause();
+                currentNeuralAudio.currentTime = 0;
+                currentNeuralAudio.removeAttribute("src");
+                currentNeuralAudio.load();
+            } catch (e) {}
+            currentNeuralAudio = null;
+        }
+        if (window.speechSynthesis) {
+            try {
+                window.speechSynthesis.cancel();
+            } catch (e) {}
+        }
+        isAgentSpeaking = false;
+        card.classList.remove("agent-speaking");
+    }
+
+    // High-Fidelity Real Human Neural Audio Player (Edge-TTS Base64 MP3) with Full-Duplex Barge-In
+    let currentNeuralAudio = null;
+    let neuralAudioGen = 0;
+
+    function playNeuralAudio(base64Mp3, fallbackText, callback) {
+        if (!isSpeakerOn) {
+            if (callback) callback();
+            return;
+        }
+
+        const thisGen = ++neuralAudioGen;
+
+        // Cleanly terminate and silence any existing audio stream to prevent overlapping voices
+        stopAllAudioPlayback();
+
+        if (!base64Mp3) {
+            speakText(fallbackText, callback);
+            return;
+        }
+
+        try {
+            const audioUri = "data:audio/mp3;base64," + base64Mp3;
+            const audioObj = new Audio(audioUri);
+            currentNeuralAudio = audioObj;
+
+            isAgentSpeaking = true;
+            currentlySpokenText = (fallbackText || "").toLowerCase();
+            card.classList.add("agent-speaking");
+            card.classList.remove("user-speaking");
+
+            const agentTitle = currentAssignedAgent ? `${currentAssignedAgent.name} speaking...` : "Automated IVR speaking...";
+            statusText.textContent = `${agentTitle} (Tap avatar or press key to speak)`;
+            statusIndicator.style.background = "#38bdf8";
+
+            if (bargeBanner) bargeBanner.style.display = "inline-flex";
+
+            // Half-duplex echo protection: pause speech recognition while agent/IVR audio is playing through speakers
+            if (recognition && isRecognizing) {
+                try { recognition.abort(); } catch (e) {}
+                isRecognizing = false;
+            }
+
+            audioObj.onended = function () {
+                if (neuralAudioGen !== thisGen) return;
+                if (currentlySpokenText) {
+                    lastAgentSpokenText = currentlySpokenText;
+                    lastAgentSpeechEndTime = Date.now();
+                }
+                if (currentNeuralAudio === audioObj) {
+                    currentNeuralAudio = null;
+                }
+                isAgentSpeaking = false;
+                isProcessingTurn = false;
+                card.classList.remove("agent-speaking");
+                if (bargeBanner) bargeBanner.style.display = "none";
+
+                if (isCallActive && !isMuted) {
+                    isListeningAllowed = true;
+                    soundEngine.playReadyChime();
+                    statusText.textContent = currentAssignedAgent ? "Listening to you... (Speak now)" : "IVR listening for key or speech (e.g. 1 to 9, 0)";
+                    statusIndicator.style.background = "#22c55e";
+                    captionText.textContent = "Listening to you... Please speak clearly into your microphone.";
+
+                    // 250ms guard delay for speaker reverb to settle before starting mic
+                    setTimeout(() => {
+                        if (isCallActive && !isAgentSpeaking && !isMuted) {
+                            speechAccumulator = '';
+                            if (recognition && !isRecognizing) {
+                                try { recognition.start(); } catch (e) {}
+                            }
+                        }
+                    }, 250);
+                    resetCallInactivityTimer();
+                }
+                if (callback) callback();
+            };
+
+            audioObj.onerror = function (e) {
+                if (neuralAudioGen !== thisGen) return;
+                console.warn("Neural audio playback notice:", e);
+                if (currentNeuralAudio === audioObj) {
+                    currentNeuralAudio = null;
+                }
+                isAgentSpeaking = false;
+                isProcessingTurn = false;
+                card.classList.remove("agent-speaking");
+                // Do NOT invoke speakText here: avoids triggering two overlapping voices
+                if (isCallActive && !isMuted) {
+                    resetCallInactivityTimer();
+                }
+                if (callback) callback();
+            };
+
+            const playPromise = audioObj.play();
+            if (playPromise !== undefined) {
+                playPromise.catch(err => {
+                    if (neuralAudioGen !== thisGen) return;
+                    console.log("Audio play caught interruption/pause:", err.message || err);
+                    if (currentNeuralAudio === audioObj) {
+                        currentNeuralAudio = null;
+                    }
+                    isAgentSpeaking = false;
+                    isProcessingTurn = false;
+                    card.classList.remove("agent-speaking");
+                    // Do NOT invoke speakText here: prevents duplicate simultaneous voices on barge-in
+                    if (callback) callback();
+                });
+            }
+        } catch (err) {
+            console.warn("Failed creating Neural Audio instance:", err);
+            speakText(fallbackText, callback);
+        }
+    }
+
+    let isStartingCall = false;
+
+    // Start Call Function with Realistic Telephony Ringback & Agent Routing
+    function startCall(preferredAgentId, onConnected) {
+        if (isStartingCall || isCallActive) {
+            console.log("startCall already active or starting, skipping duplicate call.");
+            if (isCallActive && typeof onConnected === "function") {
+                onConnected(currentSessionId);
+            }
+            return;
+        }
+        isStartingCall = true;
+        soundEngine.init();
+        initHardwareAEC();
+        stopAllAudioPlayback();
+        isProcessingTurn = false;
+        isListeningAllowed = false;
+        if (preferredAgentId == 11 || preferredAgentId === "11") {
+            preferredAgentId = null;
+        }
+        const hasDirectAgent = (typeof preferredAgentId === "number" || (typeof preferredAgentId === "string" && preferredAgentId.trim() !== ""));
+
+        statusText.textContent = "Ringing DISCOM IVR (1912)...";
+        statusIndicator.style.background = "#f59e0b";
+        captionText.textContent = hasDirectAgent ? "Connecting directly to dedicated AI Officer..." : "Connecting to 24/7 Consumer Care Automated IVR...";
+
+        // Play standard telephone ringing tone
+        soundEngine.playTelephoneRingback(1.6);
+
+        fetch("{% url 'api_voice_agent_start_call' %}", {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": getCsrfToken(),
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                agent_id: preferredAgentId || null,
+                direct_connect: hasDirectAgent
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                currentSessionId = data.session_id;
+                setTimeout(() => {
+                    isStartingCall = false;
+                    soundEngine.playConnectChime();
+                    isCallActive = true;
+                    card.classList.add("in-call");
+
+                    startBtn.style.display = "none";
+                    endBtn.style.display = "flex";
+
+                    window.activeCallState = {
+                        is_ivr_active: !data.assigned_agent,
+                        is_feedback_stage: false,
+                    };
+
+                    if (data.assigned_agent) {
+                        applyAgentProfile(data.assigned_agent);
+                        const agShort = currentAssignedAgent ? currentAssignedAgent.short_name : "Agent";
+                        statusText.textContent = `Live 1-to-1 Call with ${agShort} (HD Voice)`;
+                        statusIndicator.style.background = "#22c55e";
+                    } else {
+                        // Start in IVR Mode!
+                        setIvrModeHUD();
+                    }
+
+                    sessionIdDisplay.textContent = currentSessionId.slice(0, 8);
+
+                    // Start Call Duration Timer
+                    callSeconds = 0;
+                    clearInterval(callTimerInterval);
+                    callTimerInterval = setInterval(() => {
+                        callSeconds++;
+                        const m = String(Math.floor(callSeconds / 60)).padStart(2, '0');
+                        const s = String(callSeconds % 60).padStart(2, '0');
+                        timerDisplay.textContent = `${m}:${s}`;
+                    }, 1000);
+
+                    // Add Welcome message to transcript
+                    const senderTitle = currentAssignedAgent ? `${currentAssignedAgent.name} (DISCOM AI)` : "24/7 Automated IVR Attendant";
+                    addBubble(data.welcome_message, "ai", 450, senderTitle);
+                    captionText.textContent = data.assigned_agent ? `${currentAssignedAgent.short_name}: "${data.welcome_message}"` : `IVR Menu: Select an option (1-9, 0) on touch-tone keypad or type below...`;
+
+                    // Auto-open dialpad in IVR mode so user can immediately press or see options
+                    if (!data.assigned_agent && dialpadDrawer) {
+                        dialpadDrawer.classList.add("open");
+                        if (dialpadToggleBtn) dialpadToggleBtn.classList.add("active");
+                    }
+
+                    // Speak phonetic greeting via real human neural audio then open continuous listening loop
+                    const greetingSpeech = data.welcome_spoken_text || data.welcome_message;
+                    playNeuralAudio(data.audio_base64, greetingSpeech);
+
+                    if (typeof onConnected === "function") {
+                        onConnected(data.session_id);
+                    }
+                }, 1400); // Allow realistic ringing cadence before pickup
+            } else {
+                isStartingCall = false;
+                statusText.textContent = "Call Failed";
+                statusIndicator.style.background = "#dc2626";
+            }
+        })
+        .catch(err => {
+            isStartingCall = false;
+            console.error("Start call error:", err);
+            statusText.textContent = "Connection Error";
+            statusIndicator.style.background = "#dc2626";
+        });
+    }
+
+    // End Call Function
+    function endCall() {
+        isCallActive = false;
+        isStartingCall = false;
+        isProcessingTurn = false;
+        isListeningAllowed = false;
+        isAgentSpeaking = false;
+        currentAssignedAgent = null;
+        preferredAgentId = null;
+        clearTimeout(callInactivityTimer);
+        clearTimeout(ivrInactivityTimer);
+        ivrRepromptCount = 0;
+        agentSilenceCount = 0;
+        feedbackSilenceCount = 0;
+        clearTimeout(silenceDebounceTimer);
+        clearTimeout(turnWatchdogTimer);
+        speechAccumulator = '';
+        lastSubmittedText = '';
+        soundEngine.stopTypingBurst();
+        soundEngine.playHangupTone();
+        stopAllAudioPlayback();
+        if (recognition) {
+            try { recognition.abort(); } catch (e) {}
+        }
+        if (activeHardwareMicStream) {
+            try { activeHardwareMicStream.getTracks().forEach(t => t.stop()); } catch (e) {}
+            activeHardwareMicStream = null;
+        }
+        clearInterval(callTimerInterval);
+        timerDisplay.textContent = "00:00";
+
+        card.classList.remove("in-call");
+        card.classList.remove("agent-speaking");
+        card.classList.remove("user-speaking");
+        if (bargeBanner) bargeBanner.style.display = "none";
+        typingIndicator.style.display = "none";
+
+        startBtn.style.display = "flex";
+        endBtn.style.display = "none";
+        captionText.textContent = "Call ended. Thank you for contacting Electricity Department.";
+
+        setIvrModeHUD();
+        statusText.textContent = "Call Ended";
+        statusIndicator.style.background = "#94a3b8";
+
+        if (currentSessionId) {
+            fetch("{% url 'api_voice_agent_end_call' %}", {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": getCsrfToken(),
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ session_id: currentSessionId })
+            }).catch(e => console.warn(e));
+        }
+    }
+
+    // Send Message / Turn Function
+    function handleSendMessage(text) {
+        const clean = (text || "").trim();
+        if (!clean) return;
+
+        // Discard any ambient speech, background sounds or keypad triggers when call is not active!
+        if (!isCallActive) {
+            console.log("Call is inactive or ended. Ignoring message input:", clean);
+            return;
+        }
+
+        if (isProcessingTurn) {
+            console.log("Turn in flight, dropping duplicate trigger:", clean);
+            return;
+        }
+
+        clearTimeout(silenceDebounceTimer);
+        clearTimeout(ivrInactivityTimer);
+        speechAccumulator = '';
+
+        sendActualMessage(clean);
+    }
+
+    let turnWatchdogTimer = null;
+
+    function sendActualMessage(text, isSilenceReprompt = false) {
+        if (!currentSessionId) {
+            console.warn("sendActualMessage called without active currentSessionId");
+            return;
+        }
+        if (isProcessingTurn) return;
+        isProcessingTurn = true;
+        isListeningAllowed = false;
+        clearTimeout(silenceDebounceTimer);
+        clearTimeout(callInactivityTimer);
+        clearTimeout(ivrInactivityTimer);
+        clearTimeout(turnWatchdogTimer);
+        turnWatchdogTimer = setTimeout(() => {
+            if (isProcessingTurn) {
+                console.warn("Safety Watchdog: Turn processing timed out (12s), unlocking input loop.");
+                isProcessingTurn = false;
+                if (isCallActive && !isMuted) isListeningAllowed = true;
+                soundEngine.stopTypingBurst();
+                typingIndicator.style.display = "none";
+            }
+        }, 12000);
+        speechAccumulator = '';
+
+        // If agent was speaking, cancel TTS & neural audio immediately on new turn
+        stopAllAudioPlayback();
+        if (bargeBanner) bargeBanner.style.display = "none";
+
+        if (!isSilenceReprompt) {
+            addBubble(text, "user");
+            captionText.textContent = `You: "${text}"`;
+            ivrRepromptCount = 0;
+            agentSilenceCount = 0;
+            feedbackSilenceCount = 0;
+        } else {
+            captionText.textContent = `(Silence detected — checking in...)`;
+        }
+        if (inputField) inputField.value = "";
+
+        // Immediately abort active speech recognition to completely wipe internal Web Speech audio buffer
+        if (recognition) {
+            try {
+                recognition.abort();
+            } catch (e) {}
+            isRecognizing = false;
+        }
+
+        // TRIGGER AUDIBLE KEYBOARD TYPING SOUND & VISUAL INDICATOR
+        const agName = currentAssignedAgent ? currentAssignedAgent.name : "Automated IVR";
+        const agShort = currentAssignedAgent ? currentAssignedAgent.short_name : "IVR Attendant";
+        typingLabelText.textContent = `${agName} is processing request & accessing database...`;
+        typingIndicator.style.display = "block";
+        statusText.textContent = `${agShort} processing...`;
+        statusIndicator.style.background = "#0284c7";
+        soundEngine.startTypingBurst(1800);
+
+        fetch("{% url 'api_voice_agent_message' %}", {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": getCsrfToken(),
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                session_id: currentSessionId,
+                message: text
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                window.activeCallState = {
+                    is_ivr_active: data.is_ivr_active,
+                    is_feedback_stage: data.is_feedback_stage,
+                };
+                const hadNoAgent = !currentAssignedAgent;
+                if (data.assigned_agent) {
+                    applyAgentProfile(data.assigned_agent);
+                    if (hadNoAgent) {
+                        // User just selected an option from IVR! Play connection chime!
+                        soundEngine.playConnectChime();
+                        statusText.textContent = `Live 1-to-1 Call with ${data.assigned_agent.short_name}`;
+                        statusIndicator.style.background = "#22c55e";
+                    }
+                } else if (data.is_ivr_active) {
+                    setIvrModeHUD();
+                }
+
+                // Update typing indicator with specific action note
+                if (data.typing_label) {
+                    typingLabelText.textContent = data.typing_label;
+                }
+
+                // Keep keyboard typing sounds active naturally to conclude
+                setTimeout(() => {
+                    soundEngine.stopTypingBurst();
+                    typingIndicator.style.display = "none";
+
+                    const latency = (data.latency_ms / 1000).toFixed(1) + "s";
+                    latencyDisplay.textContent = latency;
+                    const bubbleTitle = currentAssignedAgent ? `${currentAssignedAgent.name} (DISCOM AI)` : "24/7 Automated IVR Attendant";
+                    addBubble(data.reply, "ai", data.latency_ms, bubbleTitle, data.invoice);
+                    captionText.textContent = `${currentAssignedAgent ? currentAssignedAgent.short_name : 'IVR'}: "${data.reply}"`;
+
+                    // If complaint was registered, show official ticket
+                    if (data.registered_complaint) {
+                        const c = data.registered_complaint;
+                        acNum.textContent = c.complaint_number;
+                        acId.textContent = c.complaint_id;
+                        acPriority.textContent = c.priority;
+                        acRes.textContent = `Estimated Resolution: ${c.estimated_resolution}. Field Line Crew Dispatched!`;
+                        acCard.style.display = "block";
+                    }
+
+                    // If invoice was fetched, display and populate HUD card
+                    if (data.invoice) {
+                        const inv = data.invoice;
+                        if (invBillNo) invBillNo.textContent = inv.bill_number;
+                        if (invBillMonth) invBillMonth.textContent = inv.billing_month;
+                        if (invMeterNo) invMeterNo.textContent = inv.meter_number;
+                        if (invConsumerName) invConsumerName.textContent = inv.applicant_name;
+                        if (invUnits) invUnits.textContent = `${inv.units_billed} kWh`;
+                        if (invEnergy) invEnergy.textContent = `₹ ${inv.energy_charge.toFixed(2)}`;
+                        if (invBaseFare) invBaseFare.textContent = `₹ ${inv.base_fare.toFixed(2)}`;
+                        if (invTotalAmount) invTotalAmount.textContent = `₹ ${inv.total_amount.toFixed(2)}`;
+                        if (invTxnId) invTxnId.textContent = inv.transaction_id || `TXN-DISCOM-${inv.id}`;
+                        if (invPaidDate) invPaidDate.textContent = inv.paid_at || "Settled";
+
+                        if (invStatusBadge) {
+                            if (inv.is_paid) {
+                                invStatusBadge.textContent = "PAID IN FULL";
+                                invStatusBadge.className = "inv-badge-status paid";
+                            } else {
+                                invStatusBadge.textContent = "PAYMENT DUE";
+                                invStatusBadge.className = "inv-badge-status due";
+                            }
+                        }
+                        if (invPdfBtn && inv.pdf_url) {
+                            invPdfBtn.href = inv.pdf_url;
+                        }
+                        if (invCard) {
+                            invCard.style.display = "block";
+                            invCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                        }
+                    }
+
+                    // If in feedback stage, show Feedback HUD Card
+                    const fbCard = document.getElementById("activeFeedbackCard");
+                    if (data.is_feedback_stage && fbCard) {
+                        fbCard.style.display = "block";
+                        fbCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    }
+
+                    // If feedback was recorded, display confirmation
+                    if (data.feedback_recorded) {
+                        const fbMsg = document.getElementById("fbRecordedMsg");
+                        const fbText = document.getElementById("fbRecordedText");
+                        if (fbMsg && fbText) {
+                            fbText.textContent = `Feedback rating ${data.feedback_recorded.score} recorded in DISCOM database!`;
+                            fbMsg.style.display = "flex";
+                        }
+                        document.querySelectorAll(".fb-star-btn").forEach(b => {
+                            if (parseInt(b.dataset.rating) === data.feedback_recorded.rating) {
+                                b.classList.add("selected");
+                            } else {
+                                b.classList.remove("selected");
+                            }
+                        });
+                    }
+
+                    const speechToSpeak = data.spoken_text || data.reply;
+
+                    // If hang_up is signaled (rating collection or silence timeout):
+                    if (data.hang_up) {
+                        clearTimeout(callInactivityTimer);
+                        clearTimeout(ivrInactivityTimer);
+                        playNeuralAudio(data.audio_base64, speechToSpeak, () => {
+                            setTimeout(() => {
+                                endCall();
+                                const score = data.feedback_recorded ? `${data.feedback_recorded.score} ★` : "";
+                                statusText.textContent = `Call Ended • ${score ? 'Feedback Recorded (' + score + ')' : 'Call Concluded'}`;
+                                captionText.textContent = `Call concluded. Thank you for contacting Electricity Department!`;
+                                if (statusIndicator) statusIndicator.style.background = "#10b981";
+                            }, 500);
+                        });
+                        return;
+                    }
+
+                    // Speak the phonetic customer care response via real human neural audio and then resume listening
+                    playNeuralAudio(data.audio_base64, speechToSpeak, () => {
+                        isProcessingTurn = false;
+                        if (isCallActive && !isMuted) {
+                            resetCallInactivityTimer();
+                        }
+                    });
+                }, 450);
+
+            } else {
+                isProcessingTurn = false;
+                if (isCallActive && !isMuted) isListeningAllowed = true;
+                soundEngine.stopTypingBurst();
+                typingIndicator.style.display = "none";
+                addBubble("I apologize, but I encountered a momentary communication glitch. Please repeat.", "ai");
+            }
+        })
+        .catch(err => {
+            isProcessingTurn = false;
+            if (isCallActive && !isMuted) isListeningAllowed = true;
+            soundEngine.stopTypingBurst();
+            typingIndicator.style.display = "none";
+            console.error(err);
+            addBubble("Network connection error. Please verify your internet supply.", "ai");
+        });
+    }
+
+    // Add message bubble to transcript stream with custom agent title support & invoice receipt card
+    function addBubble(text, sender, latencyMs, customTitle, invoiceData) {
+        const b = document.createElement("div");
+        b.className = `chat-bubble bubble-${sender}`;
+        const meta = document.createElement("div");
+        meta.className = "bubble-meta";
+
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+        if (sender === "ai") {
+            const latStr = latencyMs ? (latencyMs / 1000).toFixed(1) + "s" : "0.5s";
+            const title = customTitle || (currentAssignedAgent ? `${currentAssignedAgent.name} (DISCOM AI)` : "24/7 Automated IVR Attendant");
+            const icon = currentAssignedAgent ? "fa-headset" : "fa-robot";
+            meta.innerHTML = `<span><i class="fa-solid ${icon}"></i> ${title} &bull; ${timeStr}</span><span class="bubble-latency">${latStr}</span>`;
+        } else {
+            meta.innerHTML = `<span><i class="fa-solid fa-user"></i> You &bull; ${timeStr}</span>`;
+        }
+
+        const content = document.createElement("div");
+        content.textContent = text;
+
+        b.appendChild(meta);
+        b.appendChild(content);
+
+        // If invoice metadata is provided, append inline printable receipt card
+        if (invoiceData) {
+            const invBox = document.createElement("div");
+            invBox.style.cssText = "margin-top:10px; padding:10px 14px; background:#ffffff; color:#0f172a; border-radius:10px; border:1px solid #38bdf8; box-shadow:0 4px 14px rgba(2,132,199,0.15); font-size:12px;";
+            const isPaid = invoiceData.is_paid;
+            const badgeColor = isPaid ? "#15803d" : "#b45309";
+            const badgeBg = isPaid ? "#dcfce7" : "#fef3c7";
+            const badgeBorder = isPaid ? "#86efac" : "#fde68a";
+            const badgeText = isPaid ? "PAID IN FULL" : "PAYMENT DUE";
+
+            invBox.innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; border-bottom:1px solid #e2e8f0; padding-bottom:6px;">
+                    <span style="font-weight:800; font-size:11px; color:#0369a1;"><i class="fa-solid fa-receipt"></i> ${invoiceData.bill_number}</span>
+                    <span style="font-size:10px; font-weight:800; padding:2px 6px; border-radius:4px; background:${badgeBg}; color:${badgeColor}; border:1px solid ${badgeBorder};">${badgeText}</span>
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:4px; font-size:11px; margin-bottom:8px;">
+                    <div><span style="color:#64748b;">Month:</span> <strong>${invoiceData.billing_month}</strong></div>
+                    <div><span style="color:#64748b;">Meter:</span> <strong>${invoiceData.meter_number}</strong></div>
+                    <div><span style="color:#64748b;">Units:</span> <strong>${invoiceData.units_billed} kWh</strong></div>
+                    <div><span style="color:#64748b;">Total Paid:</span> <strong style="color:#15803d; font-size:12px;">₹ ${invoiceData.total_amount.toFixed(2)}</strong></div>
+                </div>
+                <div style="display:flex; gap:8px; align-items:center;">
+                    <button type="button" onclick="window.print()" style="display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:700; padding:4px 10px; background:#0284c7; color:#fff; border:none; border-radius:5px; cursor:pointer;">
+                        <i class="fa-solid fa-print"></i> Print Invoice
+                    </button>
+                    <a href="${invoiceData.pdf_url}" target="_blank" style="display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:700; padding:4px 10px; background:#dc2626; color:#fff; text-decoration:none; border-radius:5px;">
+                        <i class="fa-solid fa-file-pdf"></i> Download PDF
+                    </a>
+                </div>
+            `;
+            b.appendChild(invBox);
+        }
+
+        stream.appendChild(b);
+        stream.scrollTop = stream.scrollHeight;
+    }
+
+    // Direct 1-Click Connect to specific Agent (from Tab 5 or Cards)
+    window.connectDirectlyToAgent = function(agentId, name, shortName) {
+        const selDropdown = document.getElementById("agentSelectDropdown");
+        if (selDropdown) {
+            selDropdown.value = agentId;
+        }
+
+        // Switch to transcript tab
+        document.querySelectorAll(".dash-tab-btn").forEach(b => b.classList.remove("active"));
+        document.querySelectorAll(".dash-tab-content").forEach(c => c.classList.remove("active"));
+        const transBtn = document.querySelector('.dash-tab-btn[data-tab="tab-transcript"]');
+        if (transBtn) transBtn.classList.add("active");
+        const transTab = document.getElementById("tab-transcript");
+        if (transTab) transTab.classList.add("active");
+
+        if (isCallActive) {
+            // Already in a live call: Request one-to-one transfer
+            handleSendMessage(`Please transfer my call to ${shortName}`);
+        } else {
+            // Start fresh 1-to-1 telephone conversation directly with selected agent
+            startCall(agentId);
+        }
+    };
+
+    // Agent dropdown change listener
+    const agentDropdown = document.getElementById("agentSelectDropdown");
+    if (agentDropdown) {
+        agentDropdown.addEventListener("change", function() {
+            const selectedText = this.options[this.selectedIndex].text;
+            const shortName = selectedText.split(" - ")[0];
+            const nameHeader = document.getElementById("agentNameHeader");
+            if (nameHeader && !isCallActive) {
+                nameHeader.textContent = selectedText;
+            }
+            if (isCallActive) {
+                handleSendMessage(`Please transfer my call to ${shortName}`);
+            }
+        });
+    }
+
+    // Button Listeners
+    startBtn.addEventListener("click", () => startCall());
+    endBtn.addEventListener("click", endCall);
+
+    micBtn.addEventListener("click", function () {
+        soundEngine.playKeyStroke('regular');
+        if (!isCallActive) {
+            captionText.textContent = 'Microphone is inactive. Click "Start Voice Call" above to place your call first.';
+            return;
+        }
+        isMuted = !isMuted;
+        if (isMuted) {
+            micBtn.classList.add("muted");
+            micLabel.textContent = "Mic OFF";
+            if (recognition) { try { recognition.abort(); } catch (e) {} }
+            captionText.textContent = "Microphone Muted. Use keypad or type below.";
+            card.classList.remove("user-speaking");
+        } else {
+            micBtn.classList.remove("muted");
+            micLabel.textContent = "Mic ON";
+            if (isCallActive && recognition && !isRecognizing) { try { recognition.start(); } catch (e) {} }
+            captionText.textContent = "Microphone Active. Listening...";
+        }
+    });
+
+    speakerBtn.addEventListener("click", function () {
+        isSpeakerOn = !isSpeakerOn;
+        soundEngine.playKeyStroke('regular');
+        if (isSpeakerOn) {
+            speakerBtn.classList.remove("off");
+            speakerLabel.textContent = "Voice ON";
+        } else {
+            speakerBtn.classList.add("off");
+            speakerLabel.textContent = "Voice OFF";
+            if (currentNeuralAudio) {
+                try {
+                    currentNeuralAudio.pause();
+                    currentNeuralAudio.src = "";
+                } catch (e) {}
+                currentNeuralAudio = null;
+            }
+            if (window.speechSynthesis) { window.speechSynthesis.cancel(); }
+            isAgentSpeaking = false;
+            card.classList.remove("agent-speaking");
+            if (bargeBanner) bargeBanner.style.display = "none";
+        }
+    });
+
+    sendBtn.addEventListener("click", function () {
+        soundEngine.playKeyStroke('enter');
+        const text = (inputField.value || "").trim();
+        if (!text) return;
+        if (!isCallActive) {
+            captionText.textContent = 'Call is ended/inactive. Click "Start Voice Call" above to connect first.';
+            return;
+        }
+        handleSendMessage(text);
+        inputField.value = "";
+    });
+
+    // Quick chips click
+    document.querySelectorAll(".telephony-chip").forEach(chip => {
+        chip.addEventListener("click", function () {
+            soundEngine.playKeyStroke('regular');
+            const prompt = this.dataset.prompt;
+            if (!isCallActive) {
+                captionText.textContent = 'Click "Start Voice Call" above before selecting department options.';
+                return;
+            }
+            handleSendMessage(prompt);
+        });
+    });
+
+    // Feedback rating buttons (0 to 5) click
+    document.querySelectorAll(".fb-star-btn").forEach(btn => {
+        btn.addEventListener("click", function () {
+            triggerInstantBargeIn("Star rating selected");
+            const ratingVal = this.dataset.rating;
+            soundEngine.playKeyStroke('enter');
+            handleSendMessage(ratingVal);
+        });
+    });
+
+    function getCsrfToken() {
+        const cookie = document.cookie.split(";").find(c => c.trim().startsWith("csrftoken="));
+        return cookie ? cookie.split("=")[1] : "";
+    }
+});
+</script>
+{% endblock %}

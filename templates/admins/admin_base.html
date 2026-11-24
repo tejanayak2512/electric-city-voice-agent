@@ -1,0 +1,607 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Administration Control Portal | Electricity Department{% endblock %}</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <style>
+        :root {
+            --navy: #063b78;
+            --navy-dark: #082f60;
+            --blue: #0755a0;
+            --text: #102b4c;
+            --border: #c8d9ed;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Roboto', Arial, sans-serif;
+            color: var(--text);
+            background: #f4f7fb;
+            font-size: 14px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        a { text-decoration: none; color: inherit; }
+
+        .top-header {
+            min-height: 76px;
+            background: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 5.2%;
+            gap: 20px;
+            border-bottom: 1px solid #d8e2ed;
+        }
+
+        .brand-area { display: flex; align-items: center; gap: 13px; min-width: 0; }
+        .department-logo {
+            width: 54px; height: 54px; border: 3px solid var(--navy); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; color: var(--navy); font-size: 25px; flex-shrink: 0;
+        }
+        .department-name h1 { color: #082f66; font-size: 21px; font-weight: 800; line-height: 1.2; white-space: nowrap; }
+        .department-name p { color: #243d5e; font-size: 13px; margin-top: 2px; }
+        .brand-divider { height: 42px; width: 2px; background: #31577e; margin: 0 8px; flex-shrink: 0; }
+        .voice-brand { display: flex; align-items: center; gap: 12px; }
+        .voice-brand i { color: var(--navy); font-size: 28px; }
+        .voice-brand h2 { font-size: 17px; color: #08366e; font-weight: 800; white-space: nowrap; }
+        .voice-brand p { font-size: 12.5px; color: #253c59; margin-top: 3px; }
+        .header-tools { display: flex; align-items: center; gap: 14px; color: #152f50; white-space: nowrap; font-weight: 600; }
+        .header-info { display: flex; align-items: center; gap: 7px; font-size: 13px; }
+        .header-info i { color: var(--navy); font-size: 15px; }
+        .header-divider { height: 26px; width: 1px; background: #9aacc1; }
+        .admin-badge {
+            display: inline-flex; align-items: center; gap: 8px; padding: 7px 14px; border-radius: 20px;
+            background: #eaf2ff; border: 1px solid #b7d4f5; color: #063b78; font-size: 13px; font-weight: 700;
+        }
+
+        .admin-navbar {
+            min-height: 50px;
+            background: linear-gradient(90deg, #06417f, #07549a);
+            display: flex;
+            align-items: stretch;
+            justify-content: space-between;
+            padding: 0 2%;
+            box-shadow: 0 2px 5px rgba(0, 30, 70, 0.16);
+            white-space: nowrap;
+            overflow: visible;
+            position: relative;
+            z-index: 200;
+        }
+
+        .admin-nav-links {
+            display: flex;
+            align-items: stretch;
+            gap: 2px;
+            flex-wrap: nowrap;
+            white-space: nowrap;
+            flex-shrink: 0;
+            overflow: visible;
+        }
+        .admin-nav-links > a,
+        .admin-nav-dropdown > a {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 0 11px;
+            min-height: 50px;
+            color: #ffffff;
+            font-size: 13px;
+            font-weight: 600;
+            border-bottom: 3px solid transparent;
+            transition: 0.2s ease;
+            white-space: nowrap;
+            flex-shrink: 0;
+            cursor: pointer;
+        }
+        .admin-nav-links > a:hover,
+        .admin-nav-links > a.active,
+        .admin-nav-dropdown:hover > a,
+        .admin-nav-dropdown.open > a,
+        .admin-nav-dropdown > a.active {
+            background: rgba(255, 255, 255, 0.14); border-bottom-color: #ffffff;
+        }
+        .admin-nav-dropdown {
+            position: relative;
+            display: flex;
+            align-items: stretch;
+            z-index: 201;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .admin-nav-dropdown:hover,
+        .admin-nav-dropdown.open {
+            z-index: 300;
+        }
+        .admin-nav-dropdown > a .fa-chevron-down {
+            font-size: 10px;
+            opacity: 0.85;
+            transition: transform 0.2s ease;
+        }
+        .admin-nav-dropdown:hover > a .fa-chevron-down,
+        .admin-nav-dropdown.open > a .fa-chevron-down {
+            transform: rotate(180deg);
+        }
+        .admin-nav-dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            min-width: 320px;
+            background: #ffffff;
+            border: 1px solid #c6d8ed;
+            border-radius: 0 0 12px 12px;
+            box-shadow: 0 14px 32px rgba(6, 59, 120, 0.22);
+            padding: 8px;
+            z-index: 9999;
+        }
+        .admin-nav-dropdown:hover > .admin-nav-dropdown-menu,
+        .admin-nav-dropdown:focus-within > .admin-nav-dropdown-menu,
+        .admin-nav-dropdown.open > .admin-nav-dropdown-menu {
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+        .admin-nav-dropdown-menu a {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 10px 13px;
+            border-radius: 8px;
+            color: #102b4c;
+            font-size: 13px;
+            font-weight: 700;
+            min-height: 0;
+            border-bottom: 0;
+            white-space: nowrap;
+        }
+        .admin-nav-dropdown-menu a:hover {
+            background: #eef5ff;
+            color: #063b78;
+        }
+        .admin-nav-dropdown-menu a .menu-label-wrap {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .admin-nav-dropdown-menu a i {
+            width: 16px;
+            color: #07549a;
+        }
+        .nav-step-num {
+            display: none;
+        }
+        .nav-count-badge {
+            background: #facc15; color: #0f172a; border-radius: 999px; padding: 1px 7px; font-size: 11px; font-weight: 800;
+            display: inline-flex; align-items: center; justify-content: center; min-width: 18px; line-height: 1.4;
+            flex-shrink: 0;
+        }
+        .logout-link {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 0 14px;
+            min-height: 50px;
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 13px;
+            background: rgba(185, 28, 28, 0.85);
+            transition: background 0.2s ease;
+            white-space: nowrap;
+            flex-shrink: 0;
+            margin-left: 8px;
+        }
+        .logout-link:hover { background: #b91c1c; }
+
+        .admin-breadcrumb-bar {
+            background: #ffffff; border-bottom: 1px solid #d8e4f1; padding: 9px 5.2%;
+        }
+        .admin-breadcrumb-list {
+            max-width: 1440px; margin: 0 auto; list-style: none; display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600;
+        }
+        .admin-breadcrumb-list a { color: #07549a; }
+        .admin-breadcrumb-list .current { color: #082f66; font-weight: 800; background: #eaf2ff; border: 1px solid #c6dcf7; padding: 2px 10px; border-radius: 999px; }
+
+        .admin-main { flex: 1; width: 100%; max-width: 1440px; margin: 24px auto; padding: 0 4.5%; }
+
+        .section-order-title {
+            display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+            margin: 6px 0 12px;
+        }
+        .section-order-title h3 {
+            font-size: 15px; font-weight: 800; color: #082f66; display: flex; align-items: center; gap: 8px;
+        }
+        .step-pill {
+            background: #063b78; color: #ffffff; border-radius: 999px; padding: 2px 10px; font-size: 11px; font-weight: 800;
+            text-transform: uppercase; letter-spacing: 0.4px;
+        }
+
+        .flash-msg {
+            padding: 12px 16px; border-radius: 9px; margin-bottom: 16px; font-weight: 600;
+            display: flex; align-items: center; justify-content: space-between; border: 1px solid;
+        }
+        .flash-msg.success { background: #e9f8ee; border-color: #a9dfba; color: #176b32; }
+        .flash-msg.error { background: #fff0f0; border-color: #efb6b6; color: #a32222; }
+        .flash-msg.warning { background: #fff8e5; border-color: #f0d58c; color: #805900; }
+        .flash-msg.info { background: #eaf4ff; border-color: #b7d4f5; color: #14538e; }
+
+        .welcome-banner {
+            background: linear-gradient(110deg, #063b78 0%, #0755a0 65%, #0c6bc4 100%);
+            color: #ffffff; border-radius: 14px; padding: 20px 28px;
+            display: flex; align-items: center; justify-content: space-between; gap: 24px;
+            box-shadow: 0 10px 26px rgba(6, 59, 120, 0.18); margin-bottom: 20px;
+        }
+        .welcome-text h2 { font-size: 23px; font-weight: 800; margin-bottom: 6px; }
+        .welcome-text p { color: #e2efff; font-size: 14px; line-height: 1.5; max-width: 780px; }
+        .welcome-status {
+            background: rgba(255, 255, 255, 0.14); border: 1px solid rgba(255, 255, 255, 0.28);
+            border-radius: 12px; padding: 12px 20px; text-align: right; flex-shrink: 0;
+        }
+        .welcome-status span { display: block; font-size: 11.5px; color: #dbeafe; margin-bottom: 4px; }
+        .welcome-status strong { font-size: 15px; color: #ffffff; display: inline-flex; align-items: center; gap: 8px; }
+
+        .kpi-strip {
+            display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin-bottom: 22px;
+        }
+        .kpi-card {
+            background: #ffffff; border: 1px solid #c6d8ed; border-radius: 12px; padding: 16px 18px;
+            display: flex; align-items: center; justify-content: space-between; gap: 12px;
+            box-shadow: 0 2px 8px rgba(8, 47, 96, 0.05); transition: transform 0.15s ease, border-color 0.15s ease;
+        }
+        .kpi-card:hover { transform: translateY(-2px); border-color: #07549a; }
+        .kpi-card span { display: block; font-size: 12px; font-weight: 700; color: #4b698c; }
+        .kpi-card strong { font-size: 22px; font-weight: 800; color: #082f66; }
+        .kpi-icon {
+            width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;
+        }
+        .ki-blue { background: #eaf2ff; color: #07549a; }
+        .ki-green { background: #eaf9ed; color: #087538; }
+        .ki-yellow { background: #fffbe4; color: #c47e00; }
+        .ki-purple { background: #f2edff; color: #5634b7; }
+        .ki-red { background: #fef2f2; color: #b91c1c; }
+
+        .panel-card {
+            background: #ffffff; border: 1px solid #c6d8ed; border-radius: 14px; overflow: hidden;
+            box-shadow: 0 6px 20px rgba(8, 47, 96, 0.06); margin-bottom: 24px;
+        }
+        .panel-header {
+            background: linear-gradient(90deg, #e9f2ff, #f3f8ff); border-bottom: 1px solid #cbdcf0;
+            padding: 14px 22px; display: flex; align-items: center; justify-content: space-between;
+            color: #082f69; font-size: 16px; font-weight: 800; flex-wrap: wrap; gap: 10px;
+        }
+        .panel-body { padding: 20px 22px; }
+
+        .table-wrap { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 820px; }
+        th, td { padding: 11px 13px; text-align: left; border-bottom: 1px solid #e2ebf5; font-size: 13px; }
+        th { background: #f4f8fe; color: #082f66; font-weight: 800; font-size: 11.5px; text-transform: uppercase; }
+
+        .site-footer {
+            min-height: 54px; background: linear-gradient(90deg, #183f69, #092e58); color: #ffffff;
+            display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 14px 5.2%; font-size: 12px;
+        }
+
+        @media (max-width: 1120px) { .kpi-strip { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 768px) {
+            .top-header { flex-wrap: wrap; }
+            .voice-brand { display: none; }
+            .admin-navbar { flex-direction: column; padding: 0; }
+            .admin-nav-links a, .logout-link { min-height: 46px; padding: 10px 20px; }
+            .welcome-banner { flex-direction: column; align-items: flex-start; }
+            .kpi-strip { grid-template-columns: 1fr; }
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+    <header class="top-header">
+        <div class="brand-area">
+            <div class="department-logo"><i class="fa-solid fa-tower-broadcast"></i></div>
+            <div class="department-name">
+                <h1>Electricity Department</h1>
+                <p>{% block portal_subtitle %}Administration Control Portal{% endblock %}</p>
+            </div>
+            <div class="brand-divider"></div>
+            <div class="voice-brand">
+                <i class="fa-solid fa-microphone-lines"></i>
+                <div>
+                    <h2>AI Powered Voice Agent</h2>
+                    
+                </div>
+            </div>
+        </div>
+
+        <div class="header-tools">
+            <div class="header-info"><i class="fa-regular fa-calendar-days"></i><span id="live-date">Loading...</span></div>
+            <div class="header-info"><i class="fa-regular fa-clock"></i><span id="live-clock">Loading...</span></div>
+            <div class="header-divider"></div>
+            <div class="admin-badge"><i class="fa-solid fa-user-shield"></i><span>Signed in: {{ admin_username|default:"admin" }}</span></div>
+        </div>
+    </header>
+
+    <nav class="admin-navbar" aria-label="Administration Ordered Navigation">
+        <div class="admin-nav-links">
+            <a href="{% url 'admin_home' %}" class="{% if active_admin_nav == 'grid' %}active{% endif %}">
+                <i class="fa-solid fa-bolt"></i>
+                Grid &amp; Transformers
+                <span class="nav-count-badge">{{ transformer_count|default:0 }}</span>
+            </a>
+            <div class="admin-nav-dropdown" id="adminStaffDropdown">
+                <a href="{% url 'admin_employees' %}"
+                   id="adminStaffDropdownToggle"
+                   class="{% if active_admin_nav == 'employees' %}active{% endif %}">
+                    <i class="fa-solid fa-users-gear"></i>
+                    Department Staff
+                    <span class="nav-count-badge">{{ employee_count|default:0 }}</span>
+                    <i class="fa-solid fa-chevron-down" style="font-size:10px; opacity:0.85;"></i>
+                </a>
+                <div class="admin-nav-dropdown-menu" aria-label="Department Staff Menu">
+                    <a href="{% url 'admin_employees' %}">
+                        <span class="menu-label-wrap">
+                            <i class="fa-solid fa-users"></i>
+                            <span>View Department Employees</span>
+                        </span>
+                        <span class="nav-count-badge" style="margin-left:auto;">{{ employee_count|default:0 }}</span>
+                    </a>
+                    <a href="{% url 'admin_add_employee' %}">
+                        <span class="menu-label-wrap">
+                            <i class="fa-solid fa-user-plus"></i>
+                            <span>Add Employee into Department</span>
+                        </span>
+                        <span class="nav-count-badge" style="margin-left:auto;">{{ active_employee_count|default:0 }}</span>
+                    </a>
+                </div>
+            </div>
+            <div class="admin-nav-dropdown" id="adminConnectionsDropdown">
+                <a href="{% url 'admin_connections' %}"
+                   id="adminConnectionsDropdownToggle"
+                   class="{% if active_admin_nav == 'connections' %}active{% endif %}">
+                    <i class="fa-solid fa-file-circle-check"></i>
+                    Connections &amp; Meters
+                    <span class="nav-count-badge">{{ pending_admin_connections|default:0 }}</span>
+                    <i class="fa-solid fa-chevron-down" style="font-size:10px; opacity:0.85;"></i>
+                </a>
+                <div class="admin-nav-dropdown-menu" aria-label="Connections &amp; Meters Menu">
+                    <a href="{% url 'admin_connections_issue_meters' %}">
+                        <span class="menu-label-wrap">
+                            <i class="fa-solid fa-stamp"></i>
+                            <span>Issue Original Meters</span>
+                        </span>
+                        <span class="nav-count-badge" style="margin-left:auto;">{{ pending_admin_connections|default:0 }}</span>
+                    </a>
+                    <a href="{% url 'admin_connections_power_controls' %}">
+                        <span class="menu-label-wrap">
+                            <i class="fa-solid fa-sliders"></i>
+                            <span>Premises Power Control</span>
+                        </span>
+                        <span class="nav-count-badge" style="margin-left:auto;">{{ connected_households|default:0 }}</span>
+                    </a>
+                    <a href="{% url 'admin_connections_ledger' %}">
+                        <span class="menu-label-wrap">
+                            <i class="fa-solid fa-list-check"></i>
+                            <span>Connection Applications Ledger</span>
+                        </span>
+                        <span class="nav-count-badge" style="margin-left:auto;">{{ total_connections_count|default:0 }}</span>
+                    </a>
+                    <a href="{% url 'admin_connections' %}">
+                        <span class="menu-label-wrap">
+                            <i class="fa-solid fa-layer-group"></i>
+                            <span>All Connections &amp; Controls</span>
+                        </span>
+                        <span class="nav-count-badge" style="margin-left:auto;">{{ total_connections_count|default:0 }}</span>
+                    </a>
+                    <a href="{% url 'admin_complaints' %}">
+                        <span class="menu-label-wrap">
+                            <i class="fa-solid fa-headset"></i>
+                            <span>AI Grievances &amp; Outages</span>
+                        </span>
+                    </a>
+                </div>
+            </div>
+            <div class="admin-nav-dropdown" id="adminBillingDropdown">
+                <a href="{% url 'admin_billing' %}"
+                   id="adminBillingDropdownToggle"
+                   class="{% if active_admin_nav == 'billing' or active_admin_nav == 'revenue' %}active{% endif %}">
+                    <i class="fa-solid fa-file-invoice-dollar"></i>
+                    Billing &amp; Tariffs
+                    <span class="nav-count-badge">{{ unpaid_bills_count|default:0 }}</span>
+                    <i class="fa-solid fa-chevron-down" style="font-size:10px; opacity:0.85;"></i>
+                </a>
+                <div class="admin-nav-dropdown-menu" aria-label="Billing &amp; Tariffs Menu">
+                    <a href="{% url 'admin_billing' %}">
+                        <span class="menu-label-wrap">
+                            <i class="fa-solid fa-house"></i>
+                            <span>Domestic Billing &amp; Monthly Ledger</span>
+                        </span>
+                        <span class="nav-count-badge" style="margin-left:auto;">{{ domestic_bills_count|default:0 }}</span>
+                    </a>
+                    <a href="{% url 'admin_billing_commercial' %}">
+                        <span class="menu-label-wrap">
+                            <i class="fa-solid fa-industry"></i>
+                            <span>Commercial Billing &amp; Bulk Overview</span>
+                        </span>
+                        <span class="nav-count-badge" style="margin-left:auto;">{{ commercial_bills_count|default:0 }}</span>
+                    </a>
+                    <a href="{% url 'admin_billing_tariffs' %}">
+                        <span class="menu-label-wrap">
+                            <i class="fa-solid fa-sliders"></i>
+                            <span>Tariff &amp; Fare Settings</span>
+                        </span>
+                        <span class="nav-count-badge" style="margin-left:auto;">2</span>
+                    </a>
+                    <a href="{% url 'admin_revenue' %}">
+                        <span class="menu-label-wrap">
+                            <i class="fa-solid fa-sack-dollar"></i>
+                            <span>Revenue &amp; Monthly Collections</span>
+                        </span>
+                        <span class="nav-count-badge" style="margin-left:auto;">{{ paid_bills_count|default:0 }}</span>
+                    </a>
+                </div>
+            </div>
+            <a href="{% url 'admin_maintenance' %}" class="{% if active_admin_nav == 'maintenance' %}active{% endif %}">
+                <i class="fa-solid fa-screwdriver-wrench"></i>
+                Maintenance Approvals
+                <span class="nav-count-badge">{{ pending_maintenance_count|default:0 }}</span>
+            </a>
+            <a href="{% url 'admin_voice_agents' %}" class="{% if active_admin_nav == 'voice_agents' %}active{% endif %}" id="navAdminVoiceAgents">
+                <i class="fa-solid fa-headset"></i>
+                AI Voice Agents
+                <span class="nav-count-badge">{{ total_voice_agents_count|default:10 }}</span>
+            </a>
+
+            <div class="admin-nav-dropdown" id="adminSettingsDropdown">
+                <a href="{% url 'admin_settings' %}"
+                   id="adminSettingsDropdownToggle"
+                   class="{% if active_admin_nav == 'settings' %}active{% endif %}">
+                    <i class="fa-solid fa-gear"></i>
+                    Settings
+                    <span class="nav-count-badge">{{ settings_count|default:4 }}</span>
+                    <i class="fa-solid fa-chevron-down" style="font-size:10px; opacity:0.85;"></i>
+                </a>
+                <div class="admin-nav-dropdown-menu" aria-label="Settings Menu">
+                    <a href="{% url 'admin_settings_news' %}">
+                        <span class="menu-label-wrap">
+                            <i class="fa-solid fa-bullhorn"></i>
+                            <span>News &amp; Public Announcements</span>
+                        </span>
+                        <span class="nav-count-badge" style="margin-left:auto;">{{ news_count|default:0 }}</span>
+                    </a>
+                    <a href="{% url 'admin_settings_notifications' %}">
+                        <span class="menu-label-wrap">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                            <span>Operation &amp; Maintenance Alerts</span>
+                        </span>
+                        <span class="nav-count-badge" style="margin-left:auto;">{{ notification_count|default:0 }}</span>
+                    </a>
+                    <a href="{% url 'admin_settings_media' %}">
+                        <span class="menu-label-wrap">
+                            <i class="fa-solid fa-photo-film"></i>
+                            <span>Hero Media &amp; Background (base.html)</span>
+                        </span>
+                        <span class="nav-count-badge" style="margin-left:auto;">1</span>
+                    </a>
+                    <a href="{% url 'admin_settings_llm' %}">
+                        <span class="menu-label-wrap">
+                            <i class="fa-solid fa-brain"></i>
+                            <span>AI &amp; LLM Configurations</span>
+                        </span>
+                        <span class="nav-count-badge" style="margin-left:auto;">{{ llm_count|default:0 }}</span>
+                    </a>
+                    <a href="{% url 'admin_settings' %}">
+                        <span class="menu-label-wrap">
+                            <i class="fa-solid fa-sliders"></i>
+                            <span>All System Settings</span>
+                        </span>
+                        <span class="nav-count-badge" style="margin-left:auto;">{{ settings_count|default:4 }}</span>
+                    </a>
+                </div>
+            </div>
+
+        </div>
+
+        <a href="{% url 'admin_logout' %}" class="logout-link">
+            <i class="fa-solid fa-right-from-bracket"></i>
+            Logout
+        </a>
+    </nav>
+
+    {% if admin_breadcrumbs %}
+    <nav class="admin-breadcrumb-bar" aria-label="Admin Breadcrumb">
+        <ol class="admin-breadcrumb-list">
+            {% for label, crumb_url in admin_breadcrumbs %}
+                <li>
+                    {% if crumb_url %}
+                        <a href="{{ crumb_url }}">{% if forloop.first %}<i class="fa-solid fa-shield-halved"></i> {% endif %}{{ label }}</a>
+                    {% else %}
+                        <span class="current">{{ label }}</span>
+                    {% endif %}
+                </li>
+                {% if not forloop.last %}<li><span style="color:#64748b;">&gt;</span></li>{% endif %}
+            {% endfor %}
+        </ol>
+    </nav>
+    {% endif %}
+
+    <main class="admin-main">
+        {% if messages %}
+            {% for msg in messages %}
+            <div class="flash-msg {{ msg.tags }}">
+                <span>{{ msg }}</span>
+            </div>
+            {% endfor %}
+        {% endif %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="site-footer">
+        <div>&copy; {% now "Y" %} Electricity Department. All Rights Reserved.</div>
+        <div>Administration Portal </div>
+    </footer>
+
+    <script>
+        (function () {
+            function updateIndianClock() {
+                const now = new Date();
+                const dateEl = document.getElementById('live-date');
+                const clockEl = document.getElementById('live-clock');
+                if (dateEl) {
+                    dateEl.textContent = new Intl.DateTimeFormat('en-IN', {
+                        timeZone: 'Asia/Kolkata', weekday: 'short', day: '2-digit', month: 'short', year: 'numeric'
+                    }).format(now);
+                }
+                if (clockEl) {
+                    clockEl.textContent = new Intl.DateTimeFormat('en-IN', {
+                        timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true
+                    }).format(now);
+                }
+            }
+            updateIndianClock();
+            setInterval(updateIndianClock, 1000);
+        })();
+
+        // Admin Navbar Dropdowns Click & Keyboard Support
+        (function () {
+            const dropdowns = document.querySelectorAll('.admin-nav-dropdown');
+            dropdowns.forEach(function (dd) {
+                const toggle = dd.querySelector(':scope > a');
+                if (!toggle) return;
+                toggle.addEventListener('click', function (e) {
+                    const isOpen = dd.classList.contains('open');
+                    if (!isOpen) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        dropdowns.forEach(function (other) {
+                            if (other !== dd) other.classList.remove('open');
+                        });
+                        dd.classList.add('open');
+                    }
+                });
+            });
+
+            document.addEventListener('click', function (e) {
+                if (!e.target.closest('.admin-nav-dropdown')) {
+                    dropdowns.forEach(function (dd) {
+                        dd.classList.remove('open');
+                    });
+                }
+            });
+        })();
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

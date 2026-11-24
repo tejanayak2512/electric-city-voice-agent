@@ -1,0 +1,1145 @@
+{% extends "users/user_base.html" %}
+
+{% block title %}Power Billing &amp; Bulk Recharge Gateway | Consumer Services{% endblock %}
+
+{% block extra_css %}
+<style>
+    .tariff-strip {
+        display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-bottom: 20px;
+    }
+    .tariff-box {
+        background: linear-gradient(135deg, #ffffff, #f5f9ff);
+        border: 1.5px solid #c6d8ed; border-radius: 12px; padding: 14px 18px;
+    }
+    .tariff-box span { display: block; font-size: 11px; font-weight: 800; text-transform: uppercase; color: #476385; }
+    .tariff-box strong { display: block; font-size: 20px; font-weight: 800; color: #082f66; margin: 4px 0 3px; }
+    .tariff-box small { font-size: 12px; color: #365070; }
+
+    .meter-lookup-form { display: flex; gap: 12px; align-items: end; flex-wrap: wrap; }
+    .meter-lookup-form .apply-field { flex: 1; min-width: 240px; }
+
+    /* BULK RECHARGE PACKS FOR COMMERCIAL */
+    .bulk-packs-grid {
+        display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-bottom: 18px;
+    }
+    .bulk-pack-card {
+        background: linear-gradient(160deg, #ffffff 0%, #f4f8ff 100%);
+        border: 2px solid #c6d8ed; border-radius: 14px; padding: 16px;
+        display: flex; flex-direction: column; justify-content: space-between; gap: 10px;
+        transition: all 0.2s ease; box-shadow: 0 4px 14px rgba(8, 47, 96, 0.06);
+    }
+    .bulk-pack-card:hover {
+        border-color: #07549a; transform: translateY(-2px); box-shadow: 0 10px 24px rgba(8, 47, 96, 0.13);
+    }
+    .pack-tag {
+        display: inline-block; width: fit-content; padding: 3px 9px; border-radius: 999px;
+        font-size: 10.5px; font-weight: 800; background: #ede9fe; color: #5b21b6; text-transform: uppercase;
+    }
+    .pack-units { font-size: 22px; font-weight: 800; color: #063b78; }
+    .pack-name { font-size: 13.5px; font-weight: 700; color: #102b4c; }
+    .pack-breakdown {
+        font-size: 11.5px; color: #476385; background: #eef5ff; border-radius: 8px; padding: 7px 9px; line-height: 1.45;
+    }
+    .pack-price-row {
+        display: flex; align-items: center; justify-content: space-between; gap: 8px; padding-top: 8px;
+        border-top: 1px dashed #c6d8ed;
+    }
+    .pack-price-row strong { font-size: 18px; color: #15803d; }
+    .gw-trigger-btn {
+        height: 38px; padding: 0 14px; border: 0; border-radius: 8px;
+        background: linear-gradient(90deg, #06417f, #07549a); color: #ffffff;
+        font-family: inherit; font-size: 12.5px; font-weight: 700; cursor: pointer;
+        display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+    }
+    .gw-trigger-btn:hover { background: linear-gradient(90deg, #052e5c, #06417f); }
+
+    .custom-bulk-box {
+        background: #f8fbff; border: 1.5px solid #cbdcf0; border-radius: 12px; padding: 16px 18px; margin-bottom: 20px;
+    }
+    .custom-bulk-row {
+        display: flex; gap: 14px; align-items: end; flex-wrap: wrap;
+    }
+    .preview-calc-box {
+        background: #eef5ff; border: 1px solid #bfd6f2; border-radius: 9px; padding: 10px 14px;
+        margin-top: 12px; font-size: 13px; color: #082f66;
+    }
+
+    .bill-table-wrap { overflow-x: auto; }
+    .bill-table-wrap table { width: 100%; border-collapse: collapse; min-width: 860px; }
+    .bill-table-wrap th, .bill-table-wrap td {
+        padding: 11px 13px; text-align: left; border-bottom: 1px solid #e2ebf5; font-size: 13px;
+    }
+    .bill-table-wrap th {
+        background: #f4f8fe; color: #082f66; font-weight: 800; font-size: 11.5px; text-transform: uppercase;
+    }
+    .bill-badge {
+        display: inline-block; padding: 4px 10px; border-radius: 999px; font-size: 11px; font-weight: 800;
+    }
+    .bb-paid { background: #dcfce7; color: #166534; }
+    .bb-unpaid { background: #fee2e2; color: #991b1b; }
+    .pack-runtime {
+        font-size: 11.5px; font-weight: 700; color: #07549a; background: #e0f2fe;
+        border-radius: 7px; padding: 5px 8px; margin-top: 2px;
+    }
+    .appliance-billing-box {
+        background: #f8fbff; border: 1.5px solid #c6d8ed; border-radius: 12px;
+        padding: 15px 16px; margin-bottom: 18px;
+    }
+    .appliance-billing-head {
+        display: flex; align-items: center; justify-content: space-between; gap: 10px;
+        flex-wrap: wrap; margin-bottom: 12px;
+    }
+    .app-switch-btn {
+        border: 0; border-radius: 999px; padding: 5px 12px; font-size: 11.5px;
+        font-weight: 800; cursor: pointer; background: #e2e8f0; color: #334155;
+        transition: all 0.15s ease;
+    }
+    .app-switch-btn.is-on { background: #16a34a; color: #ffffff; }
+    .bill-app-breakdown {
+        margin-top: 5px; font-size: 11px; color: #365070; line-height: 1.45;
+    }
+
+    /* REAL-TIME DUMMY PAYMENT GATEWAY MODAL */
+    .pg-overlay {
+        position: fixed; inset: 0; z-index: 9999; display: none; align-items: center; justify-content: center;
+        padding: 18px; background: rgba(4, 18, 40, 0.78); backdrop-filter: blur(5px);
+    }
+    .pg-overlay.open { display: flex; }
+    .pg-card {
+        width: 100%; max-width: 510px; background: #ffffff; border-radius: 16px; overflow: hidden;
+        box-shadow: 0 28px 65px rgba(2, 14, 34, 0.45); border: 1px solid #93c5fd;
+    }
+    .pg-header {
+        background: linear-gradient(120deg, #041e42, #074484); color: #ffffff; padding: 16px 22px;
+        display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .pg-brand { display: flex; align-items: center; gap: 10px; }
+    .pg-brand-badge {
+        width: 38px; height: 38px; border-radius: 10px; background: rgba(56, 189, 248, 0.22);
+        border: 1px solid rgba(125, 211, 252, 0.5); display: flex; align-items: center; justify-content: center;
+        font-size: 18px; color: #7dd3fc;
+    }
+    .pg-header h3 { font-size: 16px; font-weight: 800; margin: 0; }
+    .pg-header p { font-size: 11.5px; color: #bae6fd; margin-top: 2px; }
+    .pg-order-bar {
+        background: #f4f8fe; border-bottom: 1px solid #d5e3f3; padding: 12px 22px;
+        display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .pg-order-meta strong { display: block; font-size: 13.5px; color: #082f66; }
+    .pg-order-meta span { font-size: 11.5px; color: #476385; }
+    .pg-amount-tag { font-size: 20px; font-weight: 800; color: #063b78; white-space: nowrap; }
+    .pg-body { padding: 20px 22px; }
+
+    .pg-tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px; margin-bottom: 14px; }
+    .pg-tab {
+        padding: 9px 6px; border: 1.5px solid #cbdcf0; border-radius: 9px; background: #ffffff;
+        color: #102b4c; font-family: inherit; font-size: 11.5px; font-weight: 700; cursor: pointer;
+        text-align: center;
+    }
+    .pg-tab.active { background: #eaf2ff; border-color: #07549a; color: #063b78; }
+    .pg-method-panel { display: none; margin-bottom: 14px; }
+    .pg-method-panel.active { display: block; }
+    .pg-pay-btn {
+        width: 100%; height: 45px; border: 0; border-radius: 10px;
+        background: linear-gradient(90deg, #15803d, #16a34a); color: #ffffff;
+        font-family: inherit; font-size: 15px; font-weight: 800; cursor: pointer;
+        display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 12px;
+    }
+    .pg-spinner-wrap { text-align: center; padding: 22px 10px; }
+    .pg-spinner {
+        width: 48px; height: 48px; border: 4px solid #dbeafe; border-top-color: #07549a;
+        border-radius: 50%; margin: 0 auto 14px; animation: pgSpin 0.8s linear infinite;
+    }
+    @keyframes pgSpin { to { transform: rotate(360deg); } }
+    .pg-receipt-box { text-align: center; padding: 12px 6px; }
+    .pg-receipt-icon {
+        width: 54px; height: 54px; border-radius: 50%; margin: 0 auto 12px;
+        display: flex; align-items: center; justify-content: center; font-size: 26px;
+    }
+    .pg-receipt-icon.ok { background: #dcfce7; color: #15803d; }
+    .pg-receipt-icon.err { background: #fee2e2; color: #b91c1c; }
+    .pg-receipt-details {
+        background: #f8fbff; border: 1px solid #d5e3f3; border-radius: 10px; padding: 12px 14px;
+        margin: 14px 0; text-align: left; font-size: 12.5px; line-height: 1.65;
+    }
+
+    @media (max-width: 1120px) {
+        .bulk-packs-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 900px) {
+        .tariff-strip, .bulk-packs-grid, .pg-tabs { grid-template-columns: 1fr; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="welcome-banner">
+    <div class="welcome-text">
+        <h2>Power Usage Billing &amp; Bulk Recharge Gateway</h2>
+        <p>
+            Enter your official <strong>Meter Number</strong> to calculate total bills (Base Fare <strong>Rs {{ base_fare_rs }}</strong>).
+            <strong>Commercial</strong> facilities recharge in <strong>Bulk Unit Packs</strong> via our Real-Time Payment Gateway before using power;
+            <strong>Domestic</strong> connections use Monthly Bill Generation.
+        </p>
+    </div>
+    <div class="status-card">
+        <span class="status-label">Your Meter Number</span>
+        <span class="status-pill active">
+            <i class="fa-solid fa-gauge-high"></i> {{ connection.meter_number|default:"Not Assigned" }}
+        </span>
+    </div>
+</section>
+
+<!-- TARIFF SUMMARY -->
+<div class="section-order-title">
+    <h3><span class="step-pill">Step 1</span> Utility Tariff Rules</h3>
+</div>
+<section class="tariff-strip">
+    <div class="tariff-box">
+        <span>Fixed Base Fare</span>
+        <strong>Rs {{ base_fare_rs }}</strong>
+        <small>Fixed meter base fare applied per billing / bulk recharge</small>
+    </div>
+    <div class="tariff-box">
+        <span>Domestic Tariff (Monthly Bill)</span>
+        <strong>Rs {{ domestic_rate }} / Unit</strong>
+        <small>Monthly Bill = Rs {{ base_fare_rs }} + (Units &times; Rs {{ domestic_rate }})</small>
+    </div>
+    <div class="tariff-box">
+        <span>Commercial Tariff (Bulk Recharge)</span>
+        <strong>Rs {{ commercial_rate }} / Unit</strong>
+        <small>Bulk Unit Packs (Min {{ min_commercial_bulk_units }} Units) &rarr; Pay via Payment Gateway first</small>
+    </div>
+</section>
+
+<!-- METER NUMBER LOOKUP -->
+<div class="section-order-title">
+    <h3><span class="step-pill">Step 2</span> Enter Official Meter Number to Calculate Bill</h3>
+</div>
+<section class="info-card">
+    <div class="info-card-header">
+        <span><i class="fa-solid fa-magnifying-glass-dollar"></i> Enter Meter Number to Get Power Bill</span>
+        {% if connection.meter_number %}
+        <a href="?meter_number={{ connection.meter_number }}" class="apply-cancel-btn" style="height:34px; font-size:12px;">
+            <i class="fa-solid fa-gauge-high"></i> Load My Meter ({{ connection.meter_number }})
+        </a>
+        {% endif %}
+    </div>
+    <div class="info-card-body">
+        <form method="get" action="{% url 'user_billing' %}" id="meterLookupForm" class="meter-lookup-form">
+            <div class="apply-field">
+                <label for="lookupMeterInput">Official Meter Number</label>
+                <input type="text"
+                       id="lookupMeterInput"
+                       name="meter_number"
+                       value="{{ entered_meter }}"
+                       placeholder="e.g. {{ connection.meter_number|default:'MTR-2026-1001' }}"
+                       required>
+            </div>
+            <button type="submit" class="open-conn-btn" style="height:40px;">
+                <i class="fa-solid fa-calculator"></i> Get Power Bill
+            </button>
+        </form>
+
+        {% if lookup_error %}
+        <div class="flash-msg warning" style="margin-top:14px; margin-bottom:0; background:#fff0f0; border-color:#efb6b6; color:#991b1b;">
+            <i class="fa-solid fa-circle-exclamation"></i> {{ lookup_error }}
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+{% if lookup_summary %}
+<div class="section-order-title">
+    <h3>
+        <span class="step-pill">Step 3</span>
+        {% if lookup_summary.is_commercial %}
+            Commercial Statement, Bulk Unit Recharge &amp; Gateway Transactions
+        {% else %}
+            Domestic Usage Statement &amp; Monthly Bill Payment
+        {% endif %}
+    </h3>
+</div>
+<section class="info-card" id="billSummaryCard">
+    <div class="info-card-header">
+        <span>
+            <i class="fa-solid fa-file-invoice-dollar"></i>
+            Meter Statement &mdash; <code>{{ lookup_summary.meter_number }}</code>
+        </span>
+        <span class="sim-pill type">
+            {% if lookup_summary.is_commercial %}
+                Commercial Bulk Recharge ({{ lookup_summary.connection.industry_type }})
+            {% else %}
+                Domestic Monthly Postpaid
+            {% endif %}
+        </span>
+    </div>
+    <div class="info-card-body">
+        <div class="profile-list" style="margin-bottom:18px;">
+            <div class="profile-item"><span>Meter Number</span><strong>{{ lookup_summary.meter_number }}</strong></div>
+            <div class="profile-item"><span>Request ID</span><strong>{{ lookup_summary.connection.application_id }}</strong></div>
+            <div class="profile-item"><span>Substation &amp; Transformer</span><strong>{{ lookup_summary.connection.transformer.code }} &bull; {{ lookup_summary.connection.transformer.substation_name }}</strong></div>
+            <div class="profile-item"><span>Fixed Base Fare</span><strong>Rs {{ lookup_summary.base_fare }}</strong></div>
+            <div class="profile-item"><span>Per-Unit Rate</span><strong>Rs {{ lookup_summary.rate_per_unit }} / Unit</strong></div>
+
+            {% if lookup_summary.is_commercial %}
+                <div class="profile-item">
+                    <span>Allocated Units Left</span>
+                    <strong id="summaryPrepaidBalance" style="color:#07549a;">{{ lookup_summary.prepaid_units_balance }} Units</strong>
+                    <small id="summaryEstRuntime" style="display:block; color:#365070; font-weight:700; margin-top:2px;">{{ lookup_summary.telemetry.est_runtime_text }}</small>
+                </div>
+                <div class="profile-item">
+                    <span>Active Appliances Load</span>
+                    <strong id="summaryActiveLoad">{{ lookup_summary.telemetry.active_kw|floatformat:2 }} kW ({{ lookup_summary.telemetry.on_count }}/{{ lookup_summary.telemetry.total_count }} ON)</strong>
+                </div>
+                <div class="profile-item">
+                    <span>Hourly Consumption &amp; Cost</span>
+                    <strong id="summaryHourlyBurn">{{ lookup_summary.telemetry.units_per_hour|floatformat:2 }} U/hr &bull; Rs {{ lookup_summary.telemetry.hourly_cost_rs|floatformat:2 }}/hr</strong>
+                </div>
+                <div class="profile-item"><span>Total Units Consumed</span><strong id="summaryTotalConsumed">{{ lookup_summary.total_units_consumed }} Units</strong></div>
+                <div class="profile-item"><span>Total Bulk Units Credited</span><strong>{{ lookup_summary.prepaid_units_allocated_total }} Units</strong></div>
+            {% else %}
+                <div class="profile-item">
+                    <span>Live Current Usage (Pre-Bill)</span>
+                    <strong id="summaryUnbilledUnits">{{ lookup_summary.unbilled_units }} Units</strong>
+                </div>
+                <div class="profile-item">
+                    <span>Active Appliances Load</span>
+                    <strong id="summaryActiveLoad">{{ lookup_summary.telemetry.active_kw|floatformat:2 }} kW ({{ lookup_summary.telemetry.on_count }}/{{ lookup_summary.telemetry.total_count }} ON)</strong>
+                </div>
+                <div class="profile-item">
+                    <span>Active Draw &amp; Tariff Burn</span>
+                    <strong id="summaryHourlyBurn">{{ lookup_summary.telemetry.units_per_hour|floatformat:2 }} U/hr &bull; Rs {{ lookup_summary.telemetry.hourly_cost_rs|floatformat:2 }}/hr</strong>
+                </div>
+                <div class="profile-item"><span>Total Lifetime Units Used</span><strong id="summaryTotalConsumed">{{ lookup_summary.total_units_consumed }} Units</strong></div>
+                <div class="profile-item"><span>Last Billed Meter Reading</span><strong id="summaryLastBilledReading">{{ lookup_summary.last_billed_reading }} Units</strong></div>
+                <div class="profile-item"><span>Admin Monthly Bills Generated</span><strong>{{ lookup_summary.unpaid_monthly_bills|length }} Unpaid</strong></div>
+                <div class="profile-item"><span>Generated Monthly Bill Payable</span><strong style="color:#b91c1c;">Rs {{ lookup_summary.unpaid_monthly_total }}</strong></div>
+            {% endif %}
+        </div>
+
+        <!-- APPLIANCE ON/OFF & LIVE CONSUMPTION / BILLING IMPACT PANEL -->
+        <div class="appliance-billing-box" id="billApplianceSection">
+            <div class="appliance-billing-head">
+                <div>
+                    <h4 style="font-size:14.5px; font-weight:800; color:#082f66; margin:0;">
+                        <i class="fa-solid fa-plug-circle-bolt"></i> Appliance ON/OFF Power Consumption &amp; Billing Impact
+                    </h4>
+                    <p style="font-size:12px; color:#476385; margin:3px 0 0;">
+                        Turning appliances ON or OFF immediately updates active kW load, consumption rate, {% if lookup_summary.is_commercial %}Allocated Units Left runtime{% else %}live cycle usage{% endif %}, and billing rate.
+                    </p>
+                </div>
+                <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                    <button type="button" class="gw-trigger-btn" style="height:34px; font-size:12px;" onclick="simulateBillingHour()">
+                        <i class="fa-solid fa-forward"></i> Simulate 1 Hr @ ON Load
+                    </button>
+                </div>
+            </div>
+            <div class="bill-table-wrap">
+                <table id="billApplianceTable">
+                    <thead>
+                        <tr>
+                            <th>Appliance</th>
+                            <th>Rating</th>
+                            <th>Switch (ON/OFF)</th>
+                            <th>Live Draw Rate</th>
+                            <th>Active Cost Rate</th>
+                            <th>{% if lookup_summary.is_commercial %}Consumed Units{% else %}Cycle / Total Units{% endif %}</th>
+                        </tr>
+                    </thead>
+                    <tbody id="billApplianceBody">
+                        {% for app in lookup_summary.telemetry.appliances %}
+                        <tr>
+                            <td><strong>{{ app.name }}</strong><br><small style="color:#476385;">{{ app.appliance_type }}{% if app.is_custom %} (Custom){% endif %}</small></td>
+                            <td>{{ app.wattage }} W</td>
+                            <td>
+                                {% if app.is_custom %}
+                                <button type="button" class="app-switch-btn {% if app.is_running %}is-on{% endif %}" onclick="toggleBillingCustomAppliance({{ app.id }})">
+                                    {% if app.is_running %}ON{% else %}OFF{% endif %}
+                                </button>
+                                {% else %}
+                                <button type="button" class="app-switch-btn {% if app.is_running %}is-on{% endif %}" onclick="toggleBillingBuiltinAppliance('{{ app.key }}')">
+                                    {% if app.is_running %}ON{% else %}OFF{% endif %}
+                                </button>
+                                {% endif %}
+                            </td>
+                            <td><strong>{{ app.active_kw|floatformat:2 }} kW</strong> ({{ app.units_per_hour|floatformat:2 }} U/hr)</td>
+                            <td><strong>Rs {{ app.cost_per_hour_rs|floatformat:2 }} / hr</strong></td>
+                            <td>
+                                {% if lookup_summary.is_commercial %}
+                                    <strong>{{ app.consumed_units_display }} Units</strong>
+                                {% else %}
+                                    <strong>{{ app.unbilled_units_display }} U</strong> (Total: {{ app.consumed_units_display }} U)
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <tr id="billApplianceTotalRow" style="background:#eaf2ff; font-weight:800; color:#082f66;">
+                            <td><strong>Total (All Appliances)</strong></td>
+                            <td id="billAppTotalRating">{{ lookup_summary.telemetry.active_watts }} W ON</td>
+                            <td id="billAppTotalCount">{{ lookup_summary.telemetry.on_count }}/{{ lookup_summary.telemetry.total_count }} ON</td>
+                            <td id="billAppTotalDraw"><strong>{{ lookup_summary.telemetry.active_kw|floatformat:2 }} kW</strong> ({{ lookup_summary.telemetry.units_per_hour|floatformat:2 }} U/hr)</td>
+                            <td id="billAppTotalRate"><strong>Rs {{ lookup_summary.telemetry.hourly_cost_rs|floatformat:2 }} / hr</strong></td>
+                            <td id="billAppTotalUnits">
+                                {% if lookup_summary.is_commercial %}
+                                    <strong>{{ lookup_summary.total_units_consumed }} Units</strong>
+                                {% else %}
+                                    <strong>{{ lookup_summary.unbilled_units }} U</strong> (Total: {{ lookup_summary.total_units_consumed }} U)
+                                {% endif %}
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
+        {% if not lookup_summary.is_commercial and not lookup_summary.has_generated_monthly_bills %}
+        <div class="flash-msg info" id="domesticAwaitingBillNotice" style="margin-bottom:18px;">
+            <i class="fa-solid fa-hourglass-half"></i>
+            <strong>Monthly Bill Not Generated Yet:</strong> Live consumed units are shown above.
+            Once Administration generates the monthly bill cycle (Base Fare Rs {{ lookup_summary.base_fare }} + Units &times; Rs {{ lookup_summary.rate_per_unit }}/Unit),
+            your official itemized invoice and DISCOM Payment Gateway option will appear below.
+        </div>
+        {% endif %}
+
+        {% if lookup_summary.is_commercial %}
+        <!-- COMMERCIAL BULK RECHARGE PACKS + CUSTOM BULK UNITS -->
+        {% if lookup_summary.prepaid_units_balance <= 0 %}
+        <div class="flash-msg warning" style="background:#fff0f0; border-color:#efb6b6; color:#991b1b;">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            Your Commercial facility has <strong>0.00 Allocated Units</strong>. Select a <strong>Bulk Power Recharge Pack</strong> below and complete payment via the Payment Gateway to unlock facility supply.
+        </div>
+        {% endif %}
+
+        <h3 style="font-size:16px; font-weight:800; color:#082f66; margin-bottom:12px;">
+            <i class="fa-solid fa-boxes-stacked"></i> Commercial Bulk Power Recharge Packs
+        </h3>
+
+        <div class="bulk-packs-grid" id="commercialBulkPacksGrid">
+            {% for pack in commercial_bulk_packs %}
+            <div class="bulk-pack-card" data-pack-code="{{ pack.code }}">
+                <div>
+                    <span class="pack-tag">{{ pack.tag }}</span>
+                    <div class="pack-units">{{ pack.units }} Units</div>
+                    <div class="pack-name">{{ pack.name }}</div>
+                </div>
+                <div class="pack-breakdown">
+                    Base Fare: <strong>Rs {{ pack.base_fare }}</strong><br>
+                    Bulk Energy ({{ pack.units }} &times; Rs {{ commercial_rate }}): <strong>Rs {{ pack.energy_charge }}</strong>
+                </div>
+                <div class="pack-runtime" data-pack-units="{{ pack.units }}">Calculating runtime...</div>
+                <div class="pack-price-row">
+                    <strong>Rs {{ pack.total_amount }}</strong>
+                    <button type="button"
+                            class="gw-trigger-btn"
+                            onclick="openBulkGateway('{{ pack.code }}', '{{ pack.name|escapejs }}', {{ pack.units }}, {{ pack.total_amount }})">
+                        <i class="fa-solid fa-shield-halved"></i> Recharge Now
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- CUSTOM BULK UNIT RECHARGE -->
+        <div class="custom-bulk-box">
+            <h4 style="font-size:14.5px; font-weight:800; color:#082f66; margin-bottom:10px;">
+                <i class="fa-solid fa-sliders"></i> Custom Industrial Bulk Unit Recharge (Minimum {{ min_commercial_bulk_units }} Units)
+            </h4>
+            <div class="custom-bulk-row">
+                <div class="apply-field" style="flex:1; min-width:220px;">
+                    <label for="customBulkUnitsInput">Enter Bulk Units to Recharge</label>
+                    <input type="number"
+                           id="customBulkUnitsInput"
+                           min="{{ min_commercial_bulk_units }}"
+                           step="10"
+                           value="250"
+                           required>
+                </div>
+                <button type="button" id="openCustomBulkGatewayBtn" class="gw-trigger-btn" style="height:40px; padding:0 20px;" onclick="openCustomBulkGateway()">
+                    <i class="fa-solid fa-credit-card"></i> Proceed to Payment Gateway
+                </button>
+            </div>
+            <div class="preview-calc-box" id="customBulkPreview">
+                Base Fare: <strong>Rs {{ base_fare_rs }}</strong> + Energy (250 Units &times; Rs {{ commercial_rate }}) = Total <strong>Rs 2560.00</strong>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- TRANSACTIONS & BILLS TABLE -->
+        <h3 style="font-size:15px; font-weight:800; color:#082f66; margin-bottom:10px;">
+            {% if lookup_summary.is_commercial %}
+                Commercial Bulk Recharge &amp; Gateway Transactions
+            {% else %}
+                Generated Monthly Electricity Bills
+            {% endif %}
+        </h3>
+        <div class="bill-table-wrap" id="billsHistoryTable">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Bill / Receipt No.</th>
+                        <th>{% if lookup_summary.is_commercial %}Bulk Pack{% else %}Billing Month{% endif %}</th>
+                        <th>Units</th>
+                        <th>Base Fare</th>
+                        <th>Energy Charge</th>
+                        <th>Total Amount</th>
+                        <th>Gateway Method &amp; TXN ID</th>
+                        <th>Status / Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for bill in lookup_summary.bills %}
+                    <tr>
+                        <td><strong>{{ bill.bill_number }}</strong></td>
+                        <td>
+                            {% if lookup_summary.is_commercial %}
+                                {{ bill.bulk_pack_name|default:"Bulk Unit Recharge" }}
+                            {% else %}
+                                {{ bill.billing_month|default:"--" }}
+                            {% endif %}
+                        </td>
+                        <td>
+                            <strong>{{ bill.units_billed }} Units</strong> (@ Rs {{ bill.rate_per_unit }})
+                            {% if not lookup_summary.is_commercial %}
+                            <br><small style="color:#4b698c;">Meter: {{ bill.previous_reading }} U &rarr; {{ bill.current_reading }} U</small>
+                            {% endif %}
+                        </td>
+                        <td>Rs {{ bill.base_fare }}</td>
+                        <td>Rs {{ bill.energy_charge }}</td>
+                        <td>
+                            <strong>Rs {{ bill.total_amount }}</strong>
+                            {% if bill.arrears_amount > 0 %}
+                            <br><small style="color:#b45309; font-weight:700;">+ Rs {{ bill.arrears_amount }} Unpaid Carry-Forward{% if bill.carried_from_bills %} ({{ bill.carried_from_bills }}){% endif %}</small>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if bill.transaction_id %}
+                                <strong>{{ bill.payment_method|default:"Gateway" }}</strong><br>
+                                <small style="color:#07549a;"><code>{{ bill.transaction_id }}</code></small>
+                            {% elif bill.status == "Carried Forward" %}
+                                <span style="color:#b45309; font-weight:700;">{{ bill.gateway_status|default:"Carried Forward" }}</span>
+                            {% else %}
+                                <span style="color:#64748b;">Awaiting Gateway Payment</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if bill.status == "Paid" %}
+                                <div style="display:flex; align-items:center; gap:8px;">
+                                    <span class="bill-badge bb-paid">Paid</span>
+                                    <a href="{% url 'download_bill_invoice_pdf' bill.id %}" target="_blank" class="gw-trigger-btn" style="height:28px; padding:0 10px; font-size:11px; background:#eff6ff; color:#0284c7; border:1px solid #93c5fd; text-decoration:none; display:inline-flex; align-items:center; gap:5px;">
+                                        <i class="fa-solid fa-file-pdf"></i> Invoice PDF
+                                    </a>
+                                </div>
+                            {% elif bill.status == "Carried Forward" %}
+                                <span class="bill-badge" style="background:#fef3c7; color:#92400e;">Carried Forward</span>
+                            {% else %}
+                                <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                                    <span class="bill-badge bb-unpaid">Unpaid</span>
+                                    {% if bill.bill_type == "Commercial" %}
+                                    <button type="button"
+                                            class="gw-trigger-btn"
+                                            style="height:30px; padding:0 12px; font-size:11.5px;"
+                                            onclick="openPublishedCommercialGateway({{ bill.id }}, '{{ bill.bill_number|escapejs }}', '{{ bill.billing_month|escapejs }}', {{ bill.total_amount }}, {{ bill.units_billed }})">
+                                        <i class="fa-solid fa-credit-card"></i> Pay via Gateway
+                                    </button>
+                                    {% else %}
+                                    <button type="button"
+                                            class="gw-trigger-btn"
+                                            style="height:30px; padding:0 12px; font-size:11.5px;"
+                                            onclick="openMonthlyGateway({{ bill.id }}, '{{ bill.bill_number|escapejs }}', '{{ bill.billing_month|escapejs }}', {{ bill.total_amount }})">
+                                        <i class="fa-solid fa-credit-card"></i> Pay via Gateway
+                                    </button>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" style="text-align:center; color:#4b698c; padding:18px;">
+                            {% if lookup_summary.is_commercial %}
+                                No Commercial bulk recharges completed yet. Select a Bulk Recharge Pack above.
+                            {% else %}
+                                No monthly bills generated yet. Administration generates itemized monthly bills from consumed units.
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- REAL-TIME DUMMY PAYMENT GATEWAY CHECKOUT MODAL -->
+<div id="paymentGatewayModal" class="pg-overlay" role="dialog" aria-modal="true" aria-labelledby="pgModalTitle">
+    <div class="pg-card">
+        <div class="pg-header">
+            <div class="pg-brand">
+                <div class="pg-brand-badge"><i class="fa-solid fa-building-columns"></i></div>
+                <div>
+                    <h3 id="pgModalTitle">DISCOM PowerPay &bull; Electricity Dept Payment Desk</h3>
+                    <p>Real-Time Authorized Utility / BBPS Payment Gateway</p>
+                </div>
+            </div>
+            <button type="button" class="conn-modal-close" id="closePgModalBtn" aria-label="Close">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <div class="pg-order-bar">
+            <div class="pg-order-meta">
+                <strong id="pgOrderTitle">DISCOM Energy Payment</strong>
+                <span id="pgOrderSubtitle">Meter: {% if lookup_summary %}{{ lookup_summary.meter_number }}{% elif connection %}{{ connection.meter_number }}{% else %}--{% endif %}</span>
+            </div>
+            <div class="pg-amount-tag" id="pgOrderAmountText">Rs 0.00</div>
+        </div>
+
+        <div class="pg-body">
+            <!-- STEP 1: CHOOSE METHOD & CHECKOUT -->
+            <div id="pgCheckoutView">
+                <div class="pg-tabs" role="tablist">
+                    <button type="button" class="pg-tab active" data-pg-method="UPI" onclick="selectPgMethod('UPI', this)">
+                        <i class="fa-solid fa-mobile-screen-button"></i> UPI / BHIM
+                    </button>
+                    <button type="button" class="pg-tab" data-pg-method="Credit / Debit Card" onclick="selectPgMethod('Credit / Debit Card', this)">
+                        <i class="fa-solid fa-credit-card"></i> RuPay / Card
+                    </button>
+                    <button type="button" class="pg-tab" data-pg-method="Net Banking" onclick="selectPgMethod('Net Banking', this)">
+                        <i class="fa-solid fa-building-columns"></i> DISCOM NetBank
+                    </button>
+                    <button type="button" class="pg-tab" data-pg-method="BBPS / Utility Wallet" onclick="selectPgMethod('BBPS / Utility Wallet', this)">
+                        <i class="fa-solid fa-wallet"></i> BBPS Wallet
+                    </button>
+                </div>
+
+                <div id="pgPanel-UPI" class="pg-method-panel active">
+                    <div class="apply-field">
+                        <label for="pgUpiId">UPI / BHIM VPA (Electricity Board Collection Handle)</label>
+                        <input type="text" id="pgUpiId" value="{{ user_account.username }}@okdiscompay" placeholder="consumer@upi">
+                    </div>
+                </div>
+
+                <div id="pgPanel-Card" class="pg-method-panel">
+                    <div class="apply-form-grid">
+                        <div class="apply-field full">
+                            <label for="pgCardNum">RuPay / Visa / Mastercard Number</label>
+                            <input type="text" id="pgCardNum" value="6521 8810 2234 9012">
+                        </div>
+                        <div class="apply-field">
+                            <label for="pgCardExp">Expiry</label>
+                            <input type="text" id="pgCardExp" value="12/29">
+                        </div>
+                        <div class="apply-field">
+                            <label for="pgCardCvv">CVV</label>
+                            <input type="password" id="pgCardCvv" value="786">
+                        </div>
+                    </div>
+                </div>
+
+                <div id="pgPanel-NetBanking" class="pg-method-panel">
+                    <div class="apply-field">
+                        <label for="pgBankSelect">Select DISCOM Clearing Bank</label>
+                        <select id="pgBankSelect">
+                            <option value="SBI">State Bank of India (DISCOM Nodal Pool)</option>
+                            <option value="HDFC">HDFC Utility RTGS/NEFT</option>
+                            <option value="ICICI">ICICI Industrial NetBank</option>
+                            <option value="CANARA">Canara Bank Govt e-Receipt</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="pgPanel-Wallet" class="pg-method-panel">
+                    <div class="apply-field">
+                        <label for="pgWalletId">DISCOM / BBPS Consumer Account ID</label>
+                        <input type="text" id="pgWalletId" value="BBPS-MTR-{{ connection.meter_number|default:'GRID' }}" readonly>
+                    </div>
+                </div>
+
+                <div class="apply-field">
+                    <label for="pgOutcomeSelect">DISCOM Gateway Clearing Simulation</label>
+                    <select id="pgOutcomeSelect">
+                        <option value="success" selected>Authorize Settlement (Instant DISCOM Receipt &amp; Grid Sync)</option>
+                        <option value="failed">Simulate Bank Decline (Failed Clearing)</option>
+                    </select>
+                </div>
+
+                <button type="button" id="pgConfirmPayBtn" class="pg-pay-btn" onclick="executeGatewayPayment()">
+                    <i class="fa-solid fa-lock"></i> Authorize DISCOM Payment
+                </button>
+            </div>
+
+            <!-- STEP 2: REAL-TIME PROCESSING -->
+            <div id="pgProcessingView" style="display:none;">
+                <div class="pg-spinner-wrap">
+                    <div class="pg-spinner"></div>
+                    <h4 style="font-size:16px; color:#082f66; font-weight:800;" id="pgStageLabel">Connecting to DISCOM Billing Server...</h4>
+                    <p style="font-size:12.5px; color:#4b698c; margin-top:6px;">Do not close while real-time NPCI / DISCOM clearing completes.</p>
+                </div>
+            </div>
+
+            <!-- STEP 3: OFFICIAL DISCOM RECEIPT / DECLINE RESULT -->
+            <div id="pgResultView" style="display:none;">
+                <div class="pg-receipt-box">
+                    <div id="pgReceiptIcon" class="pg-receipt-icon ok">
+                        <i class="fa-solid fa-circle-check"></i>
+                    </div>
+                    <h4 id="pgReceiptTitle" style="font-size:17px; color:#082f66; font-weight:800;">Official DISCOM Payment Receipt</h4>
+                    <div class="pg-receipt-details" id="pgReceiptDetails"></div>
+                    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                        <button type="button" id="pgRetryBtn" class="apply-cancel-btn" style="display:none; flex:1;" onclick="resetGatewayToCheckout()">
+                            Retry Payment
+                        </button>
+                        <button type="button" id="pgPrintBtn" class="apply-cancel-btn" style="flex:1;" onclick="window.print()">
+                            <i class="fa-solid fa-print"></i> Print Receipt
+                        </button>
+                        <button type="button" id="pgDoneBtn" class="apply-submit-btn" style="flex:1;" onclick="finishGatewayFlow()">
+                            Done &amp; Update Portal
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% if lookup_summary %}{{ lookup_summary.telemetry|json_script:"initialBillingTelemetry" }}{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    (function () {
+        const baseFare = Number("{{ base_fare_rs }}");
+        const commRate = Number("{{ commercial_rate }}");
+        const minBulkUnits = Number("{{ min_commercial_bulk_units }}");
+        const meterNumber = "{% if lookup_summary %}{{ lookup_summary.meter_number|escapejs }}{% elif connection and connection.meter_number %}{{ connection.meter_number|escapejs }}{% endif %}";
+
+        const unitsInput = document.getElementById('customBulkUnitsInput');
+        const customPreview = document.getElementById('customBulkPreview');
+        let billingTelemetry = null;
+        const initialTelScript = document.getElementById('initialBillingTelemetry');
+        if (initialTelScript) {
+            try { billingTelemetry = JSON.parse(initialTelScript.textContent); } catch (e) {}
+        }
+        const IS_LOOKUP_COMMERCIAL = {% if lookup_summary and lookup_summary.is_commercial %}true{% else %}false{% endif %};
+        let billingPrepaidBal = Number("{% if lookup_summary %}{{ lookup_summary.prepaid_units_balance|default:'0' }}{% else %}0{% endif %}");
+        let billingUnbilled = Number("{% if lookup_summary %}{{ lookup_summary.unbilled_units|default:'0' }}{% else %}0{% endif %}");
+        let billingTotalConsumed = Number("{% if lookup_summary %}{{ lookup_summary.total_units_consumed|default:'0' }}{% else %}0{% endif %}");
+
+        function formatPackRuntimeForKw(units, kw) {
+            if (!units || units <= 0) return '';
+            if (!kw || kw <= 0) return 'Standby • Turn ON appliances to estimate runtime';
+            const totalMins = Math.max(1, Math.round((units / kw) * 60));
+            const hh = Math.floor(totalMins / 60);
+            const mm = totalMins % 60;
+            return 'Runs ON appliances ~' + (hh > 0 ? hh + 'h ' + mm + 'm' : mm + 'm') + ' @ ' + kw.toFixed(2) + ' kW';
+        }
+
+        function refreshPackRuntimeTags() {
+            const kw = billingTelemetry ? Number(billingTelemetry.active_kw || 0) : 0;
+            document.querySelectorAll('.pack-runtime[data-pack-units]').forEach(function (el) {
+                const u = Number(el.getAttribute('data-pack-units') || 0);
+                el.textContent = formatPackRuntimeForKw(u, kw);
+            });
+        }
+
+        function renderBillingTelemetry(tel) {
+            if (!tel) return;
+            billingTelemetry = tel;
+            const balEl = document.getElementById('summaryPrepaidBalance');
+            const rtEl = document.getElementById('summaryEstRuntime');
+            const unbEl = document.getElementById('summaryUnbilledUnits');
+            const totEl = document.getElementById('summaryTotalConsumed');
+            const loadEl = document.getElementById('summaryActiveLoad');
+            const burnEl = document.getElementById('summaryHourlyBurn');
+            if (balEl) balEl.textContent = billingPrepaidBal.toFixed(2) + ' Units';
+            if (rtEl && tel.est_runtime_text !== undefined) rtEl.textContent = tel.est_runtime_text;
+            if (unbEl) unbEl.textContent = billingUnbilled.toFixed(2) + ' Units';
+            if (totEl) totEl.textContent = billingTotalConsumed.toFixed(2) + ' Units';
+            if (loadEl) loadEl.textContent = Number(tel.active_kw || 0).toFixed(2) + ' kW (' + tel.on_count + '/' + tel.total_count + ' ON)';
+            if (burnEl) {
+                burnEl.textContent = Number(tel.units_per_hour || 0).toFixed(2) + ' U/hr • Rs ' + Number(tel.hourly_cost_rs || 0).toFixed(2) + '/hr';
+            }
+
+            const tbody = document.getElementById('billApplianceBody');
+            if (tbody && Array.isArray(tel.appliances)) {
+                tbody.innerHTML = '';
+                tel.appliances.forEach(function (app) {
+                    const tr = document.createElement('tr');
+
+                    const tdName = document.createElement('td');
+                    const strongN = document.createElement('strong');
+                    strongN.textContent = app.name;
+                    const brN = document.createElement('br');
+                    const smallN = document.createElement('small');
+                    smallN.style.color = '#476385';
+                    smallN.textContent = app.appliance_type + (app.is_custom ? ' (Custom)' : '');
+                    tdName.appendChild(strongN);
+                    tdName.appendChild(brN);
+                    tdName.appendChild(smallN);
+
+                    const tdW = document.createElement('td');
+                    tdW.textContent = app.wattage + ' W';
+
+                    const tdSw = document.createElement('td');
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'app-switch-btn' + (app.is_running ? ' is-on' : '');
+                    btn.textContent = app.is_running ? 'ON' : 'OFF';
+                    btn.addEventListener('click', function () {
+                        if (app.is_custom) window.toggleBillingCustomAppliance(app.id);
+                        else window.toggleBillingBuiltinAppliance(app.key);
+                    });
+                    tdSw.appendChild(btn);
+
+                    const tdDraw = document.createElement('td');
+                    tdDraw.innerHTML = '<strong>' + Number(app.active_kw || 0).toFixed(2) + ' kW</strong> (' + Number(app.units_per_hour || 0).toFixed(2) + ' U/hr)';
+
+                    const tdRate = document.createElement('td');
+                    tdRate.innerHTML = '<strong>Rs ' + Number(app.cost_per_hour_rs || 0).toFixed(2) + ' / hr</strong>';
+
+                    const tdUsed = document.createElement('td');
+                    if (IS_LOOKUP_COMMERCIAL) {
+                        tdUsed.innerHTML = '<strong>' + (app.consumed_units_display || Number(app.consumed_units || 0).toFixed(2)) + ' Units</strong>';
+                    } else {
+                        tdUsed.innerHTML = '<strong>' + (app.unbilled_units_display || Number(app.unbilled_consumed_units || 0).toFixed(2)) + ' U</strong> (Total: ' + (app.consumed_units_display || Number(app.consumed_units || 0).toFixed(2)) + ' U)';
+                    }
+
+                    tr.appendChild(tdName);
+                    tr.appendChild(tdW);
+                    tr.appendChild(tdSw);
+                    tr.appendChild(tdDraw);
+                    tr.appendChild(tdRate);
+                    tr.appendChild(tdUsed);
+                    tbody.appendChild(tr);
+                });
+            }
+            const totRatingEl = document.getElementById('billAppTotalRating');
+            const totCountEl = document.getElementById('billAppTotalCount');
+            const totDrawEl = document.getElementById('billAppTotalDraw');
+            const totRateEl = document.getElementById('billAppTotalRate');
+            const totUnitsEl = document.getElementById('billAppTotalUnits');
+            if (totRatingEl) totRatingEl.textContent = (tel.active_watts || 0) + ' W ON';
+            if (totCountEl) totCountEl.textContent = (tel.on_count || 0) + '/' + (tel.total_count || 0) + ' ON';
+            if (totDrawEl) totDrawEl.innerHTML = '<strong>' + Number(tel.active_kw || 0).toFixed(2) + ' kW</strong> (' + Number(tel.units_per_hour || 0).toFixed(2) + ' U/hr)';
+            if (totRateEl) totRateEl.innerHTML = '<strong>Rs ' + Number(tel.hourly_cost_rs || 0).toFixed(2) + ' / hr</strong>';
+            if (totUnitsEl) {
+                if (IS_LOOKUP_COMMERCIAL) {
+                    totUnitsEl.innerHTML = '<strong>' + billingTotalConsumed.toFixed(2) + ' Units</strong>';
+                } else {
+                    totUnitsEl.innerHTML = '<strong>' + billingUnbilled.toFixed(2) + ' U</strong> (Total: ' + billingTotalConsumed.toFixed(2) + ' U)';
+                }
+            }
+            refreshPackRuntimeTags();
+            updateCustomBulkPreview();
+        }
+
+        window.toggleBillingBuiltinAppliance = function (appKey) {
+            const csrfInput = document.querySelector('#userCsrfHolder input[name="csrfmiddlewaretoken"]');
+            fetch('/users/appliances/builtin/' + encodeURIComponent(appKey) + '/toggle/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfInput ? csrfInput.value : '',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+                if (data.blocked && data.message) { alert(data.message); return; }
+                if (data.telemetry) renderBillingTelemetry(data.telemetry);
+            })
+            .catch(function (e) { console.error(e); });
+        };
+
+        window.toggleBillingCustomAppliance = function (appId) {
+            const csrfInput = document.querySelector('#userCsrfHolder input[name="csrfmiddlewaretoken"]');
+            fetch('/users/appliances/' + appId + '/toggle/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfInput ? csrfInput.value : '',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+                if (data.blocked && data.message) { alert(data.message); return; }
+                if (data.telemetry) renderBillingTelemetry(data.telemetry);
+            })
+            .catch(function (e) { console.error(e); });
+        };
+
+        window.simulateBillingHour = function () {
+            const csrfInput = document.querySelector('#userCsrfHolder input[name="csrfmiddlewaretoken"]');
+            const body = new URLSearchParams({
+                use_server_appliances: '1',
+                duration_hours: '1.0'
+            });
+            fetch("{% url 'record_power_usage' %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': csrfInput ? csrfInput.value : '',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                },
+                body: body.toString()
+            })
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+                if (data.prepaid_units_balance !== undefined) billingPrepaidBal = Number(data.prepaid_units_balance);
+                if (data.unbilled_units !== undefined) billingUnbilled = Number(data.unbilled_units);
+                if (data.total_units_consumed !== undefined) billingTotalConsumed = Number(data.total_units_consumed);
+                if (data.telemetry) renderBillingTelemetry(data.telemetry);
+                if (data.exhausted && data.message) alert(data.message);
+            })
+            .catch(function (e) { console.error(e); });
+        };
+
+        function pollBillingTelemetry() {
+            if (!document.getElementById('billSummaryCard')) return;
+            fetch("{% url 'power_status_api' %}", { headers: { 'Accept': 'application/json' } })
+            .then(function (r) { return r.ok ? r.json() : null; })
+            .then(function (data) {
+                if (!data || !data.is_connected) return;
+                if (data.prepaid_units_balance !== undefined) billingPrepaidBal = Number(data.prepaid_units_balance);
+                if (data.unbilled_units !== undefined) billingUnbilled = Number(data.unbilled_units);
+                if (data.total_units_consumed !== undefined) billingTotalConsumed = Number(data.total_units_consumed);
+                if (data.telemetry) renderBillingTelemetry(data.telemetry);
+            })
+            .catch(function () {});
+        }
+
+        function updateCustomBulkPreview() {
+            if (!unitsInput || !customPreview) return;
+            const units = Number(unitsInput.value || 0);
+            if (units < minBulkUnits) {
+                customPreview.textContent = 'Minimum Commercial Bulk Recharge is ' + minBulkUnits + ' Units (Rs ' + (baseFare + minBulkUnits * commRate).toFixed(2) + ').';
+                return;
+            }
+            const energy = units * commRate;
+            const total = baseFare + energy;
+            const kw = billingTelemetry ? Number(billingTelemetry.active_kw || 0) : 0;
+            const runtimeHint = kw > 0 ? (' &bull; ' + formatPackRuntimeForKw(units, kw)) : '';
+            customPreview.innerHTML =
+                'Base Fare: <strong>Rs ' + baseFare.toFixed(2) + '</strong> + Energy (' + units.toFixed(0) + ' Units &times; Rs ' + commRate.toFixed(2) + ') = ' +
+                'Total <strong>Rs ' + total.toFixed(2) + '</strong>' + runtimeHint;
+        }
+        if (unitsInput) {
+            unitsInput.addEventListener('input', updateCustomBulkPreview);
+            updateCustomBulkPreview();
+        }
+        refreshPackRuntimeTags();
+        if (document.getElementById('billSummaryCard')) {
+            setInterval(pollBillingTelemetry, 2500);
+        }
+
+        const pgModal = document.getElementById('paymentGatewayModal');
+        const closePgBtn = document.getElementById('closePgModalBtn');
+        const pgCheckoutView = document.getElementById('pgCheckoutView');
+        const pgProcessingView = document.getElementById('pgProcessingView');
+        const pgResultView = document.getElementById('pgResultView');
+        const pgOrderTitle = document.getElementById('pgOrderTitle');
+        const pgOrderSubtitle = document.getElementById('pgOrderSubtitle');
+        const pgOrderAmountText = document.getElementById('pgOrderAmountText');
+        const pgConfirmBtn = document.getElementById('pgConfirmPayBtn');
+        const pgStageLabel = document.getElementById('pgStageLabel');
+        const pgReceiptIcon = document.getElementById('pgReceiptIcon');
+        const pgReceiptTitle = document.getElementById('pgReceiptTitle');
+        const pgReceiptDetails = document.getElementById('pgReceiptDetails');
+        const pgRetryBtn = document.getElementById('pgRetryBtn');
+        const pgDoneBtn = document.getElementById('pgDoneBtn');
+
+        const pgPayload = {
+            pay_kind: 'prepaid',
+            meter_number: meterNumber,
+            pack_code: '',
+            bulk_units: '',
+            bill_id: '',
+            payment_method: 'UPI',
+            redirect_url: ''
+        };
+
+        window.resetGatewayToCheckout = function () {
+            pgCheckoutView.style.display = 'block';
+            pgProcessingView.style.display = 'none';
+            pgResultView.style.display = 'none';
+        };
+
+        function openPgModal(title, subtitle, amount) {
+            pgOrderTitle.textContent = title;
+            pgOrderSubtitle.textContent = subtitle;
+            pgOrderAmountText.textContent = 'Rs ' + Number(amount).toFixed(2);
+            pgConfirmBtn.innerHTML = '<i class="fa-solid fa-lock"></i> Pay Rs ' + Number(amount).toFixed(2) + ' Now';
+            window.resetGatewayToCheckout();
+            pgModal.classList.add('open');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closePgModal() {
+            pgModal.classList.remove('open');
+            document.body.style.overflow = '';
+        }
+        if (closePgBtn) closePgBtn.addEventListener('click', closePgModal);
+
+        window.openBulkGateway = function (packCode, packName, units, totalAmount) {
+            pgPayload.pay_kind = 'prepaid';
+            pgPayload.meter_number = meterNumber;
+            pgPayload.pack_code = packCode;
+            pgPayload.bulk_units = '';
+            pgPayload.bill_id = '';
+            openPgModal(packName + ' (' + units + ' Units)', 'Meter: ' + meterNumber + ' • Commercial Bulk Recharge', totalAmount);
+        };
+
+        window.openCustomBulkGateway = function () {
+            const units = Number(unitsInput ? unitsInput.value : 0);
+            if (units < minBulkUnits) {
+                alert('Minimum Commercial Bulk Recharge is ' + minBulkUnits + ' Units.');
+                return;
+            }
+            const totalAmount = baseFare + units * commRate;
+            pgPayload.pay_kind = 'prepaid';
+            pgPayload.meter_number = meterNumber;
+            pgPayload.pack_code = '';
+            pgPayload.bulk_units = String(units);
+            pgPayload.bill_id = '';
+            openPgModal('Custom Bulk Pack (' + units + ' Units)', 'Meter: ' + meterNumber + ' • Commercial Bulk Recharge', totalAmount);
+        };
+
+        window.openMonthlyGateway = function (billId, billNo, monthStr, totalAmount) {
+            pgPayload.pay_kind = 'monthly';
+            pgPayload.meter_number = meterNumber;
+            pgPayload.pack_code = '';
+            pgPayload.bulk_units = '';
+            pgPayload.bill_id = String(billId);
+            openPgModal('Monthly Bill ' + billNo, 'Meter: ' + meterNumber + ' • Billing Month: ' + monthStr, totalAmount);
+        };
+
+        window.openPublishedCommercialGateway = function (billId, billNo, monthStr, totalAmount, unitsVal) {
+            pgPayload.pay_kind = 'commercial_bill';
+            pgPayload.meter_number = meterNumber;
+            pgPayload.pack_code = '';
+            pgPayload.bulk_units = '';
+            pgPayload.bill_id = String(billId);
+            openPgModal('Published Commercial Bill ' + billNo + ' (+' + unitsVal + ' Units)', 'Meter: ' + meterNumber + ' • Billing Month: ' + monthStr, totalAmount);
+        };
+
+        window.selectPgMethod = function (methodName, btn) {
+            pgPayload.payment_method = methodName;
+            document.querySelectorAll('.pg-tab').forEach(function (t) { t.classList.remove('active'); });
+            if (btn) btn.classList.add('active');
+            document.querySelectorAll('.pg-method-panel').forEach(function (p) { p.classList.remove('active'); });
+            if (methodName === 'UPI') document.getElementById('pgPanel-UPI').classList.add('active');
+            else if (methodName === 'Credit / Debit Card') document.getElementById('pgPanel-Card').classList.add('active');
+            else if (methodName === 'Net Banking') document.getElementById('pgPanel-NetBanking').classList.add('active');
+            else document.getElementById('pgPanel-Wallet').classList.add('active');
+        };
+
+        window.executeGatewayPayment = function () {
+            pgCheckoutView.style.display = 'none';
+            pgProcessingView.style.display = 'block';
+            pgResultView.style.display = 'none';
+            pgStageLabel.textContent = '1/3 · Verifying Consumer Meter & DISCOM Tariff...';
+
+            setTimeout(function () {
+                pgStageLabel.textContent = '2/3 · Authorizing via ' + pgPayload.payment_method + ' Clearing Bank...';
+            }, 350);
+
+            setTimeout(function () {
+                const csrfInput = document.querySelector('#userCsrfHolder input[name="csrfmiddlewaretoken"]');
+                const outcome = document.getElementById('pgOutcomeSelect').value;
+                const body = new URLSearchParams({
+                    pay_kind: pgPayload.pay_kind,
+                    meter_number: pgPayload.meter_number,
+                    pack_code: pgPayload.pack_code,
+                    bulk_units: pgPayload.bulk_units,
+                    bill_id: pgPayload.bill_id,
+                    payment_method: pgPayload.payment_method,
+                    simulate_outcome: outcome
+                });
+
+                fetch("{% url 'user_pay_bill' %}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-CSRFToken': csrfInput ? csrfInput.value : '',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    },
+                    body: body.toString()
+                })
+                .then(function (resp) { return resp.json().then(function (d) { return { ok: resp.ok, data: d }; }); })
+                .then(function (res) {
+                    pgProcessingView.style.display = 'none';
+                    pgResultView.style.display = 'block';
+                    pgReceiptDetails.innerHTML = '';
+
+                    if (res.ok && res.data.ok) {
+                        pgPayload.redirect_url = res.data.redirect_url || window.location.href;
+                        pgReceiptIcon.className = 'pg-receipt-icon ok';
+                        pgReceiptIcon.innerHTML = '<i class="fa-solid fa-circle-check"></i>';
+                        pgReceiptTitle.textContent = 'Official DISCOM Payment Receipt — Settled';
+                        pgRetryBtn.style.display = 'none';
+
+                        const rows = [
+                            ['Utility Desk', res.data.billing_agency || 'Electricity Department DISCOM'],
+                            ['Transaction ID', res.data.transaction_id],
+                            ['Receipt / Bill No.', res.data.bill_number],
+                            ['Service Meter No.', res.data.meter_number || meterNumber],
+                            ['Category', res.data.category || '--'],
+                            ['Substation Feeder', res.data.substation || '--'],
+                            ['Method', res.data.payment_method],
+                            ['Base + Energy Charge', 'Rs ' + Number(res.data.base_fare || 0).toFixed(2) + ' + Rs ' + Number(res.data.energy_charge || 0).toFixed(2) + ' (@ Rs ' + Number(res.data.rate_per_unit || 0).toFixed(2) + '/U)'],
+                            ['Total Paid', 'Rs ' + Number(res.data.total_amount).toFixed(2)],
+                            ['Settled At', res.data.paid_at_ist || 'Instant Settlement']
+                        ];
+                        if (res.data.allocated_units !== undefined) {
+                            rows.push(['Bulk Pack', res.data.pack_name || 'Bulk Recharge']);
+                            rows.push(['Units Credited', '+' + Number(res.data.allocated_units).toFixed(2) + ' Units']);
+                            rows.push(['New Balance', Number(res.data.prepaid_units_balance).toFixed(2) + ' Units']);
+                        }
+                        rows.forEach(function (pair) {
+                            const div = document.createElement('div');
+                            div.innerHTML = '<strong>' + pair[0] + ':</strong> ';
+                            const valSpan = document.createElement('span');
+                            valSpan.textContent = pair[1];
+                            div.appendChild(valSpan);
+                            pgReceiptDetails.appendChild(div);
+                        });
+                    } else {
+                        pgPayload.redirect_url = '';
+                        pgReceiptIcon.className = 'pg-receipt-icon err';
+                        pgReceiptIcon.innerHTML = '<i class="fa-solid fa-circle-xmark"></i>';
+                        pgReceiptTitle.textContent = 'DISCOM Gateway Declined';
+                        pgRetryBtn.style.display = 'inline-flex';
+                        const errP = document.createElement('p');
+                        errP.style.color = '#991b1b';
+                        errP.style.fontWeight = '700';
+                        errP.textContent = (res.data && res.data.error) || 'Bank clearing declined the payment.';
+                        pgReceiptDetails.appendChild(errP);
+                    }
+                })
+                .catch(function () {
+                    pgProcessingView.style.display = 'none';
+                    pgResultView.style.display = 'block';
+                    pgReceiptIcon.className = 'pg-receipt-icon err';
+                    pgReceiptIcon.innerHTML = '<i class="fa-solid fa-circle-xmark"></i>';
+                    pgReceiptTitle.textContent = 'Gateway Network Error';
+                    pgRetryBtn.style.display = 'inline-flex';
+                });
+            }, 900);
+        };
+
+        window.finishGatewayFlow = function () {
+            if (pgPayload.redirect_url) {
+                window.location.href = pgPayload.redirect_url;
+            } else {
+                closePgModal();
+            }
+        };
+    })();
+</script>
+{% endblock %}

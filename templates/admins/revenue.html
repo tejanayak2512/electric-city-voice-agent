@@ -1,0 +1,277 @@
+{% extends "admins/admin_base.html" %}
+
+{% block title %}6. Revenue &amp; Month-Wise Totals | Admin Portal{% endblock %}
+{% block portal_subtitle %}Administration &bull; DISCOM Monthly Revenue, Category Breakdown &amp; Cumulative Totals{% endblock %}
+{% block footer_tag %}Step 6 &bull; DISCOM Financial Revenue &amp; Settlement Ledger{% endblock %}
+
+{% block extra_css %}
+<style>
+    .revenue-filter-bar {
+        display: flex; gap: 12px; align-items: end; flex-wrap: wrap;
+        background: #ffffff; border: 1.5px solid #c6d8ed; border-radius: 12px;
+        padding: 14px 16px; margin-bottom: 20px;
+        box-shadow: 0 4px 12px rgba(8, 47, 96, 0.05);
+    }
+    .form-field { flex: 1; min-width: 190px; }
+    .form-field label { display: block; font-size: 12px; font-weight: 700; color: #102b4c; margin-bottom: 5px; }
+    .form-field input, .form-field select {
+        width: 100%; height: 40px; padding: 8px 12px; border: 1.5px solid #c6d8ed; border-radius: 8px;
+        font-family: inherit; font-size: 13px; background: #ffffff; color: #102b4c;
+    }
+    .btn-primary {
+        height: 40px; padding: 0 18px; border: 0; border-radius: 8px;
+        background: linear-gradient(90deg, #06417f, #07549a); color: #ffffff; font-weight: 700; font-size: 13px; cursor: pointer;
+        white-space: nowrap; display: inline-flex; align-items: center; gap: 7px;
+    }
+    .btn-reset {
+        height: 40px; padding: 0 14px; border: 1.5px solid #cbdcf0; border-radius: 8px;
+        background: #f8fbff; color: #082f66; font-weight: 700; font-size: 12.5px;
+        display: inline-flex; align-items: center; gap: 6px;
+    }
+    .rev-badge { display: inline-block; padding: 4px 10px; border-radius: 999px; font-size: 11px; font-weight: 800; }
+    .rb-dom { background: #e0f2fe; color: #075985; }
+    .rb-comm { background: #ede9fe; color: #5b21b6; }
+    .rb-fee { background: #dcfce7; color: #166534; }
+    .total-strip-card {
+        background: linear-gradient(135deg, #f8fbff 0%, #eef5ff 100%);
+        border: 1.5px solid #bfd6f2; border-radius: 12px; padding: 15px 18px;
+    }
+    .total-strip-card.grand {
+        background: linear-gradient(135deg, #063b78 0%, #07549a 100%);
+        border-color: #063b78; color: #ffffff;
+    }
+    .total-strip-card span { display: block; font-size: 11.5px; font-weight: 700; text-transform: uppercase; color: #476385; margin-bottom: 4px; }
+    .total-strip-card strong { font-size: 21px; font-weight: 800; color: #082f66; }
+    .total-strip-card.grand span { color: #bae6fd; }
+    .total-strip-card.grand strong { color: #ffffff; }
+    .billing-subnav {
+        display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+        background: #ffffff; border: 1.5px solid #c6d8ed; border-radius: 14px;
+        padding: 10px 14px; margin-bottom: 20px;
+        box-shadow: 0 4px 12px rgba(8, 47, 96, 0.06);
+    }
+    .billing-tab-link {
+        display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px;
+        border-radius: 10px; font-size: 13.5px; font-weight: 800; color: #102b4c;
+        background: #f4f8fe; border: 1.5px solid #d5e3f3; transition: all 0.18s ease;
+    }
+    .billing-tab-link:hover { background: #e6f0ff; border-color: #60a5fa; color: #063b78; }
+    .billing-tab-link.active {
+        background: linear-gradient(90deg, #065f46, #059669);
+        color: #ffffff; border-color: #065f46;
+        box-shadow: 0 6px 14px rgba(5, 150, 105, 0.25);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<nav class="billing-subnav" id="billingSectionTabs" aria-label="Billing &amp; Revenue Navigation">
+    <a href="{% url 'admin_billing' %}" class="billing-tab-link">
+        <i class="fa-solid fa-house"></i> 1. Domestic Billing &amp; Monthly Ledger
+    </a>
+    <a href="{% url 'admin_billing_commercial' %}" class="billing-tab-link">
+        <i class="fa-solid fa-industry"></i> 2. Commercial Billing &amp; Bulk Overview
+    </a>
+    <a href="{% url 'admin_billing_tariffs' %}" class="billing-tab-link">
+        <i class="fa-solid fa-sliders"></i> 3. Tariff &amp; Fare Settings
+    </a>
+    <a href="{% url 'admin_revenue' %}" class="billing-tab-link active">
+        <i class="fa-solid fa-sack-dollar"></i> 4. Revenue &amp; Collections
+    </a>
+</nav>
+
+<section class="welcome-banner" id="revenueWelcomeBanner" style="margin-bottom: 20px; background: linear-gradient(135deg, #0755a0, #082f60); color: #fff; border-radius: 12px; padding: 18px 24px; display: flex; align-items: center; justify-content: space-between;">
+    <div>
+        <h2 style="font-size: 20px; font-weight: 800; margin-bottom: 4px;"><i class="fa-solid fa-sack-dollar"></i> DISCOM Revenue &amp; Settlement Ledger</h2>
+        <p style="font-size: 13.5px; opacity: 0.9;">Review cumulative and calendar month-wise collections across domestic bills, commercial bulk invoices, and connection security fees.</p>
+    </div>
+</section>
+
+
+
+<!-- MONTH CALENDAR & CATEGORY FILTER -->
+<form method="get" action="{% url 'admin_revenue' %}" id="revenueFilterForm" class="revenue-filter-bar">
+    <div class="form-field" style="max-width:230px;">
+        <label for="revenueMonthInput">Calendar Month Filter (Year &amp; Month)</label>
+        <input type="month"
+               id="revenueMonthInput"
+               name="revenue_month"
+               value="{{ revenue_month }}"
+               onchange="this.form.submit()"
+               required>
+    </div>
+    <div class="form-field" style="max-width:230px;">
+        <label for="revenueCategoryFilter">Revenue Category</label>
+        <select id="revenueCategoryFilter" name="category" onchange="this.form.submit()">
+            <option value="" {% if not category_filter %}selected{% endif %}>All Revenue Sources</option>
+            <option value="Domestic" {% if category_filter == "Domestic" %}selected{% endif %}>Domestic Energy Bills</option>
+            <option value="Commercial" {% if category_filter == "Commercial" %}selected{% endif %}>Commercial Bulk &amp; Bills</option>
+            <option value="Connection Fee" {% if category_filter == "Connection Fee" %}selected{% endif %}>New Connection Charges</option>
+        </select>
+    </div>
+    <button type="submit" id="applyRevenueFilterBtn" class="btn-primary">
+        <i class="fa-solid fa-filter"></i> Filter Month Revenue
+    </button>
+    <a href="{% url 'admin_revenue' %}" class="btn-reset">
+        <i class="fa-solid fa-rotate-left"></i> Current Month ({{ default_month }})
+    </a>
+</form>
+
+<!-- SELECTED MONTH REVENUE BREAKDOWN -->
+<div class="section-order-title">
+    <h3><span class="step-pill">Monthly</span> Revenue Collected in Selected Month ({{ revenue_month }})</h3>
+</div>
+<section class="kpi-strip" id="monthlyRevenueKpiStrip">
+    <div class="kpi-card">
+        <div>
+            <span>Month Total Revenue ({{ revenue_month }})</span>
+            <strong id="monthTotalRevenueValue">Rs {{ month_total_revenue_rs }}</strong>
+        </div>
+        <div class="kpi-icon ki-green"><i class="fa-solid fa-indian-rupee-sign"></i></div>
+    </div>
+    <div class="kpi-card">
+        <div>
+            <span>Domestic Paid ({{ month_dom_count }} bills)</span>
+            <strong id="monthDomesticRevenueValue">Rs {{ month_domestic_revenue_rs }}</strong>
+        </div>
+        <div class="kpi-icon ki-blue"><i class="fa-solid fa-house"></i></div>
+    </div>
+    <div class="kpi-card">
+        <div>
+            <span>Commercial Paid ({{ month_comm_count }} bills)</span>
+            <strong id="monthCommercialRevenueValue">Rs {{ month_commercial_revenue_rs }}</strong>
+        </div>
+        <div class="kpi-icon ki-purple"><i class="fa-solid fa-industry"></i></div>
+    </div>
+    <div class="kpi-card">
+        <div>
+            <span>Connection Fees ({{ month_conn_count }} apps)</span>
+            <strong id="monthConnFeeRevenueValue">Rs {{ month_connection_fee_revenue_rs }}</strong>
+        </div>
+        <div class="kpi-icon ki-yellow"><i class="fa-solid fa-plug-circle-check"></i></div>
+    </div>
+</section>
+
+<!-- CUMULATIVE ALL-TIME TOTAL REVENUE -->
+<div class="section-order-title">
+    <h3><span class="step-pill">All-Time</span> Cumulative Total Revenue Across All Months</h3>
+</div>
+<section class="kpi-strip" id="totalRevenueKpiStrip">
+    <div class="total-strip-card grand">
+        <span>Total Revenue (All-Time Combined)</span>
+        <strong id="allTimeTotalRevenueValue">Rs {{ total_revenue_rs }}</strong>
+    </div>
+    <div class="total-strip-card">
+        <span>All-Time Domestic Revenue</span>
+        <strong>Rs {{ total_domestic_revenue_rs }}</strong>
+    </div>
+    <div class="total-strip-card">
+        <span>All-Time Commercial Revenue</span>
+        <strong>Rs {{ total_commercial_revenue_rs }}</strong>
+    </div>
+    <div class="total-strip-card">
+        <span>All-Time Connection Fees ({{ total_conn_fees_count }})</span>
+        <strong>Rs {{ total_connection_fee_revenue_rs }}</strong>
+    </div>
+</section>
+
+<!-- SETTLED TRANSACTIONS FOR SELECTED MONTH -->
+<div class="section-order-title">
+    <h3><span class="step-pill">Transactions</span> Paid Settlements in {{ revenue_month }} ({{ month_transactions|length }} Record(s))</h3>
+</div>
+<section class="panel-card">
+    <div class="panel-header">
+        <span><i class="fa-solid fa-receipt"></i> Settled Revenue Ledger &mdash; {{ revenue_month }}{% if category_filter %} ({{ category_filter }}){% endif %}</span>
+        <span>Total Shown: Rs {{ month_total_revenue_rs }}</span>
+    </div>
+    <div class="panel-body table-wrap">
+        <table id="monthRevenueTxTable">
+            <thead>
+                <tr>
+                    <th>Receipt / Bill No.</th>
+                    <th>Category</th>
+                    <th>Revenue Source</th>
+                    <th>Consumer &amp; Meter / Req ID</th>
+                    <th>Payment Method</th>
+                    <th>Gateway TXN ID</th>
+                    <th>Settled Amount</th>
+                    <th>Paid At</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for tx in month_transactions %}
+                <tr>
+                    <td><strong>{{ tx.ref_no }}</strong></td>
+                    <td>
+                        <span class="rev-badge {% if tx.category == 'Domestic' %}rb-dom{% elif tx.category == 'Commercial' %}rb-comm{% else %}rb-fee{% endif %}">
+                            {{ tx.category }}
+                        </span>
+                    </td>
+                    <td>{{ tx.source }}</td>
+                    <td><strong>{{ tx.consumer }}</strong><br><small style="color:#4b698c;"><code>{{ tx.meter_or_req }}</code></small></td>
+                    <td>{{ tx.method }}</td>
+                    <td><code>{{ tx.transaction_id }}</code></td>
+                    <td><strong style="color:#15803d;">Rs {{ tx.amount }}</strong></td>
+                    <td>{{ tx.paid_at|date:"d M Y, h:i A" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" style="text-align:center; color:#4b698c; padding:24px;">
+                        No paid revenue transactions recorded for <strong>{{ revenue_month }}</strong>{% if category_filter %} in {{ category_filter }}{% endif %}.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<!-- MONTH-BY-MONTH SUMMARY TABLE -->
+<div class="section-order-title">
+    <h3><span class="step-pill">Summary</span> Month-by-Month Revenue History</h3>
+</div>
+<section class="panel-card">
+    <div class="panel-header">
+        <span><i class="fa-solid fa-chart-column"></i> Monthly Collection Breakdown Across All Months</span>
+        <span>Grand Total: Rs {{ total_revenue_rs }}</span>
+    </div>
+    <div class="panel-body table-wrap">
+        <table id="monthlyRevenueSummaryTable">
+            <thead>
+                <tr>
+                    <th>Billing Month</th>
+                    <th>Settled Transactions</th>
+                    <th>Domestic Revenue</th>
+                    <th>Commercial Revenue</th>
+                    <th>Connection Fees</th>
+                    <th>Month Total Revenue</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in monthly_breakdown %}
+                <tr>
+                    <td><strong>{{ row.month }}</strong></td>
+                    <td>{{ row.count }}</td>
+                    <td>Rs {{ row.domestic }}</td>
+                    <td>Rs {{ row.commercial }}</td>
+                    <td>Rs {{ row.connection_fee }}</td>
+                    <td><strong style="color:#082f66;">Rs {{ row.total }}</strong></td>
+                    <td>
+                        <a href="{% url 'admin_revenue' %}?revenue_month={{ row.month }}" class="btn-reset" style="height:30px; padding:0 10px; font-size:11.5px;">
+                            View {{ row.month }}
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" style="text-align:center; color:#4b698c; padding:20px;">
+                        No settled payments recorded yet across any month.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

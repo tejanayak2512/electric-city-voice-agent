@@ -1,0 +1,201 @@
+{% extends "admins/admin_base.html" %}
+
+{% block title %}5. Maintenance Approvals &amp; Permission Requests | Admin Portal{% endblock %}
+
+{% block footer_tag %}Step 5 &bull; Maintenance Permission Review &amp; Approvals{% endblock %}
+
+{% block extra_css %}
+<style>
+    .filter-toolbar {
+        background: #f6f9ff; border: 1px solid #d5e3f3; border-radius: 11px; padding: 14px 16px;
+        display: flex; flex-wrap: wrap; gap: 12px; align-items: end; margin-bottom: 18px;
+    }
+    .filter-field { flex: 1; min-width: 165px; }
+    .filter-field.search-wide { flex: 1.7; min-width: 230px; }
+    .filter-field label { display: block; font-size: 11.5px; font-weight: 800; color: #102b4c; margin-bottom: 5px; }
+    .filter-field input, .filter-field select {
+        width: 100%; height: 38px; padding: 7px 11px; border: 1.5px solid #c6d8ed; border-radius: 8px;
+        font-family: inherit; font-size: 13px; background: #ffffff; color: #102b4c;
+    }
+    .btn-primary {
+        height: 38px; padding: 0 16px; border: 0; border-radius: 8px;
+        background: linear-gradient(90deg, #06417f, #07549a); color: #ffffff; font-weight: 700; font-size: 13px; cursor: pointer;
+    }
+    .btn-reset {
+        height: 38px; padding: 0 14px; border: 1px solid #cbd5e1; border-radius: 8px; background: #ffffff;
+        color: #334155; font-weight: 700; font-size: 12.5px; display: inline-flex; align-items: center;
+    }
+    .btn-approve {
+        height: 34px; padding: 0 12px; border: 0; border-radius: 7px;
+        background: linear-gradient(90deg, #15803d, #16a34a); color: #ffffff; font-weight: 700; font-size: 12px; cursor: pointer;
+    }
+    .btn-cut {
+        height: 34px; padding: 0 13px; border: 0; border-radius: 7px;
+        background: linear-gradient(90deg, #dc2626, #b91c1c); color: #ffffff; font-weight: 700; font-size: 12px; cursor: pointer;
+    }
+    .btn-reject {
+        height: 34px; padding: 0 12px; border: 1px solid #fca5a5; border-radius: 7px;
+        background: #fef2f2; color: #b91c1c; font-weight: 700; font-size: 12px; cursor: pointer;
+    }
+    .badge-mnt { display: inline-block; padding: 4px 10px; border-radius: 999px; font-size: 11px; font-weight: 800; }
+    .bm-pending { background: #fef3c7; color: #92400e; }
+    .bm-approved { background: #dbeafe; color: #1e40af; }
+    .bm-active { background: #fee2e2; color: #991b1b; }
+    .bm-done { background: #dcfce7; color: #166534; }
+    .bm-rejected { background: #f1f5f9; color: #475569; }
+    .pagination-bar {
+        display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+        margin-top: 16px; padding-top: 14px; border-top: 1px solid #e2ebf5;
+    }
+    .page-btn {
+        padding: 6px 12px; border-radius: 7px; border: 1px solid #c6d8ed; background: #ffffff;
+        color: #082f66; font-size: 12.5px; font-weight: 700;
+    }
+    .page-btn.active { background: #063b78; border-color: #063b78; color: #ffffff; }
+    .page-btn.disabled { opacity: 0.45; pointer-events: none; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+
+
+
+<section class="panel-card">
+    <div class="panel-header">
+        <span><i class="fa-solid fa-shield-halved"></i> Department Maintenance Permission Approvals ({{ page_obj.paginator.count }})</span>
+    </div>
+    <div class="panel-body">
+        <form method="get" action="{% url 'admin_maintenance' %}" class="filter-toolbar">
+            <div class="filter-field search-wide">
+                <label for="adminMntSearch">Search Schedules</label>
+                <input type="text" id="adminMntSearch" name="q" value="{{ search_q }}" placeholder="MNT ID, Title, Reason, Feeder, Meter No...">
+            </div>
+            <div class="filter-field">
+                <label for="adminMntStatus">Status</label>
+                <select id="adminMntStatus" name="status" onchange="this.form.submit()">
+                    <option value="">All Statuses</option>
+                    {% for val, label in status_choices %}
+                    <option value="{{ val }}" {% if selected_status == val %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="filter-field">
+                <label for="adminMntScope">Scope</label>
+                <select id="adminMntScope" name="scope" onchange="this.form.submit()">
+                    <option value="">All Scopes</option>
+                    {% for val, label in scope_choices %}
+                    <option value="{{ val }}" {% if selected_scope == val %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="filter-field">
+                <label for="adminMntTf">Transformer</label>
+                <select id="adminMntTf" name="transformer_id" onchange="this.form.submit()">
+                    <option value="">All Transformers</option>
+                    {% for tf in transformers %}
+                    <option value="{{ tf.id }}" {% if selected_transformer_filter == tf.id|stringformat:"s" %}selected{% endif %}>{{ tf.code }} &mdash; {{ tf.substation_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="filter-field" style="max-width:120px;">
+                <label for="adminMntPer">Rows / Page</label>
+                <select id="adminMntPer" name="per_page" onchange="this.form.submit()">
+                    {% for sz in per_page_choices %}
+                    <option value="{{ sz }}" {% if per_page == sz %}selected{% endif %}>{{ sz }} rows</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="btn-primary">Filter</button>
+            <a href="{% url 'admin_maintenance' %}" class="btn-reset">Reset</a>
+        </form>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Schedule ID &amp; Requester</th>
+                        <th>Target Scope &amp; Feeder</th>
+                        <th>Maintenance Work &amp; Window</th>
+                        <th>Permission Status</th>
+                        <th>Admin Permission Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sched in page_obj %}
+                    <tr>
+                        <td>
+                            <strong><code>{{ sched.schedule_id }}</code></strong><br>
+                            <small style="color:#4b698c;">{{ sched.requested_by.full_name }} ({{ sched.requested_by.employee_id }})</small>
+                        </td>
+                        <td>
+                            <strong>{{ sched.get_scope_display }}</strong><br>
+                            {% if sched.scope == "all" %}
+                                <small style="color:#07549a;">Overall Grid (All Transformers)</small>
+                            {% elif sched.scope == "premise" and sched.target_connection %}
+                                <small style="color:#07549a;">Meter {{ sched.target_connection.meter_number }} ({{ sched.target_connection.applicant_name }})</small>
+                            {% elif sched.transformer %}
+                                <small style="color:#07549a;">{{ sched.transformer.code }} &bull; {{ sched.transformer.substation_name }}</small>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <strong>{{ sched.title }}</strong><br>
+                            <small style="color:#365070;">{{ sched.reason }}</small><br>
+                            <small style="color:#063b78;">
+                                {{ sched.scheduled_start|date:"d M Y, h:i A" }} &rarr; {{ sched.scheduled_end|date:"d M Y, h:i A" }}
+                            </small>
+                        </td>
+                        <td>
+                            {% if sched.status == "Pending" %}
+                                <span class="badge-mnt bm-pending">Pending Admin Approval</span>
+                            {% elif sched.status == "Approved" %}
+                                <span class="badge-mnt bm-approved">Approved &bull; Ready for Dept Cut</span>
+                            {% elif sched.status == "Power Cut Active" %}
+                                <span class="badge-mnt bm-active">Power Cut Active</span>
+                            {% elif sched.status == "Completed" %}
+                                <span class="badge-mnt bm-done">Completed &amp; Restored</span>
+                            {% else %}
+                                <span class="badge-mnt bm-rejected">Rejected</span>
+                            {% endif %}
+                            {% if sched.admin_remarks %}
+                            <br><small style="color:#475569;">{{ sched.admin_remarks }}</small>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if sched.status == "Pending" %}
+                                <form method="post" action="{% url 'admin_process_maintenance' sched.id %}" style="display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
+                                    {% csrf_token %}
+                                    <input type="text" name="admin_remarks" placeholder="Approval / rejection remark..." style="height:34px; padding:5px 9px; border:1.5px solid #c6d8ed; border-radius:7px; font-size:12px; min-width:170px;">
+                                    <button type="submit" name="action" value="approve" class="btn-approve">
+                                        <i class="fa-solid fa-check"></i> Approve Permission
+                                    </button>
+                                    <button type="submit" name="action" value="reject" class="btn-reject">
+                                        <i class="fa-solid fa-xmark"></i> Reject
+                                    </button>
+                                </form>
+                            {% elif sched.status == "Approved" %}
+                                <span class="badge-mnt bm-approved"><i class="fa-solid fa-check-double"></i> Approved &mdash; Department Executes Cut</span>
+                            {% elif sched.status == "Power Cut Active" %}
+                                <span class="badge-mnt bm-active"><i class="fa-solid fa-bolt-slash"></i> Power Cut Active (Department Maintenance)</span>
+                            {% elif sched.status == "Completed" %}
+                                <span class="badge-mnt bm-done"><i class="fa-solid fa-circle-check"></i> Completed &amp; Restored by Department</span>
+                            {% else %}
+                                <span class="badge-mnt bm-rejected"><i class="fa-solid fa-xmark"></i> Permission Rejected ({{ sched.reviewed_by|default:"Admin" }})</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" style="text-align:center; color:#4b698c; padding:24px;">
+                            No Department maintenance schedule requests found.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% include "department/_pagination_bar.html" %}
+    </div>
+</section>
+{% endblock %}

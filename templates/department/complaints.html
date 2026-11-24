@@ -1,0 +1,155 @@
+{% extends "department/department_base.html" %}
+{% load static %}
+
+{% block title %}Field Operations Complaints &amp; Outages | Department Portal{% endblock %}
+
+{% block extra_css %}
+<style>
+    .table-card {
+        background: #ffffff;
+        border: 1px solid #c7d8eb;
+        border-radius: 14px;
+        overflow: hidden;
+        box-shadow: 0 6px 20px rgba(6, 47, 96, 0.06);
+        margin-top: 20px;
+    }
+    .cmp-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+    }
+    .cmp-table th {
+        background: #f1f5f9;
+        color: #334155;
+        padding: 12px 14px;
+        text-align: left;
+        font-weight: 700;
+        border-bottom: 1.5px solid #cbd5e1;
+    }
+    .cmp-table td {
+        padding: 12px 14px;
+        border-bottom: 1px solid #e2e8f0;
+        color: #1e293b;
+    }
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 3px 10px;
+        border-radius: 999px;
+        font-size: 11.5px;
+        font-weight: 700;
+    }
+    .sb-reg { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+    .sb-prog { background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
+    .sb-res { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+
+    .action-btn-sm {
+        height: 32px;
+        padding: 0 12px;
+        border-radius: 6px;
+        border: 0;
+        font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: #ffffff;
+    }
+    .btn-assign { background: #0284c7; }
+    .btn-resolve { background: #16a34a; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="welcome-banner">
+    <div>
+        <h2><i class="fa-solid fa-headset"></i> Field Complaints &amp; Line Crew Dispatch</h2>
+        <p>Review real-time outage reports registered by the AI Voice Calling Agent, dispatch field line crews, and restore power supply.</p>
+    </div>
+</div>
+
+<div class="table-card">
+    {% if complaints %}
+    <div style="overflow-x: auto;">
+        <table class="cmp-table">
+            <thead>
+                <tr>
+                    <th>Complaint No.</th>
+                    <th>Tracking ID</th>
+                    <th>Caller &amp; Service</th>
+                    <th>Location &amp; Hazard</th>
+                    <th>Issue Type</th>
+                    <th>Priority</th>
+                    <th>Current Status</th>
+                    <th>Assigned Line Crew</th>
+                    <th>Field Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in complaints %}
+                <tr>
+                    <td><strong>{{ c.complaint_number }}</strong></td>
+                    <td><span style="font-family: monospace; background: #f1f5f9; padding: 2px 7px; border-radius: 4px; font-weight: 700;">{{ c.complaint_id }}</span></td>
+                    <td>
+                        <div><strong>{{ c.caller_name }}</strong></div>
+                        <div style="font-size: 11.5px; color: #64748b;">Meter: {{ c.service_number|default:"N/A" }} &bull; {{ c.phone_number }}</div>
+                    </td>
+                    <td>
+                        <div>{{ c.location }}</div>
+                        {% if c.hazard_observed %}<div style="font-size: 11.5px; color: #dc2626; font-weight: 700;"><i class="fa-solid fa-triangle-exclamation"></i> {{ c.hazard_observed }}</div>{% endif %}
+                    </td>
+                    <td>{{ c.issue_type }}</td>
+                    <td>
+                        {% if c.priority == 'CRITICAL_HAZARD' %}
+                        <span style="color: #dc2626; font-weight: 800;"><i class="fa-solid fa-circle-exclamation"></i> Critical</span>
+                        {% elif c.priority == 'HIGH' %}
+                        <span style="color: #ea580c; font-weight: 700;">High</span>
+                        {% else %}
+                        <span style="color: #0284c7;">Normal</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if c.status == 'RESOLVED' %}
+                        <span class="status-badge sb-res"><i class="fa-solid fa-check"></i> Resolved</span>
+                        {% elif c.status == 'IN_PROGRESS' or c.status == 'ASSIGNED' %}
+                        <span class="status-badge sb-prog"><i class="fa-solid fa-person-digging"></i> {{ c.get_status_display }}</span>
+                        {% else %}
+                        <span class="status-badge sb-reg"><i class="fa-solid fa-clock"></i> Registered</span>
+                        {% endif %}
+                    </td>
+                    <td style="font-size: 12px;">{{ c.assigned_field_team|default:"Unassigned" }}</td>
+                    <td>
+                        {% if c.status != 'RESOLVED' %}
+                        <form method="post" action="{% url 'department_process_complaint' c.id %}" style="display: flex; gap: 6px;">
+                            {% csrf_token %}
+                            {% if c.status == 'REGISTERED' %}
+                            <input type="hidden" name="action" value="assign">
+                            <button type="submit" class="action-btn-sm btn-assign"><i class="fa-solid fa-person-arrow-up-from-line"></i> Assign Crew</button>
+                            {% elif c.status == 'ASSIGNED' %}
+                            <input type="hidden" name="action" value="in_progress">
+                            <button type="submit" class="action-btn-sm btn-assign" style="background: #eab308; color: #000;"><i class="fa-solid fa-screwdriver-wrench"></i> Start Work</button>
+                            {% else %}
+                            <input type="hidden" name="action" value="resolve">
+                            <button type="submit" class="action-btn-sm btn-resolve"><i class="fa-solid fa-check"></i> Mark Resolved</button>
+                            {% endif %}
+                        </form>
+                        {% else %}
+                        <span style="font-size: 12px; color: #16a34a; font-weight: 700;"><i class="fa-solid fa-circle-check"></i> Completed</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 48px; color: #64748b;">
+        <i class="fa-solid fa-clipboard-check" style="font-size: 44px; color: #16a34a; margin-bottom: 12px;"></i>
+        <h4 style="font-size: 16px; font-weight: 800; color: #082f66; margin-bottom: 4px;">No Active Complaints</h4>
+        <p style="font-size: 13px;">No pending consumer outage reports in queue.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

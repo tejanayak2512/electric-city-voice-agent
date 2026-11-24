@@ -1,0 +1,268 @@
+{% extends "admins/admin_base.html" %}
+
+{% block title %}2. Department Staff | Admin Portal{% endblock %}
+
+{% block footer_tag %}Step 2 &bull; Department Staff Directory{% endblock %}
+
+{% block extra_css %}
+<style>
+    .emp-tab-nav {
+        display: flex; align-items: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;
+    }
+    .emp-tab-btn {
+        display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px;
+        background: #ffffff; border: 1.5px solid #c6d8ed; border-radius: 10px;
+        color: #102b4c; font-size: 13.5px; font-weight: 700; text-decoration: none;
+        transition: 0.2s ease;
+    }
+    .emp-tab-btn:hover { background: #eef5ff; border-color: #07549a; color: #063b78; }
+    .emp-tab-btn.active {
+        background: linear-gradient(90deg, #06417f, #07549a); color: #ffffff;
+        border-color: #06417f; box-shadow: 0 4px 12px rgba(7, 84, 154, 0.22);
+    }
+    .emp-tab-badge {
+        background: rgba(255, 255, 255, 0.25); border-radius: 999px;
+        padding: 1px 7px; font-size: 11px; font-weight: 800;
+    }
+    .emp-tab-btn:not(.active) .emp-tab-badge {
+        background: #e2e8f0; color: #1e293b;
+    }
+    .btn-primary-header {
+        display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px;
+        background: linear-gradient(90deg, #06417f, #07549a); color: #ffffff;
+        font-size: 12px; font-weight: 700; border-radius: 8px; text-decoration: none;
+        transition: opacity 0.2s;
+    }
+    .btn-primary-header:hover { opacity: 0.92; }
+    .panel-header-link {
+        color: #07549a; font-size: 12.5px; font-weight: 700; text-decoration: none;
+        display: inline-flex; align-items: center; gap: 6px;
+    }
+    .panel-header-link:hover { text-decoration: underline; }
+
+    .emp-form-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+    .form-group label { display: block; font-size: 12px; font-weight: 700; color: #102b4c; margin-bottom: 6px; }
+    .form-group input, .form-group select {
+        width: 100%; height: 40px; padding: 8px 12px; border: 1.5px solid #c6d8ed; border-radius: 8px;
+        font-family: inherit; font-size: 13px; background: #f9fbfe; color: #102b4c;
+    }
+    .form-group input:focus, .form-group select:focus { outline: none; border-color: #07549a; background: #ffffff; }
+    .field-err { color: #b91c1c; font-size: 11.5px; font-weight: 700; margin-top: 4px; display: block; }
+    .checkbox-group { display: flex; align-items: center; gap: 8px; padding-top: 16px; font-weight: 700; }
+    .checkbox-group input { width: 18px; height: 18px; }
+    .submit-emp-btn {
+        margin-top: 16px; height: 42px; padding: 0 22px; border: 0; border-radius: 8px;
+        background: linear-gradient(90deg, #06417f, #07549a); color: #ffffff; font-weight: 700; font-size: 14px; cursor: pointer;
+    }
+    .status-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; font-size: 11.5px; font-weight: 800; }
+    .status-badge.active { background: #dcfce7; color: #166534; }
+    .status-badge.inactive { background: #fee2e2; color: #991b1b; }
+    .action-row { display: flex; align-items: center; gap: 8px; }
+    .toggle-btn {
+        padding: 6px 12px; border-radius: 999px; border: 1.5px solid; font-family: inherit;
+        font-size: 12px; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+    }
+    .toggle-btn.enable { background: #ecfdf3; border-color: #86efac; color: #15803d; }
+    .toggle-btn.disable { background: #fff7ed; border-color: #fdba74; color: #c2410c; }
+    .delete-btn {
+        padding: 6px 11px; border-radius: 8px; border: 1px solid #fca5a5; background: #fef2f2;
+        color: #b91c1c; font-size: 12px; font-weight: 700; cursor: pointer;
+    }
+    @media (max-width: 1024px) { .emp-form-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 640px) { .emp-form-grid { grid-template-columns: 1fr; } }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- TAB NAVIGATION FOR DEPARTMENT STAFF -->
+<div class="emp-tab-nav">
+    <a href="{% url 'admin_employees' %}" class="emp-tab-btn {% if employee_section != 'add' %}active{% endif %}">
+        <i class="fa-solid fa-users"></i>
+        <span>View Department Employees</span>
+        <span class="emp-tab-badge">{{ employees|length }}</span>
+    </a>
+    <a href="{% url 'admin_add_employee' %}" class="emp-tab-btn {% if employee_section == 'add' %}active{% endif %}">
+        <i class="fa-solid fa-user-plus"></i>
+        <span>Add Employee into Department</span>
+    </a>
+</div>
+
+{% if employee_section == "add" %}
+<!-- FUNCTION: ADD DEPARTMENT EMPLOYEE -->
+<div class="section-order-title">
+    <h3> Add Department Employee &amp; Assign Transformer Zone</h3>
+</div>
+<section class="panel-card">
+    <div class="panel-header">
+        <span><i class="fa-solid fa-user-plus"></i> Add Department Employee</span>
+        <a href="{% url 'admin_employees' %}" class="panel-header-link">
+            <i class="fa-solid fa-arrow-left"></i> View All Department Employees
+        </a>
+    </div>
+    <div class="panel-body">
+        <form method="post" action="{% url 'admin_add_employee' %}">
+            {% csrf_token %}
+            <div class="emp-form-grid">
+                <div class="form-group">
+                    <label for="empFullName">Full Name</label>
+                    <input type="text" id="empFullName" name="full_name" value="{{ form.full_name.value|default:'' }}" placeholder="Employee full name" required>
+                    {% for e in form.full_name.errors %}<span class="field-err">{{ e }}</span>{% endfor %}
+                </div>
+
+                <div class="form-group">
+                    <label for="empUsername">Username</label>
+                    <input type="text" id="empUsername" name="username" value="{{ form.username.value|default:'' }}" placeholder="4-30 chars" required>
+                    {% for e in form.username.errors %}<span class="field-err">{{ e }}</span>{% endfor %}
+                </div>
+
+                <div class="form-group">
+                    <label for="empEmail">Email</label>
+                    <input type="email" id="empEmail" name="email" value="{{ form.email.value|default:'' }}" placeholder="employee@dept.gov" required>
+                    {% for e in form.email.errors %}<span class="field-err">{{ e }}</span>{% endfor %}
+                </div>
+
+                <div class="form-group">
+                    <label for="empMobile">Mobile Number</label>
+                    <input type="tel" id="empMobile" name="mobile_number" value="{{ form.mobile_number.value|default:'' }}" placeholder="10-digit mobile" required>
+                    {% for e in form.mobile_number.errors %}<span class="field-err">{{ e }}</span>{% endfor %}
+                </div>
+
+                <div class="form-group">
+                    <label for="empRole">Designation</label>
+                    <select id="empRole" name="designation">
+                        <option value="Field Engineer" {% if form.designation.value == "Field Engineer" %}selected{% endif %}>Field Engineer</option>
+                        <option value="Meter Inspector" {% if form.designation.value == "Meter Inspector" %}selected{% endif %}>Meter Inspector</option>
+                        <option value="Line Technician" {% if form.designation.value == "Line Technician" %}selected{% endif %}>Line Technician</option>
+                        <option value="Substation Officer" {% if form.designation.value == "Substation Officer" %}selected{% endif %}>Substation Officer</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="empTransformer">Assigned Transformer Zone</label>
+                    <select id="empTransformer" name="assigned_transformer">
+                        <option value="">All Zones</option>
+                        {% for tf in transformers %}
+                        <option value="{{ tf.id }}" {% if form.assigned_transformer.value|stringformat:"s" == tf.id|stringformat:"s" %}selected{% endif %}>{{ tf.code }} - {{ tf.zone }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="empPassword">Password</label>
+                    <input type="password" id="empPassword" name="password" placeholder="Min 6 characters" required>
+                    {% for e in form.password.errors %}<span class="field-err">{{ e }}</span>{% endfor %}
+                </div>
+
+                <div class="form-group">
+                    <label for="empConfirmPassword">Confirm Password</label>
+                    <input type="password" id="empConfirmPassword" name="confirm_password" placeholder="Re-enter password" required>
+                    {% for e in form.confirm_password.errors %}<span class="field-err">{{ e }}</span>{% endfor %}
+                </div>
+            </div>
+
+            <div class="checkbox-group">
+                <input type="checkbox" id="empIsActive" name="is_active" {% if form.is_active.value != False %}checked{% endif %}>
+                <label for="empIsActive">Active (Allow immediate Department Login access)</label>
+            </div>
+
+            <button type="submit" class="submit-emp-btn">
+                <i class="fa-solid fa-user-check"></i> Add Department Employee
+            </button>
+        </form>
+    </div>
+</section>
+
+{% else %}
+<!-- FUNCTION: VIEW DEPARTMENT EMPLOYEES DIRECTORY & TOGGLE -->
+<div class="section-order-title">
+    <h3> Manage Department Staff &amp; Toggle Login Status</h3>
+</div>
+<section class="panel-card">
+    <div class="panel-header">
+        <span><i class="fa-solid fa-table"></i> Department Employees Directory ({{ employees|length }})</span>
+        <div style="display:flex; align-items:center; gap:12px;">
+            <small style="font-weight: 600; color: #365070;">Toggle access to allow or block Department 2FA Login</small>
+            <a href="{% url 'admin_add_employee' %}" class="btn-primary-header">
+                <i class="fa-solid fa-user-plus"></i> Add Employee
+            </a>
+        </div>
+    </div>
+    <div class="panel-body table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Employee ID</th>
+                    <th>Name &amp; Role</th>
+                    <th>Username</th>
+                    <th>Email &amp; Mobile</th>
+                    <th>Transformer Zone</th>
+                    <th>Login Status</th>
+                    <th>Actions &amp; Toggle</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for emp in employees %}
+                <tr>
+                    <td><strong>{{ emp.employee_id }}</strong></td>
+                    <td>
+                        <strong>{{ emp.full_name }}</strong><br>
+                        <small style="color:#4b698c;">{{ emp.designation }}</small>
+                    </td>
+                    <td><code>{{ emp.username }}</code></td>
+                    <td>
+                        {{ emp.email }}<br>
+                        <small style="color:#4b698c;">{{ emp.mobile_number }}</small>
+                    </td>
+                    <td>
+                        {% if emp.assigned_transformer %}
+                            {{ emp.assigned_transformer.code }} ({{ emp.assigned_transformer.zone }})
+                        {% else %}
+                            All Zones
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if emp.is_active %}
+                            <span class="status-badge active"><i class="fa-solid fa-circle-check"></i> Active</span>
+                        {% else %}
+                            <span class="status-badge inactive"><i class="fa-solid fa-ban"></i> Inactive</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="action-row">
+                            <form method="post" action="{% url 'toggle_employee_status' emp.id %}">
+                                {% csrf_token %}
+                                {% if emp.is_active %}
+                                    <button type="submit" class="toggle-btn disable">
+                                        <i class="fa-solid fa-toggle-on"></i> Disable Login
+                                    </button>
+                                {% else %}
+                                    <button type="submit" class="toggle-btn enable">
+                                        <i class="fa-solid fa-toggle-off"></i> Enable Login
+                                    </button>
+                                {% endif %}
+                            </form>
+
+                            <form method="post" action="{% url 'delete_employee' emp.id %}" onsubmit="return confirm('Remove employee {{ emp.full_name }}?');">
+                                {% csrf_token %}
+                                <button type="submit" class="delete-btn" title="Delete Employee">
+                                    <i class="fa-solid fa-trash"></i> Delete
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" style="text-align: center; color: #4b698c; padding: 28px;">
+                        No department employees created yet. <a href="{% url 'admin_add_employee' %}" style="color:#07549a; font-weight:700;">Click here to add an employee</a>.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endif %}
+
+{% endblock %}

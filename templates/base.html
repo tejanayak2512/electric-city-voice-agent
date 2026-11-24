@@ -1,0 +1,2650 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{% block title %}Electricity Department | AI Voice Agent{% endblock %}</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <style>
+
+        /* =====================================================
+           GLOBAL STYLES
+        ===================================================== */
+
+        :root {
+            --navy: #063b78;
+            --navy-dark: #082f60;
+            --blue: #0755a0;
+            --text: #102b4c;
+            --border: #c8d9ed;
+            --white: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Roboto', Arial, sans-serif;
+            color: var(--text);
+            background: #f7f9fc;
+            font-size: 14px;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        button {
+            font-family: inherit;
+        }
+
+
+        /* =====================================================
+           TOP HEADER
+        ===================================================== */
+
+        .top-header {
+            min-height: 78px;
+            background: #ffffff;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            padding: 8px 5.2%;
+            gap: 20px;
+
+            border-bottom: 1px solid #d8e2ed;
+        }
+
+        .brand-area {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            min-width: 0;
+        }
+
+        .department-logo {
+            width: 58px;
+            height: 58px;
+
+            border: 3px solid var(--navy);
+            border-radius: 50%;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            color: var(--navy);
+            font-size: 29px;
+
+            flex-shrink: 0;
+        }
+
+        .department-name h1 {
+            color: #082f66;
+            font-size: 23px;
+            font-weight: 800;
+            line-height: 1.2;
+            white-space: nowrap;
+        }
+
+        .department-name p {
+            color: #243d5e;
+            font-size: 15px;
+            margin-top: 3px;
+        }
+
+        .brand-divider {
+            height: 48px;
+            width: 2px;
+            background: #31577e;
+            margin: 0 8px;
+            flex-shrink: 0;
+        }
+
+        .voice-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .voice-brand i {
+            color: var(--navy);
+            font-size: 34px;
+        }
+
+        .voice-brand h2 {
+            font-size: 19px;
+            color: #08366e;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        .voice-brand p {
+            font-size: 13px;
+            color: #253c59;
+            margin-top: 4px;
+        }
+
+        .header-tools {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 13px;
+            color: #152f50;
+            white-space: nowrap;
+            font-weight: 600;
+        }
+
+        .font-controls {
+            display: flex;
+            gap: 4px;
+        }
+
+        .font-controls button {
+            background: #f7f9fc;
+            border: 1px solid #cbd8e7;
+            color: #183b64;
+            padding: 7px 10px;
+            border-radius: 6px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .font-controls button:hover {
+            background: #e4effc;
+        }
+
+        .header-info {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 13px;
+        }
+
+        .header-info i {
+            color: var(--navy);
+            font-size: 16px;
+        }
+
+        .header-divider {
+            height: 30px;
+            width: 1px;
+            background: #9aacc1;
+        }
+
+
+        /* =====================================================
+           NAVIGATION BAR
+        ===================================================== */
+
+        .main-navbar {
+            min-height: 55px;
+
+            background: linear-gradient(
+                90deg,
+                #06417f,
+                #07549a
+            );
+
+            display: flex;
+            align-items: stretch;
+            justify-content: center;
+
+            padding: 0 4.5%;
+
+            position: relative;
+            z-index: 100;
+
+            box-shadow: 0 2px 5px rgba(0, 30, 70, .16);
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: stretch;
+            justify-content: space-between;
+            flex-wrap: nowrap;
+            white-space: nowrap;
+
+            width: 100%;
+            max-width: 1500px;
+        }
+
+        .nav-links a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 9px;
+
+            padding: 0 18px;
+
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 600;
+            white-space: nowrap;
+
+            border-bottom: 3px solid transparent;
+
+            transition: .2s ease;
+        }
+
+        .nav-links a i {
+            font-size: 15px;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            background: rgba(255,255,255,.12);
+            border-bottom-color: #ffffff;
+        }
+
+        .mobile-menu-button {
+            display: none;
+            background: transparent;
+            border: 0;
+            color: #ffffff;
+            font-size: 23px;
+            padding: 12px 18px;
+            cursor: pointer;
+        }
+
+
+        /* =====================================================
+           NAVBAR DROPDOWNS
+        ===================================================== */
+
+        .nav-dropdown {
+            position: relative;
+            display: flex;
+            align-items: stretch;
+        }
+
+        .nav-dropdown > a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 9px;
+            padding: 0 16px;
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 600;
+            white-space: nowrap;
+            border-bottom: 3px solid transparent;
+            transition: .2s ease;
+        }
+
+        .nav-dropdown > a .fa-chevron-down {
+            font-size: 11px;
+            transition: transform .2s ease;
+        }
+
+        .nav-dropdown:hover > a,
+        .nav-dropdown.open > a {
+            background: rgba(255,255,255,.12);
+            border-bottom-color: #ffffff;
+        }
+
+        .nav-dropdown:hover > a .fa-chevron-down,
+        .nav-dropdown.open > a .fa-chevron-down {
+            transform: rotate(180deg);
+        }
+
+        .nav-dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            min-width: 230px;
+            background: #ffffff;
+            border: 1px solid #c6d8ed;
+            border-radius: 0 0 10px 10px;
+            box-shadow: 0 14px 30px rgba(6, 39, 84, .2);
+            padding: 6px 0;
+            z-index: 400;
+        }
+
+        .nav-dropdown:hover .nav-dropdown-menu,
+        .nav-dropdown.open .nav-dropdown-menu {
+            display: block;
+        }
+
+        .nav-dropdown-menu a {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 10px;
+            padding: 11px 16px;
+            color: #102b4c;
+            font-size: 13.5px;
+            font-weight: 600;
+            border-bottom: 0;
+            white-space: nowrap;
+            transition: background .15s ease, color .15s ease;
+        }
+
+        .nav-dropdown-menu a i {
+            width: 16px;
+            text-align: center;
+            color: #07549a;
+            font-size: 14px;
+        }
+
+        .nav-dropdown-menu a:hover {
+            background: #eaf2ff;
+            color: #063b78;
+            border-bottom-color: transparent;
+        }
+
+
+        /* =====================================================
+           DJANGO MESSAGES
+        ===================================================== */
+
+        .messages-container {
+            position: relative;
+            z-index: 20;
+            padding: 10px 4%;
+        }
+
+        .message {
+            max-width: 1100px;
+            margin: 0 auto 8px;
+            padding: 12px 16px;
+
+            border-radius: 5px;
+            border: 1px solid;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            font-weight: 600;
+        }
+
+        .message.success {
+            background: #e9f8ee;
+            border-color: #a9dfba;
+            color: #176b32;
+        }
+
+        .message.error {
+            background: #fff0f0;
+            border-color: #efb6b6;
+            color: #a32222;
+        }
+
+        .message.warning {
+            background: #fff8e5;
+            border-color: #f0d58c;
+            color: #805900;
+        }
+
+        .message.info {
+            background: #eaf4ff;
+            border-color: #b7d4f5;
+            color: #14538e;
+        }
+
+        .message button {
+            background: none;
+            border: 0;
+            font-size: 19px;
+            cursor: pointer;
+            color: inherit;
+        }
+
+
+        /* =====================================================
+           MAIN PAGE CONTENT
+        ===================================================== */
+
+        .page-content {
+            min-height: 70vh;
+        }
+
+
+        /* =====================================================
+           HERO SECTION - BACKGROUND IMAGE
+        ===================================================== */
+
+        .hero-section {
+            min-height: 370px;
+
+            position: relative;
+
+            display: flex;
+            align-items: center;
+
+            padding: 35px 4.7%;
+
+            /*
+              Background image:
+              electricity-grid-background.png
+
+              The white overlay improves heading visibility.
+              The transmission towers and sunset remain visible.
+            */
+
+            background-image:
+                linear-gradient(
+                    90deg,
+                    rgba(255,255,255,.48) 0%,
+                    rgba(255,255,255,.38) 35%,
+                    rgba(255,255,255,.20) 60%,
+                    rgba(255,255,255,.05) 100%
+                ),
+                url("{% static 'images/electricity-grid-background.png' %}");
+
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center 54%;
+        }
+
+        .hero-inner {
+            width: 100%;
+            max-width: 1450px;
+
+            margin: auto;
+
+            display: grid;
+
+            grid-template-columns: 1.15fr .85fr;
+
+            align-items: center;
+            gap: 38px;
+        }
+
+
+        /* =====================================================
+           HERO TEXT
+        ===================================================== */
+
+        .hero-text {
+            position: relative;
+            z-index: 2;
+
+            /*
+              Move text into the open sky area.
+              Avoid placing heading directly over the tower.
+            */
+
+            margin-left: 17%;
+
+            padding: 8px 0 8px 20px;
+
+            border-left: 6px solid #07539a;
+
+            background: linear-gradient(
+                90deg,
+                rgba(255,255,255,.42),
+                rgba(255,255,255,0)
+            );
+        }
+
+        .hero-text h2 {
+            font-size: clamp(27px, 3vw, 38px);
+            line-height: 1.23;
+
+            color: #10243c;
+            font-weight: 800;
+
+            text-shadow: 0 1px 2px rgba(255,255,255,.35);
+        }
+
+        .hero-text h2 span {
+            color: #07539a;
+        }
+
+        .hero-text p {
+            margin-top: 13px;
+
+            max-width: 620px;
+
+            font-size: 17px;
+            line-height: 1.55;
+
+            color: #102e50;
+            font-weight: 600;
+
+            text-shadow: 0 1px 2px rgba(255,255,255,.5);
+        }
+
+        .hero-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+
+            margin-top: 27px;
+        }
+
+        .hero-button {
+            min-height: 54px;
+
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+
+            gap: 12px;
+            padding: 10px 22px;
+
+            border: 2px solid #07539a;
+            border-radius: 7px;
+
+            background: #ffffff;
+            color: #073b76;
+
+            font-size: 15px;
+            font-weight: 700;
+
+            transition: .2s ease;
+        }
+
+        .hero-button.primary {
+            background: #074782;
+            color: #ffffff;
+        }
+
+        .hero-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 13px rgba(0,40,90,.2);
+        }
+
+        .hero-button i {
+            font-size: 23px;
+        }
+
+        .hero-button span {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            text-align: left;
+        }
+
+        .hero-button small {
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+
+        /* =====================================================
+           VIDEO CARD
+        ===================================================== */
+
+        .video-card {
+            width: 100%;
+            max-width: 570px;
+
+            justify-self: end;
+
+            position: relative;
+
+            background: #ffffff;
+
+            padding: 7px;
+
+            border-radius: 19px;
+            border: 1px solid #d9e4ef;
+
+            box-shadow: 0 5px 20px rgba(12, 41, 75, .18);
+        }
+
+        .video-card video {
+            width: 100%;
+
+            aspect-ratio: 16 / 9;
+
+            display: block;
+
+            object-fit: cover;
+
+            background: #05284c;
+
+            border-radius: 13px;
+        }
+
+        /* Custom sound button */
+
+        .video-sound-button {
+            position: absolute;
+
+            right: 18px;
+            bottom: 47px;
+
+            z-index: 5;
+
+            display: flex;
+            align-items: center;
+            gap: 7px;
+
+            padding: 9px 13px;
+
+            border: 1px solid rgba(255,255,255,.65);
+            border-radius: 25px;
+
+            background: rgba(3,35,69,.88);
+            color: #ffffff;
+
+            font-size: 12px;
+            font-weight: 700;
+
+            cursor: pointer;
+
+            transition: .2s;
+        }
+
+        .video-sound-button:hover {
+            background: #07539a;
+        }
+
+        .video-caption {
+            padding: 9px 10px 4px;
+
+            color: #173a61;
+
+            font-weight: 700;
+            font-size: 13px;
+        }
+
+
+        /* =====================================================
+           SERVICE SHORTCUTS
+        ===================================================== */
+
+        .services-section {
+            max-width: 1550px;
+
+            margin: 14px auto 22px;
+
+            padding: 0 3.6%;
+        }
+
+        .service-grid {
+            display: grid;
+
+            grid-template-columns: repeat(8, minmax(0, 1fr));
+
+            gap: 10px;
+        }
+
+        .service-card {
+            min-height: 105px;
+
+            border: 1px solid #d7e3f1;
+            border-radius: 9px;
+
+            display: flex;
+            flex-direction: column;
+
+            justify-content: center;
+            align-items: center;
+
+            text-align: center;
+
+            padding: 12px 7px;
+            gap: 7px;
+
+            color: #0a2d57;
+
+            font-weight: 700;
+            font-size: 14px;
+            line-height: 1.25;
+
+            transition: .2s ease;
+        }
+
+        .service-card i {
+            font-size: 27px;
+        }
+
+        .service-card:hover {
+            transform: translateY(-4px);
+
+            box-shadow: 0 5px 13px rgba(20,60,100,.13);
+        }
+
+        .service-blue {
+            background: #eaf2ff;
+            color: #07529a;
+        }
+
+        .service-green {
+            background: #eaf9ed;
+            color: #087538;
+        }
+
+        .service-yellow {
+            background: #fffbe4;
+            color: #d18a00;
+        }
+
+        .service-purple {
+            background: #f2edff;
+            color: #5634b7;
+        }
+
+        .service-red {
+            background: #fff0f1;
+            color: #b33c53;
+        }
+
+        .service-cyan {
+            background: #e8f8ff;
+            color: #0873aa;
+        }
+
+
+        /* =====================================================
+           INFORMATION PANELS
+        ===================================================== */
+
+        .information-section {
+            max-width: 1550px;
+
+            margin: 0 auto 24px;
+
+            padding: 0 3.6%;
+
+            display: grid;
+
+            grid-template-columns: 1.08fr 1.08fr 1fr;
+
+            gap: 28px;
+        }
+
+        .info-panel {
+            border: 1px solid #c6d8ed;
+
+            border-radius: 10px;
+
+            background: #ffffff;
+
+            overflow: hidden;
+
+            box-shadow: 0 1px 3px rgba(0,30,70,.04);
+        }
+
+        .panel-heading {
+            min-height: 42px;
+
+            display: flex;
+            align-items: center;
+
+            gap: 12px;
+
+            padding: 8px 16px;
+
+            color: #082f69;
+
+            background: linear-gradient(
+                90deg,
+                #e9f2ff,
+                #f3f8ff
+            );
+
+            border-bottom: 1px solid #cbdcf0;
+
+            font-size: 17px;
+            font-weight: 800;
+        }
+
+        .panel-heading i {
+            font-size: 19px;
+        }
+
+        .panel-heading .view-all {
+            margin-left: auto;
+
+            color: #0755b1;
+
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .panel-body {
+            padding: 12px 16px;
+        }
+
+        .announcement-list {
+            list-style: none;
+        }
+
+        .announcement-list li {
+            display: flex;
+            gap: 10px;
+
+            padding: 0 0 10px;
+            margin-bottom: 9px;
+
+            border-bottom: 1px solid #e4ebf3;
+
+            line-height: 1.35;
+
+            font-size: 13px;
+            color: #172c47;
+        }
+
+        .announcement-list li:last-child {
+            border-bottom: 0;
+            margin-bottom: 0;
+        }
+
+        .announcement-list li::before {
+            content: "•";
+
+            color: #074c91;
+
+            font-size: 20px;
+            line-height: 15px;
+
+            font-weight: 800;
+        }
+
+        .new-label {
+            display: inline-block;
+
+            background: #e65d75;
+            color: #ffffff;
+
+            padding: 2px 6px;
+
+            border-radius: 4px;
+
+            font-size: 10px;
+
+            margin-left: 5px;
+        }
+
+        
+        /* PUBLIC NOTICE BULLETIN & ALERTS */
+        .site-announcement-bar {
+            background: linear-gradient(90deg, #07386e 0%, #084c96 60%, #0a5eb5 100%);
+            color: #ffffff;
+            border-bottom: 2px solid #f59e0b;
+            box-shadow: 0 3px 12px rgba(6, 43, 86, 0.18);
+        }
+        .notice-bar-inner {
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: 9px 5.2%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+        .notice-ticker-badge {
+            background: #f59e0b;
+            color: #0f172a;
+            padding: 4px 12px;
+            border-radius: 999px;
+            font-size: 11.5px;
+            font-weight: 800;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .notice-ticker-content {
+            flex: 1;
+            min-width: 260px;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+        .ticker-scroll {
+            display: inline-flex;
+            gap: 26px;
+            align-items: center;
+            font-size: 13px;
+        }
+        .ticker-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .ticker-item.severity-critical { color: #fecaca; }
+        .ticker-item.severity-warning { color: #fef08a; }
+        .ticker-item.severity-info { color: #e0f2fe; }
+        .notice-expand-btn {
+            background: rgba(255, 255, 255, 0.16);
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            color: #ffffff;
+            padding: 5px 14px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            white-space: nowrap;
+            transition: all 0.2s ease;
+        }
+        .notice-expand-btn:hover {
+            background: rgba(255, 255, 255, 0.28);
+        }
+        .alerts-drawer {
+            background: #ffffff;
+            border-bottom: 2px solid #cbdcf0;
+            box-shadow: 0 10px 28px rgba(7, 40, 80, 0.12);
+        }
+        .alerts-drawer-inner {
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: 16px 5.2% 20px;
+        }
+        .alerts-drawer-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+        }
+        .alerts-drawer-header h4 {
+            color: #082f66;
+            font-size: 15.5px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .drawer-close {
+            background: none;
+            border: none;
+            font-size: 22px;
+            line-height: 1;
+            color: #64748b;
+            cursor: pointer;
+        }
+        .alerts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 14px;
+        }
+        .alert-box-card {
+            border-radius: 10px;
+            padding: 14px 16px;
+            border: 1.5px solid;
+            background: #fbfdff;
+        }
+        .alert-box-card.severity-critical {
+            border-color: #fca5a5;
+            background: #fef2f2;
+        }
+        .alert-box-card.severity-warning {
+            border-color: #fde047;
+            background: #fffbeb;
+        }
+        .alert-box-card.severity-info {
+            border-color: #bae6fd;
+            background: #f0f9ff;
+        }
+        .alert-box-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+        .alert-badge {
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            padding: 2px 8px;
+            border-radius: 999px;
+            background: #ffffff;
+            border: 1px solid rgba(0, 0, 0, 0.12);
+        }
+        .alert-time {
+            font-size: 11px;
+            color: #64748b;
+            font-weight: 600;
+        }
+        .alert-box-card h5 {
+            font-size: 14px;
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: 5px;
+        }
+        .alert-box-card p {
+            font-size: 12.5px;
+            color: #334155;
+            line-height: 1.45;
+            margin-bottom: 8px;
+        }
+        .alert-box-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            font-size: 11.5px;
+            font-weight: 700;
+        }
+        .meta-tag {
+            background: rgba(0, 0, 0, 0.05);
+            padding: 2px 7px;
+            border-radius: 6px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .news-content-text {
+            display: block;
+            font-size: 11.5px;
+            color: #556980;
+            margin-top: 3px;
+            font-weight: 400;
+            line-height: 1.4;
+        }
+        .announcement-count-chip {
+            background: #eaf2ff;
+            color: #07549a;
+            border: 1px solid #bfd7f5;
+            border-radius: 999px;
+            padding: 2px 9px;
+            font-size: 11px;
+            font-weight: 800;
+        }
+        .om-notice-item::before {
+            content: '!' !important;
+            color: #d97706 !important;
+            font-weight: 900 !important;
+        }
+        .om-notice-item.severity-critical::before {
+            color: #dc2626 !important;
+        }
+
+        .rules-list {
+            padding-left: 20px;
+
+            color: #172c47;
+
+            font-size: 13px;
+            line-height: 1.55;
+        }
+
+        .rules-list li::marker {
+            color: #07539a;
+        }
+
+
+        /* =====================================================
+           STATISTICS
+        ===================================================== */
+
+        .statistics-grid {
+            display: grid;
+
+            grid-template-columns: repeat(3, 1fr);
+
+            gap: 10px;
+        }
+
+        .stat-card {
+            min-height: 112px;
+
+            border-radius: 9px;
+
+            padding: 12px 5px;
+
+            text-align: center;
+
+            display: flex;
+            flex-direction: column;
+
+            justify-content: center;
+            align-items: center;
+
+            gap: 4px;
+
+            border: 1px solid;
+        }
+
+        .stat-card i {
+            font-size: 29px;
+            margin-bottom: 2px;
+        }
+
+        .stat-card strong {
+            font-size: 25px;
+            font-weight: 800;
+        }
+
+        .stat-card span {
+            font-size: 12px;
+            color: #10243d;
+            font-weight: 500;
+        }
+
+        .stat-blue {
+            background: #e9f7ff;
+            border-color: #a9ddff;
+            color: #07599d;
+        }
+
+        .stat-green {
+            background: #ecfaed;
+            border-color: #b6e9bd;
+            color: #087535;
+        }
+
+        .stat-yellow {
+            background: #fff9e6;
+            border-color: #f5df9d;
+            color: #b36a00;
+        }
+
+
+        /* =====================================================
+           OTHER PAGE CONTENT
+        ===================================================== */
+
+        .content-container {
+            max-width: 1450px;
+
+            margin: 25px auto;
+
+            padding: 0 4%;
+        }
+
+
+        /* =====================================================
+           FOOTER
+        ===================================================== */
+
+        .site-footer {
+            min-height: 58px;
+
+            background: linear-gradient(
+                90deg,
+                #183f69,
+                #092e58
+            );
+
+            color: #ffffff;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: space-between;
+
+            gap: 18px;
+
+            padding: 15px 4.7%;
+
+            font-size: 12px;
+        }
+
+        .footer-links {
+            display: flex;
+
+            flex-wrap: wrap;
+
+            align-items: center;
+
+            gap: 20px;
+        }
+
+        .footer-links a {
+            color: #ffffff;
+            transition: .2s;
+        }
+
+        .footer-links a:hover {
+            text-decoration: underline;
+            color: #d5eaff;
+        }
+
+
+        /* =====================================================
+           RESPONSIVE DESIGN
+        ===================================================== */
+
+        @media (max-width: 1200px) {
+
+            .top-header {
+                padding: 8px 2.5%;
+            }
+
+            .header-tools {
+                gap: 8px;
+            }
+
+            .voice-brand h2 {
+                font-size: 16px;
+            }
+
+            .department-name h1 {
+                font-size: 19px;
+            }
+
+            .nav-links {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .nav-links a,
+            .nav-dropdown > a {
+                padding: 0 11px;
+                font-size: 12px;
+                min-height: 44px;
+            }
+
+            .hero-text {
+                margin-left: 7%;
+            }
+
+            .service-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+
+            .information-section {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .statistics-panel {
+                grid-column: 1 / -1;
+            }
+        }
+
+
+        @media (max-width: 850px) {
+
+            .top-header {
+                flex-wrap: wrap;
+            }
+
+            .brand-area {
+                flex: 1;
+            }
+
+            .voice-brand {
+                display: none;
+            }
+
+            .header-tools {
+                width: 100%;
+                justify-content: space-between;
+                flex-wrap: wrap;
+            }
+
+            .mobile-menu-button {
+                display: block;
+            }
+
+            .main-navbar {
+                display: block;
+                padding: 0;
+            }
+
+            .nav-links {
+                display: none;
+                flex-direction: column;
+            }
+
+            .nav-links.open {
+                display: flex;
+            }
+
+            .nav-links a,
+            .nav-dropdown > a {
+                min-height: 45px;
+
+                justify-content: flex-start;
+
+                padding: 10px 22px;
+
+                border-bottom: 1px solid rgba(255,255,255,.12);
+            }
+
+            .nav-dropdown {
+                flex-direction: column;
+            }
+
+            .nav-dropdown:hover .nav-dropdown-menu {
+                display: none;
+            }
+
+            .nav-dropdown.open .nav-dropdown-menu {
+                display: block;
+                position: static;
+                min-width: 100%;
+                border: 0;
+                border-radius: 0;
+                box-shadow: none;
+                background: rgba(4, 24, 52, 0.32);
+                padding: 0;
+            }
+
+            .nav-dropdown-menu a {
+                color: #eaf2ff;
+                padding: 10px 22px 10px 42px;
+                font-size: 13px;
+                border-bottom: 1px solid rgba(255,255,255,.08);
+            }
+
+            .nav-dropdown-menu a i {
+                color: #93c5fd;
+            }
+
+            .nav-dropdown-menu a:hover {
+                background: rgba(255,255,255,.1);
+                color: #ffffff;
+            }
+
+            .hero-section {
+                padding: 35px 5%;
+
+                background-position: center center;
+            }
+
+            .hero-inner {
+                grid-template-columns: 1fr;
+                gap: 25px;
+            }
+
+            .hero-text {
+                margin-left: 0;
+
+                background: rgba(255,255,255,.72);
+
+                padding: 15px;
+            }
+
+            .video-card {
+                justify-self: start;
+                max-width: 100%;
+            }
+
+            .information-section {
+                grid-template-columns: 1fr;
+            }
+
+            .statistics-panel {
+                grid-column: auto;
+            }
+        }
+
+
+        @media (max-width: 520px) {
+
+            .department-logo {
+                width: 46px;
+                height: 46px;
+                font-size: 23px;
+            }
+
+            .department-name h1 {
+                font-size: 16px;
+            }
+
+            .department-name p {
+                font-size: 11px;
+            }
+
+            .header-info {
+                font-size: 11px;
+            }
+
+            .font-controls button {
+                padding: 5px 8px;
+            }
+
+            .hero-text h2 {
+                font-size: 27px;
+            }
+
+            .hero-text p {
+                font-size: 14px;
+            }
+
+            .hero-actions {
+                flex-direction: column;
+            }
+
+            .hero-button {
+                width: 100%;
+            }
+
+            .service-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .services-section,
+            .information-section {
+                padding-left: 4%;
+                padding-right: 4%;
+            }
+
+            .panel-heading {
+                font-size: 15px;
+            }
+
+            .statistics-grid {
+                gap: 5px;
+            }
+
+            .stat-card strong {
+                font-size: 20px;
+            }
+
+            .stat-card span {
+                font-size: 10px;
+            }
+
+            .site-footer {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .footer-links {
+                justify-content: center;
+                gap: 12px;
+            }
+
+            .video-sound-button {
+                right: 14px;
+                bottom: 45px;
+            }
+        }
+
+    </style>
+
+    {% block extra_css %}{% endblock %}
+
+</head>
+
+
+<body>
+
+
+    <!-- =====================================================
+         HEADER
+    ===================================================== -->
+
+    <header class="top-header">
+
+        <div class="brand-area">
+
+            <div class="department-logo">
+                <i class="fa-solid fa-tower-broadcast"></i>
+            </div>
+
+            <div class="department-name">
+
+                <h1>Electricity Department</h1>
+
+                <p>Utility Services Portal</p>
+
+            </div>
+
+            <div class="brand-divider"></div>
+
+            <div class="voice-brand">
+
+                <i class="fa-solid fa-microphone-lines"></i>
+
+                <div>
+
+                    <h2>AI Powered Voice Agent</h2>
+
+                    <p>Complaint Registration &amp; Status Enquiry</p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="header-tools">
+
+            <div class="font-controls">
+
+                <button type="button" onclick="changeFont(-1)">A-</button>
+
+                <button type="button" onclick="resetFont()">A</button>
+
+                <button type="button" onclick="changeFont(1)">A+</button>
+
+            </div>
+
+
+            <div class="header-divider"></div>
+
+
+            <div class="header-info">
+
+                <i class="fa-solid fa-headset"></i>
+
+                <span>AI Voice Support</span>
+
+            </div>
+
+
+            <div class="header-divider"></div>
+
+
+            <div class="header-info">
+
+                <i class="fa-regular fa-calendar-days"></i>
+
+                <span id="live-date">Loading date...</span>
+
+            </div>
+
+
+            <div class="header-info">
+
+                <i class="fa-regular fa-clock"></i>
+
+                <span id="live-clock">Loading time...</span>
+
+            </div>
+
+        </div>
+
+    </header>
+
+
+
+    <!-- =====================================================
+         NAVIGATION
+    ===================================================== -->
+
+    <nav class="main-navbar">
+
+        <button
+            class="mobile-menu-button"
+            type="button"
+            onclick="toggleMenu()"
+            aria-label="Toggle navigation">
+
+            <i class="fa-solid fa-bars"></i>
+
+        </button>
+
+
+        <div class="nav-links" id="navLinks">
+
+
+            <a href="{% url 'home' %}" class="active">
+
+                <i class="fa-solid fa-house"></i>
+
+                Home
+
+            </a>
+
+
+            <div class="nav-dropdown">
+
+                <a href="#consumers" class="nav-dropdown-toggle" aria-expanded="false">
+
+                    <i class="fa-solid fa-users"></i>
+
+                    Consumers
+
+                    <i class="fa-solid fa-chevron-down"></i>
+
+                </a>
+
+                <div class="nav-dropdown-menu">
+                    <a href="{% url 'user_login' %}">
+                        <i class="fa-solid fa-right-to-bracket"></i>
+                        User Login
+                    </a>
+                    <a href="{% url 'create_account' %}">
+                        <i class="fa-solid fa-user-plus"></i>
+                        Create Account
+                    </a>
+                    <a href="#bill-details">
+                        <i class="fa-solid fa-wallet"></i>
+                        View Bill Details
+                    </a>
+                    <a href="#bill-payment">
+                        <i class="fa-regular fa-credit-card"></i>
+                        Make Bill Payment
+                    </a>
+                </div>
+
+            </div>
+
+
+            <div class="nav-dropdown">
+
+                <a href="#services" class="nav-dropdown-toggle" aria-expanded="false">
+
+                    <i class="fa-solid fa-layer-group"></i>
+
+                    Services
+
+                    <i class="fa-solid fa-chevron-down"></i>
+
+                </a>
+
+                <div class="nav-dropdown-menu">
+                    <a href="#register-complaint">
+                        <i class="fa-solid fa-file-circle-plus"></i>
+                        Register Complaint
+                    </a>
+                    <a href="#track-complaint">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        Check Complaint Status
+                    </a>
+                    <a href="#outage">
+                        <i class="fa-solid fa-tower-broadcast"></i>
+                        Outage Information
+                    </a>
+                    <a href="#services">
+                        <i class="fa-solid fa-headset"></i>
+                        AI Voice Support
+                    </a>
+                </div>
+
+            </div>
+
+
+            <a href="{% url 'user_login' %}">
+
+                <i class="fa-solid fa-right-to-bracket"></i>
+
+                User Login
+
+            </a>
+
+
+            <a href="{% url 'department_login' %}">
+
+                <i class="fa-solid fa-building-user"></i>
+
+                Department Login
+
+            </a>
+
+
+            <a href="{%url 'admin_login'%}">
+
+                <i class="fa-solid fa-users-gear"></i>
+
+                Administration Login
+
+            </a>
+
+
+            <a href="{% url 'create_account' %}">
+
+                <i class="fa-solid fa-user-plus"></i>
+
+                Create Account
+
+            </a>
+
+
+            <a href="#contact">
+
+                <i class="fa-solid fa-envelope"></i>
+
+                Contact Us
+
+            </a>
+
+
+            <a href="#help">
+
+                <i class="fa-solid fa-circle-question"></i>
+
+                Help
+
+            </a>
+
+
+        </div>
+
+    </nav>
+
+    <!-- =====================================================
+         PUBLIC NOTICE TICKER & OPERATION ALERTS (FROM SETTINGS)
+    ===================================================== -->
+    {% if active_site_notifications or active_ticker_items %}
+    <div class="site-announcement-bar" id="publicNoticeBar">
+        <div class="notice-bar-inner">
+            <div class="notice-ticker-badge">
+                <i class="fa-solid fa-tower-broadcast"></i> DISCOM BULLETIN
+            </div>
+            <div class="notice-ticker-content">
+                <div class="ticker-scroll" id="tickerScroll">
+                    {% for item in active_ticker_items %}
+                    <span class="ticker-item severity-{{ item.severity }}">
+                        <strong>{{ item.prefix }}:</strong> {{ item.title }}{% if item.extra %} &mdash; <em>{{ item.extra }}</em>{% endif %}
+                    </span>
+                    {% endfor %}
+                </div>
+            </div>
+            {% if active_site_notifications %}
+            <button type="button" class="notice-expand-btn" id="toggleAlertsDrawerBtn" onclick="toggleAlertsDrawer()">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <span>{{ active_site_notifications|length }} Grid Alert(s)</span>
+                <i class="fa-solid fa-chevron-down" id="drawerChevron"></i>
+            </button>
+            {% endif %}
+        </div>
+    </div>
+    {% if active_site_notifications %}
+    <div class="alerts-drawer" id="alertsDrawer" style="display:none;">
+        <div class="alerts-drawer-inner">
+            <div class="alerts-drawer-header">
+                <h4><i class="fa-solid fa-screwdriver-wrench"></i> Active Operation &amp; Maintenance Notices</h4>
+                <button type="button" class="drawer-close" onclick="toggleAlertsDrawer()">&times;</button>
+            </div>
+            <div class="alerts-grid">
+                {% for note in active_site_notifications %}
+                <div class="alert-box-card severity-{{ note.severity }}">
+                    <div class="alert-box-head">
+                        <span class="alert-badge">{{ note.get_category_display }}</span>
+                        <span class="alert-time">{{ note.created_at|date:'d M Y, h:i A' }}</span>
+                    </div>
+                    <h5>{{ note.title }}</h5>
+                    <p>{{ note.message }}</p>
+                    {% if note.related_transformer or note.affected_areas %}
+                    <div class="alert-box-meta">
+                        {% if note.related_transformer %}<span class="meta-tag"><i class="fa-solid fa-bolt"></i> Feeder: {{ note.related_transformer.code }} ({{ note.related_transformer.name }})</span>{% endif %}
+                        {% if note.affected_areas %}<span class="meta-tag"><i class="fa-solid fa-location-dot"></i> {{ note.affected_areas }}</span>{% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    {% endif %}
+
+
+
+
+    <!-- =====================================================
+         DJANGO MESSAGES
+    ===================================================== -->
+
+    {% if messages %}
+
+    <div class="messages-container">
+
+        {% for message in messages %}
+
+        <div class="message {{ message.tags }}">
+
+            <span>{{ message }}</span>
+
+            <button
+                type="button"
+                onclick="this.parentElement.remove()"
+                aria-label="Close message">
+
+                &times;
+
+            </button>
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+    {% endif %}
+
+
+
+    <!-- =====================================================
+         MAIN CONTENT
+    ===================================================== -->
+
+    <main class="page-content">
+
+
+        {% block content %}
+
+
+        <!-- =================================================
+             HERO SECTION
+        ================================================== -->
+
+        <section class="hero-section" id="heroSection" {% if site_media and site_media.effective_bg_image_url %}style="background-image: linear-gradient(90deg, rgba(255,255,255,.48) 0%, rgba(255,255,255,.38) 35%, rgba(255,255,255,.20) 60%, rgba(255,255,255,.05) 100%), url('{{ site_media.effective_bg_image_url }}');"{% endif %}>
+
+            <div class="hero-inner">
+
+
+                <!-- HERO TEXT -->
+
+                <div class="hero-text">
+
+
+                    <h2>
+
+                        {% if site_media and site_media.hero_heading %}
+                            {{ site_media.hero_heading|linebreaksbr }}
+                        {% else %}
+                            Electricity Department
+
+                            <br>
+
+                            <span>AI-Powered Voice Agent</span>
+                        {% endif %}
+
+                    </h2>
+
+
+                    <p>
+
+                        {% if site_media and site_media.hero_subheading %}
+                            {{ site_media.hero_subheading }}
+                        {% else %}
+                            Register electricity complaints, check status,
+                            and get instant assistance through our intelligent
+                            voice system.
+                        {% endif %}
+
+                    </p>
+
+
+                    <div class="hero-actions">
+
+
+                        <a href="#services" class="hero-button primary">
+
+                            <i class="fa-solid fa-headset"></i>
+
+                            <span>
+
+                                AI Voice Support
+
+                                <small>24×7 Assistance</small>
+
+                            </span>
+
+                        </a>
+
+
+
+                        <a href="#services" class="hero-button">
+
+                            <i class="fa-solid fa-robot"></i>
+
+                            <span>
+
+                                Try Voice Assistant
+
+                                <small>Report &amp; Track Complaint</small>
+
+                            </span>
+
+                        </a>
+
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- VIDEO CARD -->
+
+                <div class="video-card">
+
+
+                    <video
+                        id="voiceAgentVideo"
+                        autoplay
+                        muted
+                        loop
+                        playsinline
+                        preload="auto"
+                        poster="{% if site_media and site_media.effective_poster_url %}{{ site_media.effective_poster_url }}{% else %}{% static 'images/electricity-grid-background.png' %}{% endif %}">
+
+
+                        <source
+                            src="{% if site_media and site_media.effective_video_url %}{{ site_media.effective_video_url }}{% else %}{% static 'videos/ai-electricity-voice-agent.mp4' %}{% endif %}"
+                            type="video/mp4">
+
+
+                        Your browser does not support HTML5 video.
+
+
+                    </video>
+
+
+
+                    <!-- CUSTOM SOUND BUTTON -->
+
+                    <button
+                        type="button"
+                        id="videoSoundButton"
+                        class="video-sound-button"
+                        aria-label="Turn video sound on">
+
+
+                        <i class="fa-solid fa-volume-xmark"></i>
+
+                        <span>Enable Sound</span>
+
+
+                    </button>
+
+
+
+
+
+
+                </div>
+
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =================================================
+             SERVICE SHORTCUTS
+        ================================================== -->
+
+        <section class="services-section" id="services">
+
+
+            <div class="service-grid">
+
+
+                <a href="#register-complaint"
+                   class="service-card service-blue">
+
+                    <i class="fa-solid fa-file-circle-plus"></i>
+
+                    <span>Register<br>Complaint</span>
+
+                </a>
+
+
+
+                <a href="#track-complaint"
+                   class="service-card service-green">
+
+                    <i class="fa-solid fa-magnifying-glass"></i>
+
+                    <span>Check<br>Complaint Status</span>
+
+                </a>
+
+
+
+                <a href="#bill-details"
+                   class="service-card service-yellow">
+
+                    <i class="fa-solid fa-wallet"></i>
+
+                    <span>View<br>Bill Details</span>
+
+                </a>
+
+
+
+                <a href="#bill-payment"
+                   class="service-card service-purple">
+
+                    <i class="fa-regular fa-credit-card"></i>
+
+                    <span>Make<br>Bill Payment</span>
+
+                </a>
+
+
+
+                <a href="#outage"
+                   class="service-card service-red">
+
+                    <i class="fa-solid fa-tower-broadcast"></i>
+
+                    <span>Outage<br>Information</span>
+
+                </a>
+
+
+
+                <a href="{% url 'create_account' %}"
+                   class="service-card service-cyan">
+
+                    <i class="fa-solid fa-user-plus"></i>
+
+                    <span>Create<br>Account</span>
+
+                </a>
+
+
+
+                <a href="{% url 'department_login' %}"
+                   class="service-card service-blue">
+
+                    <i class="fa-solid fa-users"></i>
+
+                    <span>Department<br>Login</span>
+
+                </a>
+
+
+
+                <a href="#admin-login"
+                   class="service-card service-purple">
+
+                    <i class="fa-solid fa-shield-halved"></i>
+
+                    <span>Administration<br>Login</span>
+
+                </a>
+
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =================================================
+             INFORMATION PANELS
+        ================================================== -->
+
+        <section class="information-section">
+
+
+            <!-- LATEST ANNOUNCEMENTS -->
+            <div class="info-panel">
+                <div class="panel-heading">
+                    <i class="fa-solid fa-bullhorn"></i>
+                    <span>Latest Announcements</span>
+                    <span class="announcement-count-chip">{{ active_site_news|length|add:active_site_notifications|length }} Live</span>
+                </div>
+                <div class="panel-body">
+                    <ul class="announcement-list">
+                        {% for news in active_site_news %}
+                        <li>
+                            <span>
+                                {{ news.title }}
+                                {% if news.content %}<small class="news-content-text">{{ news.content }}</small>{% endif %}
+                                {% if news.badge_label %}<span class="new-label">{{ news.badge_label }}</span>{% endif %}
+                            </span>
+                        </li>
+                        {% endfor %}
+                        {% for note in active_site_notifications %}
+                        <li class="om-notice-item severity-{{ note.severity }}">
+                            <span>
+                                <i class="fa-solid fa-triangle-exclamation"></i>
+                                <strong>[{{ note.get_category_display }}]</strong> {{ note.title }}
+                                <small class="news-content-text">{{ note.message }}</small>
+                                {% if note.affected_areas %}<small class="meta-tag"><i class="fa-solid fa-location-dot"></i> {{ note.affected_areas }}</small>{% endif %}
+                            </span>
+                        </li>
+                        {% empty %}
+                            {% if not active_site_news %}
+                            <li class="empty-announcement">
+                                <span><i class="fa-solid fa-circle-check" style="color:#087538;"></i> No active disruptions. All grid operations and feeders operating normally.</span>
+                            </li>
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+
+
+
+            <!-- BUSINESS RULES -->
+
+            <div class="info-panel">
+
+
+                <div class="panel-heading">
+
+                    <i class="fa-solid fa-clipboard-list"></i>
+
+                    <span>Business Rules / Service Guidelines</span>
+
+                </div>
+
+
+
+                <div class="panel-body">
+
+
+                    <ul class="rules-list">
+
+
+                        <li>
+
+                            The AI Voice Agent is available for complaint
+                            registration and status enquiry.
+
+                        </li>
+
+
+
+                        <li>
+
+                            Provide accurate details such as consumer number,
+                            address and issue type.
+
+                        </li>
+
+
+
+                        <li>
+
+                            Each successfully registered complaint receives
+                            a unique Complaint ID.
+
+                        </li>
+
+
+
+                        <li>
+
+                            You can track complaint status using your
+                            Complaint ID.
+
+                        </li>
+
+
+
+                        <li>
+
+                            Provide correct information to help resolve
+                            service requests efficiently.
+
+                        </li>
+
+
+                    </ul>
+
+
+                </div>
+
+
+            </div>
+
+
+
+            <!-- KEY STATISTICS -->
+
+            <div class="info-panel statistics-panel">
+
+
+                <div class="panel-heading">
+
+                    <i class="fa-solid fa-chart-column"></i>
+
+                    <span>Key Statistics (This Month)</span>
+
+                </div>
+
+
+
+                <div class="panel-body">
+
+
+                    <div class="statistics-grid">
+
+
+                        <div class="stat-card stat-blue">
+
+                            <i class="fa-solid fa-file-lines"></i>
+
+                            <strong>5,428</strong>
+
+                            <span>Complaints Received</span>
+
+                        </div>
+
+
+
+                        <div class="stat-card stat-green">
+
+                            <i class="fa-regular fa-circle-check"></i>
+
+                            <strong>5,210</strong>
+
+                            <span>Resolved</span>
+
+                        </div>
+
+
+
+                        <div class="stat-card stat-yellow">
+
+                            <i class="fa-regular fa-clock"></i>
+
+                            <strong>218</strong>
+
+                            <span>In Progress</span>
+
+                        </div>
+
+
+                    </div>
+
+
+                </div>
+
+
+            </div>
+
+
+        </section>
+
+
+        {% endblock %}
+
+
+    </main>
+
+
+
+    <!-- =====================================================
+         FOOTER
+    ===================================================== -->
+
+    <footer class="site-footer">
+
+
+        <div>
+
+            © {% now "Y" %} Electricity Department.
+            All Rights Reserved.
+
+        </div>
+
+
+
+
+
+    </footer>
+
+
+
+    <!-- =====================================================
+         JAVASCRIPT
+    ===================================================== -->
+
+    <script>
+
+
+        /* ============================================
+           INDIA DATE AND TIME
+        ============================================ */
+
+        function updateIndianClock() {
+
+            const now = new Date();
+
+
+            const dateOptions = {
+
+                timeZone: 'Asia/Kolkata',
+
+                weekday: 'short',
+
+                day: '2-digit',
+
+                month: 'short',
+
+                year: 'numeric'
+
+            };
+
+
+            const timeOptions = {
+
+                timeZone: 'Asia/Kolkata',
+
+                hour: '2-digit',
+
+                minute: '2-digit',
+
+                second: '2-digit',
+
+                hour12: true
+
+            };
+
+
+            document.getElementById('live-date').textContent =
+
+                new Intl.DateTimeFormat(
+                    'en-IN',
+                    dateOptions
+                ).format(now);
+
+
+
+            document.getElementById('live-clock').textContent =
+
+                new Intl.DateTimeFormat(
+                    'en-IN',
+                    timeOptions
+                ).format(now);
+
+
+        }
+
+
+        updateIndianClock();
+
+        setInterval(updateIndianClock, 1000);
+
+
+
+        /* ============================================
+           MOBILE NAVIGATION
+        ============================================ */
+
+        function toggleMenu() {
+
+            document
+                .getElementById('navLinks')
+                .classList
+                .toggle('open');
+
+        }
+
+        /* ============================================
+           NAVBAR DROPDOWNS
+        ============================================ */
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const dropdowns = document.querySelectorAll('.nav-dropdown');
+
+            dropdowns.forEach(function (dropdown) {
+                const toggle = dropdown.querySelector('.nav-dropdown-toggle');
+                if (!toggle) {
+                    return;
+                }
+
+                toggle.addEventListener('click', function (event) {
+                    event.preventDefault();
+                    const isOpen = dropdown.classList.contains('open');
+
+                    dropdowns.forEach(function (other) {
+                        other.classList.remove('open');
+                        const otherToggle = other.querySelector('.nav-dropdown-toggle');
+                        if (otherToggle) {
+                            otherToggle.setAttribute('aria-expanded', 'false');
+                        }
+                    });
+
+                    if (!isOpen) {
+                        dropdown.classList.add('open');
+                        toggle.setAttribute('aria-expanded', 'true');
+                    }
+                });
+            });
+
+            document.addEventListener('click', function (event) {
+                if (!event.target.closest('.nav-dropdown')) {
+                    dropdowns.forEach(function (dropdown) {
+                        dropdown.classList.remove('open');
+                        const toggle = dropdown.querySelector('.nav-dropdown-toggle');
+                        if (toggle) {
+                            toggle.setAttribute('aria-expanded', 'false');
+                        }
+                    });
+                }
+            });
+        });
+
+
+
+        /* ============================================
+           FONT SIZE CONTROLS
+        ============================================ */
+
+        let currentFontSize = 14;
+
+
+        function changeFont(amount) {
+
+            currentFontSize += amount;
+
+
+            if (currentFontSize < 12) {
+
+                currentFontSize = 12;
+
+            }
+
+
+            if (currentFontSize > 18) {
+
+                currentFontSize = 18;
+
+            }
+
+
+            document.body.style.fontSize =
+                currentFontSize + 'px';
+
+        }
+
+
+
+        function resetFont() {
+
+            currentFontSize = 14;
+
+            document.body.style.fontSize = '14px';
+
+        }
+
+
+
+        /* ============================================
+           VIDEO AUTOPLAY
+        ============================================ */
+
+        document.addEventListener(
+            'DOMContentLoaded',
+            function () {
+
+
+                const video = document.getElementById(
+                    'voiceAgentVideo'
+                );
+
+
+                const soundButton = document.getElementById(
+                    'videoSoundButton'
+                );
+
+
+                if (!video || !soundButton) {
+
+                    return;
+
+                }
+
+
+                // Autoplay settings
+
+                video.muted = true;
+
+                video.defaultMuted = true;
+
+                video.loop = true;
+
+                video.playsInline = true;
+
+
+
+                // Start video automatically
+
+                function startVideo() {
+
+                    const playPromise = video.play();
+
+
+                    if (playPromise !== undefined) {
+
+                        playPromise.catch(function (error) {
+
+                            console.log(
+                                'Browser prevented autoplay:',
+                                error
+                            );
+
+                        });
+
+                    }
+
+                }
+
+
+
+                startVideo();
+
+
+
+                // Retry when video becomes available
+
+                video.addEventListener(
+                    'canplay',
+                    startVideo,
+                    { once: true }
+                );
+
+
+
+                // Sound toggle
+
+                soundButton.addEventListener(
+                    'click',
+                    function () {
+
+
+                        video.muted = !video.muted;
+
+
+                        const icon = soundButton.querySelector('i');
+
+                        const label = soundButton.querySelector('span');
+
+
+
+                        if (video.muted) {
+
+
+                            icon.className =
+                                'fa-solid fa-volume-xmark';
+
+
+                            label.textContent =
+                                'Enable Sound';
+
+
+                            soundButton.setAttribute(
+                                'aria-label',
+                                'Turn video sound on'
+                            );
+
+
+                        } else {
+
+
+                            icon.className =
+                                'fa-solid fa-volume-high';
+
+
+                            label.textContent =
+                                'Mute Sound';
+
+
+                            soundButton.setAttribute(
+                                'aria-label',
+                                'Mute video sound'
+                            );
+
+
+                        }
+
+
+                    }
+                );
+
+
+            }
+        );
+
+
+
+        /* ============================================
+           AUTO CLOSE DJANGO MESSAGES
+        ============================================ */
+
+        setTimeout(function () {
+
+
+            document
+                .querySelectorAll('.message')
+                .forEach(function (message) {
+
+
+                    message.style.transition =
+                        'opacity .4s ease';
+
+
+                    message.style.opacity = '0';
+
+
+
+                    setTimeout(function () {
+
+                        message.remove();
+
+                    }, 450);
+
+
+                });
+
+
+        }, 5000);
+
+
+    </script>
+
+
+    {% block extra_js %}{% endblock %}
+
+    {% include 'adminlogin.html' %}
+    {% include 'users/create_account.html' %}
+    {% include 'users/user_login.html' %}
+    {% include 'department/department_login.html' %}
+
+
+</body>
+
+</html>

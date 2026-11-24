@@ -1,0 +1,80 @@
+{% extends "users/user_base.html" %}
+
+{% block title %}Connection Status | Consumer Services{% endblock %}
+
+{% block content %}
+{% include "users/includes/_connection_workflow.html" %}
+
+{% if connection %}
+{% if connection.is_power_cut %}
+<div class="flash-msg warning" style="background:#fff0f0; border-color:#efb6b6; color:#991b1b;">
+    <i class="fa-solid fa-plug-circle-xmark"></i>
+    <strong>Individual Power Cut Active ({{ connection.property_type }}{% if connection.industry_type %} - {{ connection.industry_type }}{% endif %}):</strong>
+    {{ connection.power_cut_remark|default:"Supply paused individually by Administration." }}
+</div>
+{% elif connection.power_cut_remark %}
+<div class="flash-msg info">
+    <i class="fa-solid fa-circle-info"></i>
+    <strong>Supply Remark:</strong> {{ connection.power_cut_remark }}
+</div>
+{% endif %}
+
+{% for mnt in active_maintenance_alerts %}
+<div class="flash-msg warning" style="background:#fffbeb; border-color:#fcd34d; color:#92400e;">
+    <i class="fa-solid fa-screwdriver-wrench"></i>
+    <strong>Scheduled Maintenance Notice ({{ mnt.schedule_id }} &bull; {{ mnt.status }}):</strong>
+    {{ mnt.title }} ({{ mnt.scheduled_start|date:"d M Y, h:i A" }} &ndash; {{ mnt.scheduled_end|date:"d M Y, h:i A" }}).
+    {{ mnt.reason }}
+</div>
+{% endfor %}
+
+<section class="info-card">
+    <div class="info-card-header">
+        <span><i class="fa-solid fa-file-invoice"></i> Application &amp; Verification Details &mdash; {{ connection.application_number }} / {{ connection.application_id }}</span>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            {% if connection.connection_fee_paid %}
+            <a href="{% url 'download_connection_pdf' connection.id %}" class="open-conn-btn" style="height:36px; font-size:12.5px;">
+                <i class="fa-solid fa-file-pdf"></i> Download Application PDF
+            </a>
+            {% else %}
+            <button type="button" class="open-conn-btn" style="height:36px; font-size:12.5px; background:linear-gradient(90deg, #15803d, #16a34a);" onclick="openConnFeeGateway()">
+                <i class="fa-solid fa-credit-card"></i> Pay Rs {{ connection.connection_fee_amount }} Connection Fee
+            </button>
+            {% endif %}
+            <a href="{% url 'user_power_simulation' %}" class="apply-cancel-btn" style="height:36px; font-size:12.5px;">
+                <i class="fa-solid fa-bolt"></i> Open Power Simulation
+            </a>
+        </div>
+    </div>
+    <div class="info-card-body">
+        <div class="profile-list">
+            <div class="profile-item"><span>Application Number</span><strong>{{ connection.application_number }}</strong></div>
+            <div class="profile-item"><span>Request ID</span><strong>{{ connection.application_id }}</strong></div>
+            <div class="profile-item"><span>Applicant Name</span><strong>{{ connection.applicant_name }}</strong></div>
+            <div class="profile-item"><span>Connection Category</span><strong>{{ connection.property_type }}{% if connection.industry_type %} ({{ connection.industry_type }}){% endif %}</strong></div>
+            <div class="profile-item"><span>New Connection Charges</span><strong>Rs {{ connection.connection_fee_amount }} ({% if connection.connection_fee_paid %}PAID &bull; {{ connection.connection_receipt_number }}{% else %}UNPAID{% endif %})</strong></div>
+            <div class="profile-item"><span>Gateway TXN ID &amp; Method</span><strong>{% if connection.connection_transaction_id %}{{ connection.connection_transaction_id }} ({{ connection.connection_payment_method }}){% else %}Awaiting Payment{% endif %}</strong></div>
+            <div class="profile-item"><span>Verification 1 (Paid Charges)</span><strong>{% if connection.payment_verified %}Verified by {{ connection.payment_verified_by }}{% elif connection.connection_fee_paid %}Pending Dept/Accounts Check{% else %}Requires Fee Payment{% endif %}</strong></div>
+            <div class="profile-item"><span>Verification 2 (Substation &amp; Transformer)</span><strong>{% if connection.transformer %}{{ connection.transformer.code }} &bull; {{ connection.transformer.substation_name }}{% else %}Pending Dept Assignment{% endif %}</strong></div>
+            <div class="profile-item"><span>Official Meter Number</span><strong>{{ connection.meter_number|default:"Not Assigned Yet" }}</strong></div>
+            <div class="profile-item"><span>ID Proof / License No.</span><strong>{{ connection.id_proof_number }}</strong></div>
+            <div class="profile-item"><span>Sanctioned Load</span><strong>{{ connection.requested_load_kw }} kW</strong></div>
+            <div class="profile-item"><span>Submitted On</span><strong>{{ connection.created_at|date:"d M Y, h:i A" }}</strong></div>
+            <div class="profile-item" style="grid-column: 1 / -1;"><span>Premises Service Address</span><strong>{{ connection.house_address }}</strong></div>
+            {% if connection.payment_verification_remarks %}
+            <div class="profile-item" style="grid-column: 1 / -1;"><span>Payment Verification Remarks</span><strong>{{ connection.payment_verification_remarks }}</strong></div>
+            {% endif %}
+            {% if connection.power_cut_remark %}
+            <div class="profile-item" style="grid-column: 1 / -1;"><span>Power Supply / Cut Remark</span><strong>{{ connection.power_cut_remark }}</strong></div>
+            {% endif %}
+            {% if connection.department_remarks %}
+            <div class="profile-item"><span>Department Remarks</span><strong>{{ connection.department_remarks }}</strong></div>
+            {% endif %}
+            {% if connection.admin_remarks %}
+            <div class="profile-item"><span>Administration Remarks</span><strong>{{ connection.admin_remarks }}</strong></div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endif %}
+{% endblock %}

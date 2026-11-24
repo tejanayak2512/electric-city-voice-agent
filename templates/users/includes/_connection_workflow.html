@@ -1,0 +1,118 @@
+<!-- CONNECTION WORKFLOW PANEL -->
+<section class="conn-panel" id="connectionPanel">
+    <div class="conn-header">
+        <span><i class="fa-solid fa-plug-circle-check"></i> Electricity New Connection &amp; Multi-Stage Verification Workflow</span>
+        {% if connection %}
+            <span class="sim-pill {% if connection.is_power_cut %}off{% elif connection.status == 'Connected' %}on{% elif connection.status == 'Rejected' %}off{% else %}standby{% endif %}">
+                {{ connection.application_number }} &bull; {{ connection.application_id }} ({{ connection.property_type }}{% if connection.industry_type %} - {{ connection.industry_type }}{% endif %}) &bull; {% if connection.is_power_cut %}Individual Power Cut{% else %}{{ connection.status }}{% endif %}
+            </span>
+        {% else %}
+            <span class="sim-pill off">No Connection Applied Yet</span>
+        {% endif %}
+    </div>
+
+    <div class="conn-body">
+        {% if connection %}
+        <div class="steps-track">
+            <div class="step-box done">
+                <div class="step-num"><i class="fa-solid fa-circle-check"></i> Step 1 &bull; Applied</div>
+                <strong>{{ connection.application_number }} ({{ connection.application_id }})</strong>
+                <small>
+                    {% if connection.connection_fee_paid %}
+                        Charges Paid: Rs {{ connection.connection_fee_amount }} ({{ connection.connection_transaction_id }})
+                    {% else %}
+                        Fee Unpaid: Rs {{ connection.connection_fee_amount }} (Pay via Gateway)
+                    {% endif %}
+                </small>
+            </div>
+
+            <div class="step-box {% if connection.payment_verified %}done{% elif connection.connection_fee_paid %}current{% elif connection.status == 'Rejected' %}rejected{% endif %}">
+                <div class="step-num"><i class="fa-solid fa-receipt"></i> Verification 1</div>
+                <strong>Fee Payment Verified</strong>
+                <small>
+                    {% if connection.payment_verified %}
+                        Verified by {{ connection.payment_verified_by }}
+                    {% elif connection.connection_fee_paid %}
+                        Paid &bull; Awaiting Dept/Accounts verification
+                    {% else %}
+                        Pay connection fee first
+                    {% endif %}
+                </small>
+            </div>
+
+            <div class="step-box {% if connection.status == 'Verified' or connection.status == 'Meter Issued' or connection.status == 'Connected' %}done{% elif connection.payment_verified and connection.status == 'Applied' %}current{% elif connection.status == 'Rejected' %}rejected{% endif %}">
+                <div class="step-num"><i class="fa-solid fa-building-user"></i> Verification 2</div>
+                <strong>Dept Inspect &amp; Feeder</strong>
+                <small>
+                    {% if connection.verified_by %}
+                        {{ connection.verified_by.employee_id }} &rarr; {{ connection.transformer.code|default:"Aligned" }}
+                    {% elif connection.payment_verified %}
+                        Pending Dept transformer choice
+                    {% else %}
+                        Unlocked after Fee Verification
+                    {% endif %}
+                </small>
+            </div>
+
+            <div class="step-box {% if connection.status == 'Meter Issued' or connection.status == 'Connected' %}done{% elif connection.status == 'Verified' %}current{% elif connection.status == 'Rejected' %}rejected{% endif %}">
+                <div class="step-num"><i class="fa-solid fa-shield-halved"></i> Step 4 &bull; Admin</div>
+                <strong>Admin Meter Issued</strong>
+                <small>{% if connection.meter_number %}Meter: {{ connection.meter_number }}{% else %}Awaiting Admin approval{% endif %}</small>
+            </div>
+
+            <div class="step-box {% if connection.status == 'Connected' %}done{% elif connection.status == 'Meter Issued' %}current{% elif connection.status == 'Rejected' %}rejected{% endif %}">
+                <div class="step-num"><i class="fa-solid fa-bolt"></i> Step 5 &bull; Live</div>
+                <strong>Premises Connected</strong>
+                <small>{% if connection.status == 'Connected' %}Live from {{ connection.transformer.code }} ({{ connection.transformer.substation_name }}){% else %}Awaiting Dept installation{% endif %}</small>
+            </div>
+        </div>
+
+        <div class="meter-summary-bar" style="margin-bottom: 14px;">
+            <div><span>Application No. &amp; Request ID</span><strong>{{ connection.application_number }} &bull; {{ connection.application_id }}</strong></div>
+            <div><span>Connection Fee &amp; TXN</span><strong>Rs {{ connection.connection_fee_amount }} ({% if connection.connection_fee_paid %}Paid &bull; {{ connection.connection_transaction_id }}{% else %}Unpaid{% endif %})</strong></div>
+            <div><span>Assigned Substation / Transformer</span><strong>{% if connection.transformer %}{{ connection.transformer.code }} &bull; {{ connection.transformer.substation_name }}{% else %}Pending Dept Assignment{% endif %}</strong></div>
+            <div><span>Official Meter Number</span><strong>{{ connection.meter_number|default:"Not Issued Yet" }}</strong></div>
+        </div>
+
+        <!-- CONNECTION FEE PAYMENT OR APPLICATION PDF DOWNLOAD ACTION BAR -->
+        <div class="conn-empty-cta" style="margin-bottom: {% if can_apply %}16px{% else %}0{% endif %};">
+            {% if connection.connection_fee_paid %}
+                <div>
+                    <h4><i class="fa-solid fa-circle-check" style="color:#15803d;"></i> Application Charges Paid &bull; Official PDF Ready</h4>
+                    <p>
+                        Receipt <strong>{{ connection.connection_receipt_number }}</strong> ({{ connection.connection_transaction_id }}) settled for
+                        <strong>{{ connection.application_number }} / {{ connection.application_id }}</strong>.
+                        Payment Verification: <strong>{% if connection.payment_verified %}Verified by {{ connection.payment_verified_by }}{% else %}Pending Accounts/Dept Check{% endif %}</strong>.
+                    </p>
+                </div>
+                <a href="{% url 'download_connection_pdf' connection.id %}" id="downloadApplicationPdfBtn" class="open-conn-btn">
+                    <i class="fa-solid fa-file-pdf"></i> Download Application PDF
+                </a>
+            {% else %}
+                <div>
+                    <h4><i class="fa-solid fa-triangle-exclamation" style="color:#b91c1c;"></i> New Connection Charges Pending: Rs {{ connection.connection_fee_amount }}</h4>
+                    <p>
+                        Pay your New Connection Fee (Processing + Service Line + Security Deposit) via DISCOM PowerPay Gateway
+                        to unlock <strong>Official Application PDF Download</strong> and proceed to <strong>Payment Verification</strong>.
+                    </p>
+                </div>
+                <button type="button" id="payConnectionFeeBtn" class="open-conn-btn" style="background:linear-gradient(90deg, #15803d, #16a34a);" onclick="openConnFeeGateway()">
+                    <i class="fa-solid fa-credit-card"></i> Pay Rs {{ connection.connection_fee_amount }} &amp; Unlock PDF
+                </button>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        {% if can_apply %}
+        <div class="conn-empty-cta">
+            <div>
+                <h4>Need an Electricity Connection?</h4>
+                <p>Choose <strong>Domestic</strong> (Fee Rs {{ domestic_fee_info.total }}) or <strong>Commercial</strong> (Fee Rs {{ commercial_fee_info.total }}) via Services &rarr; New Connection.</p>
+            </div>
+            <a href="{% url 'user_new_connection' %}" class="open-conn-btn">
+                <i class="fa-solid fa-file-signature"></i> Apply for New Connection
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</section>

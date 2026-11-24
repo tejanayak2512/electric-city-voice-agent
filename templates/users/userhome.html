@@ -1,0 +1,273 @@
+{% extends "users/user_base.html" %}
+
+{% block title %}User Home | Electricity Department AI Voice Agent{% endblock %}
+
+{% block content %}
+<section class="welcome-banner">
+    <div class="welcome-text">
+        <h2>Welcome, {{ user_account.full_name }}!</h2>
+        <p>
+            Signed in as <strong>{{ user_account.username }}</strong>. Follow the ordered consumer workflow below:
+            <strong>01. New Connection</strong> &rarr;
+            <strong>02. Track Status &amp; Meter</strong> &rarr;
+            <strong>03. Power Billing &amp; Bulk Recharge</strong> &rarr;
+            <strong>04. Live Power Simulation</strong>.
+        </p>
+        {% if next_step %}
+        <div style="margin-top:12px; display:flex; align-items:center; gap:12px; flex-wrap:wrap; background:rgba(255,255,255,0.14); border:1px solid rgba(255,255,255,0.26); border-radius:10px; padding:10px 14px;">
+            <span style="background:#facc15; color:#0f172a; padding:2px 9px; border-radius:999px; font-size:11px; font-weight:800;">
+                NEXT: {{ next_step.step }}
+            </span>
+            <span style="font-size:13px; color:#f8fafc; font-weight:600;">{{ next_step.desc }}</span>
+            <a href="{{ next_step.url }}" style="margin-left:auto; background:#ffffff; color:#063b78; padding:6px 14px; border-radius:8px; font-size:12.5px; font-weight:800; white-space:nowrap;">
+                {{ next_step.cta }} &rarr;
+            </a>
+        </div>
+        {% endif %}
+    </div>
+    <div class="status-card">
+        <span class="status-label">Account Status</span>
+        {% if user_account.status == "Active" %}
+            <span class="status-pill active"><i class="fa-solid fa-circle-check"></i> {{ user_account.status }}</span>
+        {% elif user_account.status == "Pending" %}
+            <span class="status-pill pending"><i class="fa-solid fa-clock"></i> {{ user_account.status }}</span>
+        {% else %}
+            <span class="status-pill inactive"><i class="fa-solid fa-circle-exclamation"></i> {{ user_account.status }}</span>
+        {% endif %}
+    </div>
+</section>
+
+<!-- NOTIFICATIONS, MAINTENANCE & BILL REMINDERS HUB -->
+<div class="section-order-title" id="userNotificationsCenter">
+    <h3><span class="step-pill">Alerts</span> Live Notifications, Maintenance &amp; Bill Reminders</h3>
+    <div style="display:flex; align-items:center; gap:8px;">
+        <span class="notif-live-badge"><span class="pulse-dot"></span> Real-Time Feed</span>
+        <span class="notif-count-badge" id="notifTotalBadge">{{ user_notifications_count }} Active</span>
+    </div>
+</div>
+
+<section class="user-notifications-hub" aria-label="Consumer Notifications and Alerts">
+    <!-- Filter Tabs -->
+    <div class="notif-filter-tabs" id="userNotifFilterTabs">
+        <button type="button" class="notif-tab-btn active" data-filter="all">
+            <i class="fa-solid fa-list-check"></i> All ({{ user_notifications_count }})
+        </button>
+        <button type="button" class="notif-tab-btn" data-filter="live">
+            <i class="fa-solid fa-bolt"></i> Live Grid &amp; Telemetry ({{ live_notifications_count }})
+        </button>
+        <button type="button" class="notif-tab-btn" data-filter="maintenance">
+            <i class="fa-solid fa-screwdriver-wrench"></i> Maintenance &amp; Outages ({{ maintenance_notifications_count }})
+        </button>
+        <button type="button" class="notif-tab-btn" data-filter="bills">
+            <i class="fa-solid fa-file-invoice-dollar"></i> Bill Reminders ({{ bills_notifications_count }})
+        </button>
+    </div>
+
+    <!-- Notification Cards List -->
+    <div class="notif-cards-list" id="userNotifItemsList">
+        {% for n in user_notifications %}
+        <div class="notif-card notif-severity-{{ n.severity }} notif-cat-{{ n.category }}" data-category="{{ n.category }}">
+            <div class="notif-card-main">
+                <div class="notif-card-icon">
+                    <i class="{{ n.icon }}"></i>
+                </div>
+                <div class="notif-card-body">
+                    <div class="notif-card-badges">
+                        <span class="badge-status-pill bsp-{{ n.severity }}">{{ n.badge }}</span>
+                        <span class="badge-cat-pill">{{ n.category_label }}</span>
+                        {% if n.is_live %}
+                        <span class="badge-live-pill"><span class="pulse-dot-sm"></span> LIVE</span>
+                        {% endif %}
+                    </div>
+                    <h4 class="notif-card-title">{{ n.title }}</h4>
+                    <p class="notif-card-text">{{ n.message }}</p>
+                    <div class="notif-card-meta">
+                        <span><i class="fa-regular fa-clock"></i> {{ n.timestamp|date:"d M Y, h:i A" }}</span>
+                        {% if n.extra_info %}
+                        <span>&bull; {{ n.extra_info }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% if n.cta_url %}
+            <div class="notif-card-action">
+                <a href="{{ n.cta_url }}" class="notif-action-btn nab-{{ n.severity }}">
+                    {{ n.cta_label }} <i class="fa-solid fa-arrow-right"></i>
+                </a>
+            </div>
+            {% endif %}
+        </div>
+        {% empty %}
+        <div class="notif-empty-box">
+            <div class="notif-empty-icon"><i class="fa-solid fa-shield-heart"></i></div>
+            <h4>No Active Alerts or Reminders</h4>
+            <p>Your power connection is active and all billing invoices are up to date with no scheduled outages.</p>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- SECTION 1: ORDERED CONSUMER SERVICES FLOW (01 -> 05) -->
+<div class="section-order-title">
+    <h3><span class="step-pill">Section 1</span> Ordered Consumer Services Flow</h3>
+</div>
+<section class="services-grid" aria-label="Ordered Consumer Services">
+    <a href="{% url 'user_new_connection' %}" class="service-tile">
+        <div>
+            <span class="service-step-tag">Step 01</span>
+            <div class="service-tile-top" style="margin-top:8px;">
+                <div class="service-tile-icon"><i class="fa-solid fa-plug-circle-plus"></i></div>
+                <div>
+                    <h3>New Connection</h3>
+                    <p>Apply Domestic or Commercial (Industry) &amp; get Request ID.</p>
+                </div>
+            </div>
+        </div>
+        <div class="service-tile-foot">
+            <span>Apply Connection</span>
+            <i class="fa-solid fa-arrow-right"></i>
+        </div>
+    </a>
+
+    <a href="{% url 'user_connection_status' %}" class="service-tile">
+        <div>
+            <span class="service-step-tag">Step 02</span>
+            <div class="service-tile-top" style="margin-top:8px;">
+                <div class="service-tile-icon"><i class="fa-solid fa-clipboard-check"></i></div>
+                <div>
+                    <h3>Connection Status</h3>
+                    <p>Track Dept verification, Substation &amp; Meter No.</p>
+                </div>
+            </div>
+        </div>
+        <div class="service-tile-foot">
+            <span>Check Status</span>
+            <i class="fa-solid fa-arrow-right"></i>
+        </div>
+    </a>
+
+    <a href="{% url 'user_billing' %}" class="service-tile">
+        <div>
+            <span class="service-step-tag">Step 03</span>
+            <div class="service-tile-top" style="margin-top:8px;">
+                <div class="service-tile-icon"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+                <div>
+                    <h3>Power Billing</h3>
+                    <p>Bulk Recharge (Commercial) &amp; Monthly Bills via Gateway.</p>
+                </div>
+            </div>
+        </div>
+        <div class="service-tile-foot">
+            <span>Open Billing &amp; Pay</span>
+            <i class="fa-solid fa-arrow-right"></i>
+        </div>
+    </a>
+
+    <a href="{% url 'user_power_simulation' %}" class="service-tile">
+        <div>
+            <span class="service-step-tag">Step 04</span>
+            <div class="service-tile-top" style="margin-top:8px;">
+                <div class="service-tile-icon"><i class="fa-solid fa-bolt"></i></div>
+                <div>
+                    <h3>Power Simulation</h3>
+                    <p>Toggle appliances, view load kW &amp; live unit backup.</p>
+                </div>
+            </div>
+        </div>
+        <div class="service-tile-foot">
+            <span>Open Simulation</span>
+            <i class="fa-solid fa-arrow-right"></i>
+        </div>
+    </a>
+
+    <a href="{% url 'user_account_profile' %}" class="service-tile">
+        <div>
+            <span class="service-step-tag">Step 05</span>
+            <div class="service-tile-top" style="margin-top:8px;">
+                <div class="service-tile-icon"><i class="fa-solid fa-id-card"></i></div>
+                <div>
+                    <h3>Account Profile</h3>
+                    <p>View consumer details, Request ID &amp; Meter info.</p>
+                </div>
+            </div>
+        </div>
+        <div class="service-tile-foot">
+            <span>View Profile</span>
+            <i class="fa-solid fa-arrow-right"></i>
+        </div>
+    </a>
+
+    <a href="{% url 'user_voice_agent' %}" class="service-tile" style="border: 1.5px solid #86efac; background: linear-gradient(180deg, #ffffff 0%, #f0fdf4 100%);">
+        <div>
+            <span class="service-step-tag" style="background: #dcfce7; color: #166534; border-color: #86efac;">
+                <span class="pulse-dot-sm" style="margin-right: 4px;"></span> Step 06 &bull; 24/7 AI
+            </span>
+            <div class="service-tile-top" style="margin-top:8px;">
+                <div class="service-tile-icon" style="background: #dcfce7; color: #15803d;"><i class="fa-solid fa-headset"></i></div>
+                <div>
+                    <h3>AI Voice Calling Agent</h3>
+                    <p>Report power outages, track complaints &amp; check live grid status.</p>
+                </div>
+            </div>
+        </div>
+        <div class="service-tile-foot" style="color: #15803d;">
+            <span>Call AI Agent Now</span>
+            <i class="fa-solid fa-phone-volume"></i>
+        </div>
+    </a>
+
+    <a href="{% url 'user_pure_voice_agent' %}" class="service-tile" style="border: 1.5px solid #38bdf8; background: linear-gradient(180deg, #ffffff 0%, #f0f9ff 100%);">
+        <div>
+            <span class="service-step-tag" style="background: #e0f2fe; color: #0284c7; border-color: #7dd3fc; font-weight:800;">
+                <i class="fa-solid fa-microphone-lines" style="margin-right: 4px; color: #0284c7;"></i> Step 07 &bull; Hands-Free
+            </span>
+            <div class="service-tile-top" style="margin-top:8px;">
+                <div class="service-tile-icon" style="background: #0284c7; color: #ffffff; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.35);"><i class="fa-solid fa-microphone-lines"></i></div>
+                <div>
+                    <h3 style="color: #0369a1;">Hands-Free Voice Calling</h3>
+                    <p>100% voice conversation with DISCOM officers &bull; No dialpad or keypad required.</p>
+                </div>
+            </div>
+        </div>
+        <div class="service-tile-foot" style="color: #0284c7; font-weight: 800;">
+            <span>Start Hands-Free Call</span>
+            <i class="fa-solid fa-arrow-right"></i>
+        </div>
+    </a>
+</section>
+
+<!-- SECTION 2: CONNECTION WORKFLOW & METER TRACKING -->
+<div class="section-order-title">
+    <h3><span class="step-pill">Section 2</span> Connection Progress &amp; Official Meter Tracker</h3>
+</div>
+{% include "users/includes/_connection_workflow.html" %}
+
+<!-- SECTION 3: LIVE POWER CONTROL & APPLIANCE SIMULATION -->
+<div class="section-order-title">
+    <h3><span class="step-pill">Section 3</span> Live Power Supply &amp; Appliance Usage Simulation</h3>
+</div>
+{% include "users/includes/_power_simulation.html" %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    (function () {
+        const tabs = document.querySelectorAll('.notif-tab-btn');
+        const cards = document.querySelectorAll('.notif-card');
+        tabs.forEach(function (tab) {
+            tab.addEventListener('click', function () {
+                tabs.forEach(function (t) { t.classList.remove('active'); });
+                this.classList.add('active');
+                const filter = this.getAttribute('data-filter');
+                cards.forEach(function (card) {
+                    if (filter === 'all' || card.getAttribute('data-category') === filter) {
+                        card.style.display = 'flex';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            });
+        });
+    })();
+</script>
+{% endblock %}

@@ -1,0 +1,154 @@
+{% extends "department/department_base.html" %}
+
+{% block title %}Department Home | Electricity Department{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dept-ops-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 14px; margin-bottom: 24px; }
+    .dept-op-card {
+        background: #ffffff; border: 1.5px solid #c6d8ed; border-radius: 14px; padding: 18px;
+        display: flex; flex-direction: column; justify-content: space-between; gap: 12px;
+        box-shadow: 0 4px 16px rgba(8, 47, 96, 0.06); transition: transform 0.16s ease, border-color 0.16s ease;
+    }
+    .dept-op-card:hover { transform: translateY(-3px); border-color: #07549a; }
+    .dept-op-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .dept-step-badge {
+        background: #063b78; color: #ffffff; padding: 3px 10px; border-radius: 999px; font-size: 11px; font-weight: 800;
+    }
+    .dept-op-count { font-size: 24px; font-weight: 800; color: #082f66; }
+    .dept-op-card h3 { font-size: 15.5px; font-weight: 800; color: #082f66; }
+    .dept-op-card p { font-size: 12.5px; color: #365070; line-height: 1.45; }
+    .dept-op-foot {
+        padding-top: 10px; border-top: 1px solid #e6eef7; display: flex; justify-content: space-between;
+        font-size: 12.5px; font-weight: 800; color: #07549a;
+    }
+    @media (max-width: 1120px) { .dept-ops-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 680px) { .dept-ops-grid { grid-template-columns: 1fr; } }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="welcome-banner" style="background: linear-gradient(110deg, #063b78 0%, #0755a0 65%, #0c6bc4 100%); color: #ffffff; border-radius: 14px; padding: 20px 28px; display: flex; align-items: center; justify-content: space-between; gap: 24px; margin-bottom: 22px;">
+    <div class="welcome-text">
+        <h2 style="font-size: 20px; font-weight: 800; margin-bottom: 6px;">Welcome, {{ employee.full_name }}!</h2>
+        <p style="font-size: 13.5px; opacity: 0.9;">Department Officer ID: <strong>{{ employee.employee_id }}</strong> &bull; Designation: <strong>{{ employee.designation }}</strong></p>
+    </div>
+</section>
+    <div>
+        <strong><i class="fa-solid fa-bolt"></i> Live Tariff Schedule:</strong>
+        Base Fare: &#8377;<span id="deptTariffBase">{{ base_fare_rs|floatformat:2 }}</span> |
+        Domestic: &#8377;<span id="deptTariffDom">{{ domestic_rate|floatformat:2 }}</span>/unit |
+        Commercial: &#8377;<span id="deptTariffComm">{{ commercial_rate|floatformat:2 }}</span>/unit
+        {% if tariff_setting.revision_note %} &mdash; <span id="deptTariffNote">{{ tariff_setting.revision_note }}</span>{% endif %}
+    </div>
+</div>
+
+<!-- LIVE CURRENT USAGE SUMMARY WIDGET (AUTO-REFRESHED) -->
+<section class="panel-card">
+    <div class="panel-header">
+        <span><i class="fa-solid fa-wave-square"></i> Real-Time Consumer Usage Snapshot (Live Telemetry)</span>
+        <a href="{% url 'department_connected_premises' %}" style="font-size:12.5px; color:#07549a; text-decoration:underline;">
+            Open Full Searchable &amp; Paginated Table &rarr;
+        </a>
+    </div>
+    <div class="panel-body table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Request ID &amp; Meter</th>
+                    <th>Consumer &amp; Category</th>
+                    <th>Feeder</th>
+                    <th>Live Supply Status</th>
+                    <th>Current Live Usage / Balance</th>
+                    <th>Total Lifetime Units</th>
+                </tr>
+            </thead>
+            <tbody id="deptHomeLiveBody">
+                {% for app in live_recent_connections %}
+                <tr data-conn-id="{{ app.id }}">
+                    <td>
+                        <strong>{{ app.application_id }}</strong><br>
+                        <small style="color:#07549a;"><code>{{ app.meter_number }}</code></small>
+                    </td>
+                    <td>
+                        <strong>{{ app.applicant_name }}</strong><br>
+                        <small style="color:#4b698c;">{{ app.property_type }}{% if app.industry_type %} ({{ app.industry_type }}){% endif %}</small>
+                    </td>
+                    <td><strong>{{ app.transformer.code }}</strong></td>
+                    <td class="live-state-cell">
+                        {% if app.is_power_cut %}
+                            <span class="badge-status bs-red">Individual Power Cut</span>
+                        {% elif app.transformer.is_power_on %}
+                            <span class="badge-status bs-green">Connected &bull; Live</span>
+                        {% else %}
+                            <span class="badge-status bs-red">Transformer OFF</span>
+                        {% endif %}
+                    </td>
+                    <td class="live-usage-cell">
+                        {% if app.is_commercial %}
+                            <strong>{{ app.prepaid_units_balance }} Units Left</strong> ({{ app.live_telemetry.est_runtime_text }})
+                        {% else %}
+                            <strong>{{ app.unbilled_units }} Units</strong> ({{ app.live_telemetry.active_kw|floatformat:2 }} kW • {{ app.live_telemetry.on_count }}/{{ app.live_telemetry.total_count }} ON)
+                        {% endif %}
+                    </td>
+                    <td class="live-total-cell"><strong>{{ app.total_units_consumed }} Units</strong></td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" style="text-align:center; color:#4b698c; padding:18px;">
+                        No connected consumers yet. Use Operations &rarr; Step 01 &amp; Step 02 to onboard requests.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    (function () {
+        function refreshDeptSnapshot() {
+            fetch("{% url 'department_live_usage_api' %}", { headers: { 'Accept': 'application/json' } })
+            .then(function (r) { return r.ok ? r.json() : null; })
+            .then(function (data) {
+                if (!data || !data.ok) return;
+                if (data.tariff) {
+                    const b = document.getElementById('deptTariffBase');
+                    const d = document.getElementById('deptTariffDom');
+                    const c = document.getElementById('deptTariffComm');
+                    const n = document.getElementById('deptTariffNote');
+                    if (b) b.textContent = Number(data.tariff.base_fare_rs).toFixed(2);
+                    if (d) d.textContent = Number(data.tariff.domestic_rate).toFixed(2);
+                    if (c) c.textContent = Number(data.tariff.commercial_rate).toFixed(2);
+                    if (n && data.tariff.revision_note) n.textContent = data.tariff.revision_note;
+                }
+                const byId = {};
+                (data.items || []).forEach(function (it) { byId[String(it.id)] = it; });
+                document.querySelectorAll('#deptHomeLiveBody tr[data-conn-id]').forEach(function (row) {
+                    const it = byId[row.getAttribute('data-conn-id')];
+                    if (!it) return;
+                    const stCell = row.querySelector('.live-state-cell');
+                    const usCell = row.querySelector('.live-usage-cell');
+                    const totCell = row.querySelector('.live-total-cell');
+                    if (stCell) {
+                        const cls = it.supply_state.indexOf('Live') >= 0 ? 'bs-green' : 'bs-red';
+                        stCell.innerHTML = '<span class="badge-status ' + cls + '">' + it.supply_state + '</span>';
+                    }
+                    if (usCell) {
+                        usCell.innerHTML = it.property_type === 'Commercial'
+                            ? ('<strong>' + Number(it.prepaid_units_balance).toFixed(2) + ' Units Left</strong> (' + (it.est_runtime_text || 'Bulk Prepaid') + ')')
+                            : ('<strong>' + Number(it.unbilled_units).toFixed(2) + ' Units</strong> (' + Number(it.active_kw || 0).toFixed(2) + ' kW • ' + (it.on_appliances_count || 0) + '/' + (it.total_appliances_count || 0) + ' ON)');
+                    }
+                    if (totCell) {
+                        totCell.innerHTML = '<strong>' + Number(it.total_units_consumed).toFixed(2) + ' Units</strong>';
+                    }
+                });
+            })
+            .catch(function () {});
+        }
+        setInterval(refreshDeptSnapshot, 4000);
+    })();
+</script>
+{% endblock %}

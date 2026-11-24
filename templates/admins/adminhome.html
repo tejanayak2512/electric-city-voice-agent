@@ -1,0 +1,112 @@
+{% extends "admins/admin_base.html" %}
+
+{% block title %}1. Grid &amp; Transformers Control | Admin Portal{% endblock %}
+
+{% block footer_tag %}Step 1 &bull; Substations &amp; Transformers Control{% endblock %}
+
+{% block extra_css %}
+<style>
+    .add-tf-form { display: grid; grid-template-columns: 0.75fr 1.2fr 1.2fr 1.1fr 0.75fr auto; gap: 12px; align-items: end; }
+    .form-field label { display: block; font-size: 12px; font-weight: 700; color: #102b4c; margin-bottom: 5px; }
+    .form-field input {
+        width: 100%; height: 40px; padding: 8px 12px; border: 1.5px solid #c6d8ed; border-radius: 8px;
+        font-family: inherit; font-size: 13px; background: #f9fbfe;
+    }
+    .form-field input:focus { outline: none; border-color: #07549a; background: #ffffff; }
+    .add-tf-btn {
+        height: 40px; padding: 0 18px; border: 0; border-radius: 8px; background: linear-gradient(90deg, #06417f, #07549a);
+        color: #ffffff; font-weight: 700; font-size: 13.5px; cursor: pointer; white-space: nowrap;
+    }
+    .field-err { color: #b91c1c; font-size: 11.5px; font-weight: 700; margin-top: 4px; display: block; }
+    @media (max-width: 1120px) { .add-tf-form { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 768px) { .add-tf-form { grid-template-columns: 1fr; } }
+</style>
+{% endblock %}
+
+{% block content %}
+
+
+
+
+{% include "includes/_substation_transformers_bay.html" %}
+
+<!-- STEP 2: EXPAND SUBSTATION FLEET -->
+<div class="section-order-title">
+    <h3> Add New Substation / Transformer Unit</h3>
+</div>
+<section class="panel-card">
+    <div class="panel-header">
+        <span><i class="fa-solid fa-plus-circle"></i> Commission New Substation / Transformer Feeder</span>
+    </div>
+    <div class="panel-body">
+        <form method="post" action="{% url 'add_transformer' %}" class="add-tf-form">
+            {% csrf_token %}
+            <div class="form-field">
+                <label for="tfCode">Transformer Code</label>
+                <input type="text" id="tfCode" name="code" value="{{ transformer_form.code.value|default:'' }}" placeholder="e.g. T-04" required>
+                {% for err in transformer_form.code.errors %}<span class="field-err">{{ err }}</span>{% endfor %}
+            </div>
+            <div class="form-field">
+                <label for="tfSubstation">Substation Name</label>
+                <input type="text" id="tfSubstation" name="substation_name" value="{{ transformer_form.substation_name.value|default:'' }}" placeholder="e.g. East 33/11 kV Substation">
+                {% for err in transformer_form.substation_name.errors %}<span class="field-err">{{ err }}</span>{% endfor %}
+            </div>
+            <div class="form-field">
+                <label for="tfName">Transformer Name</label>
+                <input type="text" id="tfName" name="name" value="{{ transformer_form.name.value|default:'' }}" placeholder="e.g. East Feeder Transformer T-04" required>
+                {% for err in transformer_form.name.errors %}<span class="field-err">{{ err }}</span>{% endfor %}
+            </div>
+            <div class="form-field">
+                <label for="tfZone">Service Zone / Area</label>
+                <input type="text" id="tfZone" name="zone" value="{{ transformer_form.zone.value|default:'' }}" placeholder="e.g. East Residential Colony" required>
+                {% for err in transformer_form.zone.errors %}<span class="field-err">{{ err }}</span>{% endfor %}
+            </div>
+            <div class="form-field">
+                <label for="tfCap">Capacity (kVA)</label>
+                <input type="number" id="tfCap" name="capacity_kva" value="{{ transformer_form.capacity_kva.value|default:'500' }}" min="50" max="10000" required>
+                {% for err in transformer_form.capacity_kva.errors %}<span class="field-err">{{ err }}</span>{% endfor %}
+            </div>
+            <button type="submit" class="add-tf-btn">
+                <i class="fa-solid fa-plus"></i> Add Transformer
+            </button>
+        </form>
+    </div>
+</section>
+
+<form id="csrfTokenHolder" style="display:none;">{% csrf_token %}</form>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function postPowerControl(params, onSuccess) {
+        const csrfInput = document.querySelector('#csrfTokenHolder input[name="csrfmiddlewaretoken"]');
+        const csrfToken = csrfInput ? csrfInput.value : '';
+
+        fetch("{% url 'toggle_power_supply' %}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': csrfToken,
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            },
+            body: new URLSearchParams(params).toString()
+        })
+        .then(function (resp) {
+            if (!resp.ok) throw new Error('Failed to update transformer power supply');
+            return resp.json();
+        })
+        .then(onSuccess)
+        .catch(function (err) { console.error(err); });
+    }
+
+    function setTransformerPower(action, tfId) {
+        const targetId = tfId || currentTransformerId;
+        postPowerControl({ action: action, transformer_id: targetId }, applyTransformerUI);
+    }
+
+    function setAllTransformersPower(action) {
+        postPowerControl({ action: action, scope: 'all', transformer_id: 'all' }, applyOverallGridUpdate);
+    }
+</script>
+{% endblock %}

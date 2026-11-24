@@ -1,0 +1,149 @@
+{% extends "users/user_base.html" %}
+
+{% block title %}Services | Electricity Department Consumer Portal{% endblock %}
+
+{% block content %}
+<section class="welcome-banner">
+    <div class="welcome-text">
+        <h2>Consumer Services Directory (Ordered Flow)</h2>
+        <p>
+            Follow steps <strong>01</strong> through <strong>05</strong> to apply for a connection, track approval stages,
+            recharge bulk units or pay monthly bills, operate live appliances, and review your consumer profile.
+        </p>
+    </div>
+    <div class="status-card">
+        <span class="status-label">Connection Status</span>
+        {% if connection %}
+            <span class="status-pill {% if connection.status == 'Connected' %}active{% elif connection.status == 'Rejected' %}inactive{% else %}pending{% endif %}">
+                <i class="fa-solid fa-plug"></i> {{ connection.status }}
+            </span>
+        {% else %}
+            <span class="status-pill pending"><i class="fa-solid fa-clock"></i> Not Applied</span>
+        {% endif %}
+    </div>
+</section>
+
+<div class="section-order-title">
+    <h3><span class="step-pill">Consumer Journey</span> Step 01 &rarr; Step 05</h3>
+</div>
+<section class="services-grid">
+    <a href="{% url 'user_new_connection' %}" class="service-tile">
+        <div>
+            <span class="service-step-tag">Step 01</span>
+            <div class="service-tile-top" style="margin-top:8px;">
+                <div class="service-tile-icon"><i class="fa-solid fa-plug-circle-plus"></i></div>
+                <div>
+                    <h3>New Connection</h3>
+                    <p>Apply for a Domestic household or Commercial facility electricity service connection.</p>
+                </div>
+            </div>
+        </div>
+        <div class="service-tile-foot">
+            <span>Open Application Page</span>
+            <i class="fa-solid fa-arrow-right"></i>
+        </div>
+    </a>
+
+    <a href="{% url 'user_connection_status' %}" class="service-tile">
+        <div>
+            <span class="service-step-tag">Step 02</span>
+            <div class="service-tile-top" style="margin-top:8px;">
+                <div class="service-tile-icon"><i class="fa-solid fa-clipboard-check"></i></div>
+                <div>
+                    <h3>Connection Status</h3>
+                    <p>Track all 4 verification stages, assigned substation transformer, and official meter number.</p>
+                </div>
+            </div>
+        </div>
+        <div class="service-tile-foot">
+            <span>View Verification Tracker</span>
+            <i class="fa-solid fa-arrow-right"></i>
+        </div>
+    </a>
+
+    <a href="{% url 'user_billing' %}" class="service-tile">
+        <div>
+            <span class="service-step-tag">Step 03</span>
+            <div class="service-tile-top" style="margin-top:8px;">
+                <div class="service-tile-icon"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+                <div>
+                    <h3>Power Billing</h3>
+                    <p>Lookup Meter No, recharge Commercial Bulk Packs, or pay Domestic monthly bills via Gateway.</p>
+                </div>
+            </div>
+        </div>
+        <div class="service-tile-foot">
+            <span>Open Billing &amp; Pay</span>
+            <i class="fa-solid fa-arrow-right"></i>
+        </div>
+    </a>
+
+    <a href="{% url 'user_power_simulation' %}" class="service-tile">
+        <div>
+            <span class="service-step-tag">Step 04</span>
+            <div class="service-tile-top" style="margin-top:8px;">
+                <div class="service-tile-icon"><i class="fa-solid fa-bolt"></i></div>
+                <div>
+                    <h3>Power Simulation</h3>
+                    <p>Control your live Domestic or Commercial simulation, main switch, and added appliances.</p>
+                </div>
+            </div>
+        </div>
+        <div class="service-tile-foot">
+            <span>Launch Simulation</span>
+            <i class="fa-solid fa-arrow-right"></i>
+        </div>
+    </a>
+
+    <a href="{% url 'user_account_profile' %}" class="service-tile">
+        <div>
+            <span class="service-step-tag">Step 05</span>
+            <div class="service-tile-top" style="margin-top:8px;">
+                <div class="service-tile-icon"><i class="fa-solid fa-id-card"></i></div>
+                <div>
+                    <h3>Account Profile</h3>
+                    <p>Inspect your registered consumer account details, status, and contact information.</p>
+                </div>
+            </div>
+        </div>
+        <div class="service-tile-foot">
+            <span>View Profile Details</span>
+            <i class="fa-solid fa-arrow-right"></i>
+        </div>
+    </a>
+
+    <a href="{% url 'user_voice_agent' %}" class="service-tile">
+        <div>
+            <span class="service-step-tag" style="background:#e0f2fe; color:#0369a1;">Step 06</span>
+            <div class="service-tile-top" style="margin-top:8px;">
+                <div class="service-tile-icon" style="background:#e0f2fe; color:#0284c7;"><i class="fa-solid fa-headset"></i></div>
+                <div>
+                    <h3>24/7 AI Voice Helpline (IVR &amp; Keypad)</h3>
+                    <p>Official 1912 Interactive Telephony Helpline with DTMF touch-tone dialpad, menu options, and dedicated officer desks.</p>
+                </div>
+            </div>
+        </div>
+        <div class="service-tile-foot">
+            <span>Open IVR Helpline</span>
+            <i class="fa-solid fa-arrow-right"></i>
+        </div>
+    </a>
+
+    <a href="{% url 'user_pure_voice_agent' %}" class="service-tile" style="border: 2px solid #38bdf8; background: linear-gradient(180deg, #ffffff 0%, #f0f9ff 100%);">
+        <div>
+            <span class="service-step-tag" style="background:#dcfce7; color:#15803d; font-weight:800;">Step 07 &bull; NEW</span>
+            <div class="service-tile-top" style="margin-top:8px;">
+                <div class="service-tile-icon" style="background:#16a34a; color:#ffffff; box-shadow:0 4px 12px rgba(22,163,74,0.3);"><i class="fa-solid fa-microphone-lines"></i></div>
+                <div>
+                    <h3 style="color:#0284c7;">Hands-Free AI Voice Calling (Voice-Only)</h3>
+                    <p>Natural conversational voice calling with <strong>no dialpad or keypad</strong>. Speak naturally via your microphone with DISCOM officers in real human voice.</p>
+                </div>
+            </div>
+        </div>
+        <div class="service-tile-foot" style="color:#16a34a; font-weight:800;">
+            <span>Start Voice-Only Call</span>
+            <i class="fa-solid fa-arrow-right"></i>
+        </div>
+    </a>
+</section>
+{% endblock %}

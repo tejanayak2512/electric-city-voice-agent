@@ -1,0 +1,37 @@
+{% extends "users/user_base.html" %}
+
+{% block title %}Account Profile | Consumer Services{% endblock %}
+
+{% block content %}
+<section class="info-card" id="profilePanel">
+    <div class="info-card-header">
+        <span><i class="fa-solid fa-id-card"></i> User Account Profile &amp; Status</span>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            {% if connection and connection.connection_fee_paid %}
+            <a href="{% url 'download_connection_pdf' connection.id %}" class="open-conn-btn" style="height:34px; font-size:12px;">
+                <i class="fa-solid fa-file-pdf"></i> Download Application PDF
+            </a>
+            {% endif %}
+            <a href="{% url 'user_connection_status' %}" class="apply-cancel-btn" style="height:34px; font-size:12px;">
+                <i class="fa-solid fa-clipboard-check"></i> Connection Status
+            </a>
+        </div>
+    </div>
+    <div class="info-card-body">
+        <div class="profile-list">
+            <div class="profile-item"><span>Full Name</span><strong>{{ user_account.full_name }}</strong></div>
+            <div class="profile-item"><span>Username</span><strong>{{ user_account.username }}</strong></div>
+            <div class="profile-item"><span>Account Status</span><strong>{{ user_account.status }}</strong></div>
+            <div class="profile-item"><span>Mobile Number</span><strong>{{ user_account.mobile_number }}</strong></div>
+            <div class="profile-item"><span>Email Address</span><strong>{{ user_account.email }}</strong></div>
+            <div class="profile-item"><span>Account Created</span><strong>{{ user_account.created_at|date:"d M Y, h:i A" }}</strong></div>
+            <div class="profile-item"><span>Application Number</span><strong>{{ connection.application_number|default:"Not Applied Yet" }}</strong></div>
+            <div class="profile-item"><span>Connection Request ID</span><strong>{{ connection.application_id|default:"Not Applied Yet" }}</strong></div>
+            <div class="profile-item"><span>Official Meter Number</span><strong>{{ connection.meter_number|default:"Not Assigned Yet" }}</strong></div>
+            <div class="profile-item"><span>Connection Charges Status</span><strong>{% if connection %}Rs {{ connection.connection_fee_amount }} ({% if connection.connection_fee_paid %}Paid &bull; {{ connection.connection_transaction_id }}{% else %}Unpaid{% endif %}){% else %}Not Applied{% endif %}</strong></div>
+            <div class="profile-item"><span>Connection Category</span><strong>{% if connection %}{{ connection.property_type }}{% if connection.industry_type %} ({{ connection.industry_type }}){% endif %}{% else %}Not Applied{% endif %}</strong></div>
+            <div class="profile-item"><span>Assigned Substation &amp; Transformer</span><strong>{% if connection and connection.transformer %}{{ connection.transformer.code }} &bull; {{ connection.transformer.substation_name }}{% else %}Not Assigned{% endif %}</strong></div>
+        </div>
+    </div>
+</section>
+{% endblock %}

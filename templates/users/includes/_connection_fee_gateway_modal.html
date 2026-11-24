@@ -1,0 +1,216 @@
+{% if connection and not connection.connection_fee_paid %}
+<!-- DISCOM NEW CONNECTION CHARGES PAYMENT GATEWAY MODAL -->
+<style>
+    .conn-fee-overlay {
+        position: fixed; inset: 0; background: rgba(4, 21, 48, 0.72); backdrop-filter: blur(4px);
+        display: none; align-items: center; justify-content: center; padding: 18px; z-index: 950;
+    }
+    .conn-fee-overlay.open { display: flex; }
+    .conn-fee-card {
+        width: 100%; max-width: 500px; background: #ffffff; border-radius: 16px;
+        border: 1px solid #bfd4ec; overflow: hidden; box-shadow: 0 24px 60px rgba(4, 21, 48, 0.35);
+    }
+    .conn-fee-head {
+        background: linear-gradient(120deg, #063b78, #07549a); color: #ffffff;
+        padding: 15px 20px; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    }
+    .conn-fee-head h3 { font-size: 16px; font-weight: 800; margin: 0; }
+    .conn-fee-head p { font-size: 11.5px; color: #dbeafe; margin-top: 2px; }
+    .conn-fee-close {
+        width: 32px; height: 32px; border-radius: 50%; border: 1px solid rgba(255,255,255,.35);
+        background: rgba(255,255,255,.15); color: #ffffff; cursor: pointer; font-size: 15px;
+    }
+    .conn-fee-summary {
+        background: #f3f8ff; border-bottom: 1px solid #d5e4f3; padding: 12px 20px;
+        display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    }
+    .conn-fee-body { padding: 18px 20px; }
+    .conn-fee-breakdown {
+        background: #f8fbff; border: 1px solid #d5e3f3; border-radius: 10px; padding: 10px 14px;
+        font-size: 12.5px; margin-bottom: 14px; line-height: 1.7;
+    }
+    .conn-fee-methods { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 14px; }
+    .cf-method-tab {
+        padding: 8px 6px; border: 1.5px solid #cbd9eb; border-radius: 8px; background: #ffffff;
+        color: #102b4c; font-size: 11.5px; font-weight: 700; cursor: pointer; text-align: center;
+    }
+    .cf-method-tab.active { border-color: #07549a; background: #eaf2ff; color: #063b78; }
+    .cf-pay-btn {
+        width: 100%; height: 42px; border: 0; border-radius: 9px;
+        background: linear-gradient(90deg, #15803d, #16a34a); color: #ffffff;
+        font-size: 14px; font-weight: 800; cursor: pointer; margin-top: 12px;
+    }
+</style>
+
+<div id="connFeeGatewayModal" class="conn-fee-overlay" role="dialog" aria-modal="true" aria-labelledby="connFeeModalTitle">
+    <div class="conn-fee-card">
+        <div class="conn-fee-head">
+            <div>
+                <h3 id="connFeeModalTitle"><i class="fa-solid fa-building-columns"></i> DISCOM New Connection Fee Gateway</h3>
+                <p>Authorized Utility Payment Desk &bull; Application Verification Prerequisite</p>
+            </div>
+            <button type="button" class="conn-fee-close" onclick="closeConnFeeGateway()" aria-label="Close">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <div class="conn-fee-summary">
+            <div>
+                <strong style="color:#082f66; font-size:13.5px;">App No: {{ connection.application_number }} &bull; {{ connection.application_id }}</strong>
+                <div style="font-size:12px; color:#365070;">{{ connection.property_type }}{% if connection.industry_type %} ({{ connection.industry_type }}){% endif %}</div>
+            </div>
+            <strong style="font-size:19px; color:#15803d;">Rs {{ connection.connection_fee_amount }}</strong>
+        </div>
+
+        <div class="conn-fee-body">
+            <div id="cfCheckoutView">
+                {% if connection_fee_info %}
+                <div class="conn-fee-breakdown">
+                    <div>Processing &amp; Technical Survey: <strong>Rs {{ connection_fee_info.processing_fee }}</strong></div>
+                    <div>Service Line Connection Charge: <strong>Rs {{ connection_fee_info.service_line_charge }}</strong></div>
+                    <div>Meter Security Deposit: <strong>Rs {{ connection_fee_info.security_deposit }}</strong></div>
+                    <div style="border-top:1px dashed #bfd6f2; margin-top:4px; padding-top:4px; color:#082f66;">
+                        Total Payable Connection Charges: <strong>Rs {{ connection_fee_info.total }}</strong>
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="conn-fee-methods">
+                    <button type="button" class="cf-method-tab active" onclick="selectCfMethod('UPI', this)">UPI / BHIM</button>
+                    <button type="button" class="cf-method-tab" onclick="selectCfMethod('Credit / Debit Card', this)">RuPay / Card</button>
+                    <button type="button" class="cf-method-tab" onclick="selectCfMethod('Net Banking', this)">NetBank</button>
+                    <button type="button" class="cf-method-tab" onclick="selectCfMethod('BBPS / Utility Wallet', this)">BBPS Wallet</button>
+                </div>
+
+                <div class="apply-field">
+                    <label for="cfOutcomeSelect">DISCOM Clearing Outcome</label>
+                    <select id="cfOutcomeSelect" style="width:100%; height:38px; padding:6px 10px; border:1.5px solid #c6d8ed; border-radius:8px;">
+                        <option value="success" selected>Authorize Payment (Generate TXN ID &amp; Unlock Application PDF)</option>
+                        <option value="failed">Simulate Bank Decline</option>
+                    </select>
+                </div>
+
+                <button type="button" class="cf-pay-btn" onclick="executeConnFeePayment()">
+                    <i class="fa-solid fa-lock"></i> Pay Rs {{ connection.connection_fee_amount }} &amp; Unlock PDF
+                </button>
+            </div>
+
+            <div id="cfProcessingView" style="display:none; text-align:center; padding:20px 10px;">
+                <p style="font-size:15px; font-weight:800; color:#082f66;">Verifying Connection Fee Settlement with DISCOM Desk...</p>
+                <p style="font-size:12.5px; color:#4b698c; margin-top:6px;">Generating Receipt Number, TXN ID, and Application PDF...</p>
+            </div>
+
+            <div id="cfResultView" style="display:none; text-align:center;">
+                <h4 id="cfResultTitle" style="font-size:16.5px; font-weight:800; color:#082f66; margin-bottom:10px;"></h4>
+                <div id="cfResultDetails" style="background:#f8fbff; border:1px solid #d5e3f3; border-radius:10px; padding:12px; text-align:left; font-size:12.5px; line-height:1.7; margin-bottom:14px;"></div>
+                <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                    <a id="cfDownloadPdfLink" href="#" class="open-conn-btn" style="display:none; flex:1; justify-content:center;">
+                        <i class="fa-solid fa-file-pdf"></i> Download Application PDF
+                    </a>
+                    <button type="button" id="cfRetryBtn" class="apply-cancel-btn" style="display:none; flex:1;" onclick="resetCfModal()">Retry Payment</button>
+                    <button type="button" class="apply-submit-btn" style="flex:1;" onclick="window.location.reload()">Done &amp; Refresh Status</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function () {
+        let cfMethod = 'UPI';
+        window.openConnFeeGateway = function () {
+            const modal = document.getElementById('connFeeGatewayModal');
+            if (!modal) return;
+            window.resetCfModal();
+            modal.classList.add('open');
+            document.body.style.overflow = 'hidden';
+        };
+        window.closeConnFeeGateway = function () {
+            const modal = document.getElementById('connFeeGatewayModal');
+            if (modal) {
+                modal.classList.remove('open');
+                document.body.style.overflow = '';
+            }
+        };
+        window.resetCfModal = function () {
+            document.getElementById('cfCheckoutView').style.display = 'block';
+            document.getElementById('cfProcessingView').style.display = 'none';
+            document.getElementById('cfResultView').style.display = 'none';
+        };
+        window.selectCfMethod = function (m, btn) {
+            cfMethod = m;
+            document.querySelectorAll('.cf-method-tab').forEach(function (t) { t.classList.remove('active'); });
+            if (btn) btn.classList.add('active');
+        };
+        window.executeConnFeePayment = function () {
+            document.getElementById('cfCheckoutView').style.display = 'none';
+            document.getElementById('cfProcessingView').style.display = 'block';
+
+            setTimeout(function () {
+                const csrfInput = document.querySelector('#userCsrfHolder input[name="csrfmiddlewaretoken"]');
+                const outcome = document.getElementById('cfOutcomeSelect').value;
+                const body = new URLSearchParams({
+                    app_id: "{{ connection.id }}",
+                    payment_method: cfMethod,
+                    simulate_outcome: outcome
+                });
+                fetch("{% url 'user_pay_connection_fee' %}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-CSRFToken': csrfInput ? csrfInput.value : '',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    },
+                    body: body.toString()
+                })
+                .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, data: d }; }); })
+                .then(function (res) {
+                    document.getElementById('cfProcessingView').style.display = 'none';
+                    document.getElementById('cfResultView').style.display = 'block';
+                    const details = document.getElementById('cfResultDetails');
+                    details.innerHTML = '';
+                    const pdfLink = document.getElementById('cfDownloadPdfLink');
+                    const retryBtn = document.getElementById('cfRetryBtn');
+
+                    if (res.ok && res.data.ok) {
+                        document.getElementById('cfResultTitle').textContent = 'Connection Charges Paid & Settled';
+                        retryBtn.style.display = 'none';
+                        if (res.data.pdf_url) {
+                            pdfLink.href = res.data.pdf_url;
+                            pdfLink.style.display = 'inline-flex';
+                        }
+                        [
+                            ['Application Number', res.data.application_number],
+                            ['Request ID', res.data.request_id],
+                            ['Fee Receipt No.', res.data.receipt_number],
+                            ['Gateway TXN ID', res.data.transaction_id],
+                            ['Payment Method', res.data.payment_method],
+                            ['Total Fee Paid', 'Rs ' + Number(res.data.total_amount).toFixed(2)],
+                            ['Settled At', res.data.paid_at_ist]
+                        ].forEach(function (pair) {
+                            const row = document.createElement('div');
+                            row.innerHTML = '<strong>' + pair[0] + ':</strong> ';
+                            const sp = document.createElement('span');
+                            sp.textContent = pair[1];
+                            row.appendChild(sp);
+                            details.appendChild(row);
+                        });
+                    } else {
+                        document.getElementById('cfResultTitle').textContent = 'Connection Fee Payment Declined';
+                        pdfLink.style.display = 'none';
+                        retryBtn.style.display = 'inline-flex';
+                        details.innerHTML = '<strong style="color:#991b1b;">' + ((res.data && res.data.error) || 'Payment declined by clearing bank.') + '</strong>';
+                    }
+                })
+                .catch(function () {
+                    document.getElementById('cfProcessingView').style.display = 'none';
+                    document.getElementById('cfResultView').style.display = 'block';
+                    document.getElementById('cfResultTitle').textContent = 'Gateway Network Error';
+                    document.getElementById('cfRetryBtn').style.display = 'inline-flex';
+                });
+            }, 600);
+        };
+    })();
+</script>
+{% endif %}

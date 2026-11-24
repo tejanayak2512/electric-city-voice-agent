@@ -1,0 +1,628 @@
+<style>
+    /* =====================================================
+       DEPARTMENT 2FA LOGIN POPUP MODAL
+    ===================================================== */
+
+    .dept-login-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+
+        background: rgba(5, 27, 56, 0.68);
+        backdrop-filter: blur(4px);
+    }
+
+    .dept-login-overlay.open {
+        display: flex;
+        animation: deptLoginFadeIn 0.2s ease;
+    }
+
+    @keyframes deptLoginFadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    .dept-login-card {
+        width: 100%;
+        max-width: 455px;
+
+        background: #ffffff;
+        border: 1px solid #c6d8ed;
+        border-radius: 14px;
+        overflow: hidden;
+
+        box-shadow: 0 22px 55px rgba(4, 24, 52, 0.36);
+        animation: deptLoginSlideUp 0.22s ease;
+    }
+
+    @keyframes deptLoginSlideUp {
+        from {
+            opacity: 0;
+            transform: translateY(14px) scale(0.98);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    .dept-login-header {
+        background: linear-gradient(90deg, #063b78, #07549a);
+        color: #ffffff;
+        padding: 18px 22px;
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+    }
+
+    .dept-login-title-group {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .dept-login-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.16);
+        border: 1px solid rgba(255, 255, 255, 0.28);
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        flex-shrink: 0;
+    }
+
+    .dept-login-title-group h3 {
+        font-size: 18px;
+        font-weight: 800;
+        line-height: 1.2;
+        margin: 0;
+    }
+
+    .dept-login-title-group p {
+        font-size: 12px;
+        color: #dbeafe;
+        margin: 3px 0 0;
+    }
+
+    .dept-login-close {
+        width: 34px;
+        height: 34px;
+        border: 0;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.14);
+        color: #ffffff;
+        font-size: 18px;
+        cursor: pointer;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .dept-login-close:hover {
+        background: rgba(255, 255, 255, 0.26);
+    }
+
+    .dept-login-body {
+        padding: 22px 24px 22px;
+    }
+
+    .dept-2fa-steps {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        margin-bottom: 18px;
+    }
+
+    .dept-step-pill {
+        padding: 8px 10px;
+        border-radius: 8px;
+        border: 1.5px solid #d7e3f1;
+        background: #f8fbff;
+        color: #4b698c;
+        font-size: 11.5px;
+        font-weight: 800;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .dept-step-pill.active {
+        border-color: #07549a;
+        background: #eaf2ff;
+        color: #063b78;
+    }
+
+    .dept-step-pill.done {
+        border-color: #86efac;
+        background: #ecfdf3;
+        color: #15803d;
+    }
+
+    .dept-login-alert {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 11px 14px;
+        margin-bottom: 16px;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 600;
+        line-height: 1.4;
+    }
+
+    .dept-login-alert.error {
+        background: #fff0f0;
+        border: 1px solid #efb6b6;
+        color: #a32222;
+    }
+
+    .dept-login-alert.success {
+        background: #e9f8ee;
+        border: 1px solid #a9dfba;
+        color: #176b32;
+    }
+
+    .dept-login-group {
+        margin-bottom: 15px;
+    }
+
+    .dept-login-group label {
+        display: block;
+        margin-bottom: 6px;
+        color: #102b4c;
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .dept-input-wrap {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .dept-input-wrap .input-icon {
+        position: absolute;
+        left: 13px;
+        color: #07539a;
+        font-size: 15px;
+        pointer-events: none;
+    }
+
+    .dept-input-wrap input {
+        width: 100%;
+        height: 44px;
+        padding: 10px 42px 10px 39px;
+        border: 1.5px solid #c6d8ed;
+        border-radius: 8px;
+        background: #f9fbfe;
+        color: #102b4c;
+        font-family: inherit;
+        font-size: 14px;
+        font-weight: 500;
+    }
+
+    .dept-input-wrap input:focus {
+        outline: none;
+        background: #ffffff;
+        border-color: #07549a;
+        box-shadow: 0 0 0 3px rgba(7, 84, 154, 0.14);
+    }
+
+    .dept-input-wrap input[readonly] {
+        background: #edf5ff;
+        color: #063b78;
+        font-weight: 700;
+    }
+
+    .dept-eye-btn {
+        position: absolute;
+        right: 8px;
+        width: 30px;
+        height: 30px;
+        border: 0;
+        border-radius: 6px;
+        background: transparent;
+        color: #46658a;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .dept-login-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 18px;
+    }
+
+    .dept-login-submit {
+        flex: 1;
+        height: 44px;
+        border: 0;
+        border-radius: 8px;
+        background: linear-gradient(90deg, #06417f, #07549a);
+        color: #ffffff;
+        font-size: 14px;
+        font-weight: 700;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .dept-login-cancel {
+        height: 44px;
+        padding: 0 16px;
+        border: 1.5px solid #c6d8ed;
+        border-radius: 8px;
+        background: #ffffff;
+        color: #173a61;
+        font-size: 13px;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+    .dept-step-section.hidden {
+        display: none;
+    }
+
+    .dept-note {
+        margin-top: 14px;
+        font-size: 12px;
+        color: #4b698c;
+        text-align: center;
+    }
+</style>
+
+<div id="departmentLoginModal"
+     class="dept-login-overlay{% if open_dept_login_modal %} open{% endif %}"
+     role="dialog"
+     aria-modal="true"
+     aria-labelledby="deptLoginModalTitle">
+
+    <div class="dept-login-card">
+
+        <div class="dept-login-header">
+            <div class="dept-login-title-group">
+                <div class="dept-login-icon">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <div>
+                    <h3 id="deptLoginModalTitle">Department 2FA Login</h3>
+                    <p>Factor 1: Employee ID &bull; Factor 2: Credentials</p>
+                </div>
+            </div>
+
+            <button type="button"
+                    class="dept-login-close"
+                    id="closeDeptLoginModalBtn"
+                    aria-label="Close department login modal">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <div class="dept-login-body">
+
+            <div class="dept-2fa-steps">
+                <div id="deptStep1Pill" class="dept-step-pill {% if dept_step2_ready %}done{% else %}active{% endif %}">
+                    <i class="fa-solid {% if dept_step2_ready %}fa-circle-check{% else %}fa-id-card{% endif %}"></i>
+                    1. Employee ID
+                </div>
+                <div id="deptStep2Pill" class="dept-step-pill {% if dept_step2_ready %}active{% endif %}">
+                    <i class="fa-solid fa-key"></i>
+                    2. User &amp; Password
+                </div>
+            </div>
+
+            {% if dept_login_auth_error %}
+            <div class="dept-login-alert error" role="alert">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <span>{{ dept_login_auth_error }}</span>
+            </div>
+            {% endif %}
+
+            {% if dept_login_form.non_field_errors %}
+            <div class="dept-login-alert error" role="alert">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <div>
+                    {% for error in dept_login_form.non_field_errors %}
+                        <div>{{ error }}</div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <div id="dept2faFeedback" class="dept-login-alert {% if dept_verified_emp %}success{% else %}error{% endif %}" style="display: {% if dept_verified_emp %}flex{% else %}none{% endif %};">
+                <i class="fa-solid {% if dept_verified_emp %}fa-circle-check{% else %}fa-circle-exclamation{% endif %}"></i>
+                <span id="dept2faFeedbackText">
+                    {% if dept_verified_emp %}
+                        Factor 1 Verified: {{ dept_verified_emp.full_name }} ({{ dept_verified_emp.employee_id }})
+                    {% endif %}
+                </span>
+            </div>
+
+            <form method="post" action="{% url 'department_login' %}" id="departmentLoginForm">
+                {% csrf_token %}
+
+                <!-- FACTOR 1: EMPLOYEE ID VERIFICATION -->
+                <div id="deptStep1Section" class="dept-step-section {% if dept_step2_ready %}hidden{% endif %}">
+                    <div class="dept-login-group">
+                        <label for="loginDeptEmpId">Employee ID (Factor 1)</label>
+                        <div class="dept-input-wrap">
+                            <i class="fa-solid fa-id-badge input-icon"></i>
+                            <input type="text"
+                                   id="loginDeptEmpId"
+                                   name="employee_id"
+                                   value="{{ entered_dept_emp_id|default:'' }}"
+                                   placeholder="Enter Employee ID (e.g. DEPT-001)"
+                                   {% if dept_step2_ready %}readonly{% endif %}
+                                   required>
+                        </div>
+                    </div>
+
+                    <div class="dept-login-actions">
+                        <button type="button" class="dept-login-submit" id="verifyDeptEmpIdBtn">
+                            <i class="fa-solid fa-user-check"></i>
+                            <span>Verify Employee ID</span>
+                        </button>
+
+                        <button type="button" class="dept-login-cancel" id="cancelDeptLoginModalBtn">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+
+                <!-- FACTOR 2: USERNAME & PASSWORD VERIFICATION -->
+                <div id="deptStep2Section" class="dept-step-section {% if not dept_step2_ready %}hidden{% endif %}">
+                    <div class="dept-login-group">
+                        <label for="loginDeptUsername">Department Username or Email (Factor 2)</label>
+                        <div class="dept-input-wrap">
+                            <i class="fa-solid fa-user input-icon"></i>
+                            <input type="text"
+                                   id="loginDeptUsername"
+                                   name="username"
+                                   value="{{ entered_dept_username|default:'' }}"
+                                   placeholder="Enter department username"
+                                   autocomplete="username">
+                        </div>
+                    </div>
+
+                    <div class="dept-login-group">
+                        <label for="loginDeptPassword">Password</label>
+                        <div class="dept-input-wrap">
+                            <i class="fa-solid fa-lock input-icon"></i>
+                            <input type="password"
+                                   id="loginDeptPassword"
+                                   name="password"
+                                   placeholder="Enter password"
+                                   autocomplete="current-password">
+                            <button type="button"
+                                    class="dept-eye-btn"
+                                    id="toggleDeptLoginPassword"
+                                    aria-label="Show password">
+                                <i class="fa-regular fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="dept-login-actions">
+                        <button type="submit" class="dept-login-submit">
+                            <i class="fa-solid fa-shield-check"></i>
+                            <span>Complete 2FA Login</span>
+                        </button>
+
+                        <button type="button" class="dept-login-cancel" id="backToDeptStep1Btn">
+                            Back
+                        </button>
+                    </div>
+                </div>
+
+            </form>
+
+            <p class="dept-note">
+                2FA Verification requires an active Employee ID enabled by Administration.
+            </p>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+    (function () {
+        const modal = document.getElementById('departmentLoginModal');
+        if (!modal) return;
+
+        const closeBtn = document.getElementById('closeDeptLoginModalBtn');
+        const cancelBtn = document.getElementById('cancelDeptLoginModalBtn');
+        const verifyIdBtn = document.getElementById('verifyDeptEmpIdBtn');
+        const backBtn = document.getElementById('backToDeptStep1Btn');
+
+        const step1Sec = document.getElementById('deptStep1Section');
+        const step2Sec = document.getElementById('deptStep2Section');
+        const step1Pill = document.getElementById('deptStep1Pill');
+        const step2Pill = document.getElementById('deptStep2Pill');
+
+        const empIdInput = document.getElementById('loginDeptEmpId');
+        const usernameInput = document.getElementById('loginDeptUsername');
+        const passwordInput = document.getElementById('loginDeptPassword');
+        const togglePasswordBtn = document.getElementById('toggleDeptLoginPassword');
+        const feedbackBox = document.getElementById('dept2faFeedback');
+        const feedbackText = document.getElementById('dept2faFeedbackText');
+
+        function setFeedback(kind, msg) {
+            if (!feedbackBox || !feedbackText) return;
+            if (!msg) {
+                feedbackBox.style.display = 'none';
+                return;
+            }
+            feedbackBox.style.display = 'flex';
+            feedbackBox.className = 'dept-login-alert ' + kind;
+            const icon = feedbackBox.querySelector('i');
+            if (icon) {
+                icon.className = 'fa-solid ' + (kind === 'success' ? 'fa-circle-check' : 'fa-circle-exclamation');
+            }
+            feedbackText.textContent = msg;
+        }
+
+        function goToStep1() {
+            if (step1Sec) step1Sec.classList.remove('hidden');
+            if (step2Sec) step2Sec.classList.add('hidden');
+            if (step1Pill) step1Pill.className = 'dept-step-pill active';
+            if (step2Pill) step2Pill.className = 'dept-step-pill';
+            if (empIdInput) {
+                empIdInput.readOnly = false;
+                empIdInput.focus();
+            }
+            if (usernameInput) usernameInput.required = false;
+            if (passwordInput) passwordInput.required = false;
+            setFeedback('', '');
+        }
+
+        function goToStep2(infoText) {
+            if (step1Sec) step1Sec.classList.add('hidden');
+            if (step2Sec) step2Sec.classList.remove('hidden');
+            if (step1Pill) step1Pill.className = 'dept-step-pill done';
+            if (step2Pill) step2Pill.className = 'dept-step-pill active';
+            if (empIdInput) empIdInput.readOnly = true;
+            if (usernameInput) usernameInput.required = true;
+            if (passwordInput) passwordInput.required = true;
+            if (infoText) setFeedback('success', infoText);
+            if (usernameInput) {
+                setTimeout(function () { usernameInput.focus(); }, 40);
+            }
+        }
+
+        if (verifyIdBtn && empIdInput) {
+            verifyIdBtn.addEventListener('click', function () {
+                const empId = empIdInput.value.trim();
+                if (!empId) {
+                    setFeedback('error', 'Please enter your Employee ID.');
+                    empIdInput.focus();
+                    return;
+                }
+                const csrf = modal.querySelector('input[name="csrfmiddlewaretoken"]');
+                const body = new URLSearchParams({ employee_id: empId });
+
+                fetch("{% url 'department_verify_employee_id' %}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-CSRFToken': csrf ? csrf.value : '',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: body.toString()
+                })
+                .then(function (resp) { return resp.json(); })
+                .then(function (data) {
+                    if (data.verified) {
+                        empIdInput.value = data.employee_id;
+                        goToStep2(
+                            'Factor 1 Verified: ' + data.full_name + ' (' + data.employee_id + ' - ' + data.designation + ')'
+                        );
+                    } else {
+                        setFeedback('error', data.error || 'Employee ID verification failed.');
+                    }
+                })
+                .catch(function () {
+                    setFeedback('error', 'Unable to verify Employee ID right now.');
+                });
+            });
+
+            empIdInput.addEventListener('keydown', function (event) {
+                if (event.key === 'Enter' && !step1Sec.classList.contains('hidden')) {
+                    event.preventDefault();
+                    verifyIdBtn.click();
+                }
+            });
+        }
+
+        if (backBtn) {
+            backBtn.addEventListener('click', goToStep1);
+        }
+
+        function openDeptLoginModal() {
+            const navLinks = document.getElementById('navLinks');
+            if (navLinks) navLinks.classList.remove('open');
+            document.querySelectorAll('.nav-dropdown.open').forEach(function (dd) {
+                dd.classList.remove('open');
+            });
+            if (typeof window.closeAdminLoginModal === 'function') window.closeAdminLoginModal();
+            if (typeof window.closeCreateAccountModal === 'function') window.closeCreateAccountModal();
+            if (typeof window.closeUserLoginModal === 'function') window.closeUserLoginModal();
+
+            modal.classList.add('open');
+            document.body.style.overflow = 'hidden';
+
+            setTimeout(function () {
+                if (step2Sec && !step2Sec.classList.contains('hidden') && usernameInput) {
+                    usernameInput.focus();
+                } else if (empIdInput) {
+                    empIdInput.focus();
+                }
+            }, 40);
+        }
+
+        function closeDeptLoginModal() {
+            modal.classList.remove('open');
+            document.body.style.overflow = '';
+            if (window.location.hash === '#department-login') {
+                history.replaceState(null, '', window.location.pathname + window.location.search);
+            }
+        }
+
+        window.openDeptLoginModal = openDeptLoginModal;
+        window.closeDeptLoginModal = closeDeptLoginModal;
+
+        document.querySelectorAll('a[href="#department-login"], a[href$="/department-login/"]').forEach(function (trigger) {
+            trigger.addEventListener('click', function (event) {
+                event.preventDefault();
+                openDeptLoginModal();
+            });
+        });
+
+        if (closeBtn) closeBtn.addEventListener('click', closeDeptLoginModal);
+        if (cancelBtn) cancelBtn.addEventListener('click', closeDeptLoginModal);
+
+        modal.addEventListener('click', function (event) {
+            if (event.target === modal) closeDeptLoginModal();
+        });
+
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape' && modal.classList.contains('open')) {
+                closeDeptLoginModal();
+            }
+        });
+
+        if (togglePasswordBtn && passwordInput) {
+            togglePasswordBtn.addEventListener('click', function () {
+                const isHidden = passwordInput.type === 'password';
+                passwordInput.type = isHidden ? 'text' : 'password';
+                const icon = togglePasswordBtn.querySelector('i');
+                if (icon) {
+                    icon.className = isHidden ? 'fa-regular fa-eye-slash' : 'fa-regular fa-eye';
+                }
+            });
+        }
+
+        if (modal.classList.contains('open') || window.location.hash === '#department-login') {
+            openDeptLoginModal();
+        }
+    })();
+</script>

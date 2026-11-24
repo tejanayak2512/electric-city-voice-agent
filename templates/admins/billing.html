@@ -1,0 +1,751 @@
+{% extends "admins/admin_base.html" %}
+
+{% block title %}4. {{ billing_section|title }} Billing &amp; Ledger | Admin Portal{% endblock %}
+{% block footer_tag %}Step 4 &bull; Month-Wise DISCOM Billing &amp; Payment Gateway Ledger{% endblock %}
+
+{% block extra_css %}
+<style>
+    .billing-subnav {
+        display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+        background: #ffffff; border: 1.5px solid #c6d8ed; border-radius: 14px;
+        padding: 10px 14px; margin-bottom: 20px;
+        box-shadow: 0 4px 12px rgba(8, 47, 96, 0.06);
+    }
+    .billing-tab-link {
+        display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px;
+        border-radius: 10px; font-size: 13.5px; font-weight: 800; color: #102b4c;
+        background: #f4f8fe; border: 1.5px solid #d5e3f3; transition: all 0.18s ease;
+    }
+    .billing-tab-link:hover { background: #e6f0ff; border-color: #60a5fa; color: #063b78; }
+    .billing-tab-link.active {
+        background: linear-gradient(90deg, #06417f, #07549a);
+        color: #ffffff; border-color: #063b78;
+        box-shadow: 0 6px 14px rgba(7, 84, 154, 0.25);
+    }
+    .billing-tab-link.tab-comm.active {
+        background: linear-gradient(90deg, #4c1d95, #6d28d9); border-color: #4c1d95;
+    }
+    .billing-tab-link.tab-tariff.active {
+        background: linear-gradient(90deg, #0f766e, #0d9488); border-color: #0f766e;
+    }
+    .tariff-pill-strip {
+        margin-left: auto; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+        font-size: 12px; font-weight: 700; color: #082f66; background: #eef5ff;
+        border: 1px solid #bfd6f2; border-radius: 9px; padding: 7px 12px;
+    }
+
+    .two-col-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 24px; }
+    .tariff-kpi-strip {
+        display: grid;
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+        gap: 14px;
+        margin-bottom: 22px;
+    }
+    .tariff-edit-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; align-items: end; }
+    .form-row-inline { display: flex; gap: 12px; align-items: end; flex-wrap: wrap; }
+    .form-field { flex: 1; min-width: 170px; }
+    .form-field label { display: block; font-size: 12px; font-weight: 700; color: #102b4c; margin-bottom: 5px; }
+    .form-field input, .form-field select {
+        width: 100%; height: 40px; padding: 8px 12px; border: 1.5px solid #c6d8ed; border-radius: 8px;
+        font-family: inherit; font-size: 13px; background: #ffffff; color: #102b4c;
+    }
+    .btn-primary {
+        height: 40px; padding: 0 18px; border: 0; border-radius: 8px;
+        background: linear-gradient(90deg, #06417f, #07549a); color: #ffffff; font-weight: 700; font-size: 13px; cursor: pointer;
+        white-space: nowrap; display: inline-flex; align-items: center; gap: 7px;
+    }
+    .btn-green {
+        height: 40px; padding: 0 18px; border: 0; border-radius: 8px;
+        background: linear-gradient(90deg, #15803d, #16a34a); color: #ffffff; font-weight: 700; font-size: 13px; cursor: pointer;
+        white-space: nowrap; display: inline-flex; align-items: center; gap: 7px;
+    }
+    .btn-purple {
+        height: 40px; padding: 0 18px; border: 0; border-radius: 8px;
+        background: linear-gradient(90deg, #5b21b6, #7c3aed); color: #ffffff; font-weight: 700; font-size: 13px; cursor: pointer;
+        white-space: nowrap; display: inline-flex; align-items: center; gap: 7px;
+    }
+    .btn-reset {
+        height: 40px; padding: 0 14px; border: 1.5px solid #cbdcf0; border-radius: 8px;
+        background: #f8fbff; color: #082f66; font-weight: 700; font-size: 12.5px;
+        display: inline-flex; align-items: center; gap: 6px;
+    }
+    .tariff-notice-bar {
+        background: #eaf2ff; border: 1px solid #bfd6f2; border-radius: 10px; padding: 10px 14px;
+        font-size: 12.5px; color: #082f66; margin-top: 12px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;
+    }
+    .summary-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 14px; }
+    .summary-item { background: #f8fbff; border: 1px solid #d6e4f3; border-radius: 9px; padding: 11px 13px; }
+    .summary-item span { display: block; font-size: 10.5px; font-weight: 700; text-transform: uppercase; color: #4b698c; }
+    .summary-item strong { font-size: 14.5px; color: #082f66; }
+    .bill-badge { display: inline-block; padding: 4px 10px; border-radius: 999px; font-size: 11px; font-weight: 800; }
+    .bb-paid { background: #dcfce7; color: #166534; }
+    .bb-unpaid { background: #fee2e2; color: #991b1b; }
+    .bb-type { background: #e0f2fe; color: #075985; }
+    .bb-draft { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }
+
+    .ledger-filter-bar {
+        display: flex; gap: 12px; align-items: end; flex-wrap: wrap;
+        background: #f4f8fe; border: 1px solid #d5e3f3; border-radius: 10px;
+        padding: 12px 14px; margin-bottom: 14px;
+    }
+    .overview-draft-box {
+        border: 2px solid #f59e0b; background: linear-gradient(180deg, #fffbeb 0%, #ffffff 100%);
+        border-radius: 14px; padding: 18px 20px; margin-bottom: 22px;
+        box-shadow: 0 8px 22px rgba(180, 83, 9, 0.10);
+    }
+    .overview-draft-head {
+        display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+        padding-bottom: 12px; border-bottom: 1px solid #fde68a; margin-bottom: 14px;
+    }
+    .overview-publish-bar {
+        display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+        margin-top: 16px; padding-top: 14px; border-top: 1px dashed #cbdcf0;
+    }
+    @media (max-width: 1320px) { .tariff-kpi-strip { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 1060px) { .tariff-edit-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 960px) { .two-col-grid, .summary-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 768px) { .tariff-kpi-strip { grid-template-columns: 1fr; } }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- INDIVIDUAL FUNCTION SUB-NAVIGATION: DOMESTIC vs COMMERCIAL vs TARIFFS -->
+<nav class="billing-subnav" id="billingSectionTabs" aria-label="Billing Category Navigation">
+    <a href="{% url 'admin_billing' %}"
+       id="tabDomesticBilling"
+       class="billing-tab-link {% if billing_section == 'domestic' %}active{% endif %}">
+        <i class="fa-solid fa-house"></i> 1. Domestic Billing &amp; Monthly Ledger
+    </a>
+    <a href="{% url 'admin_billing_commercial' %}"
+       id="tabCommercialBilling"
+       class="billing-tab-link tab-comm {% if billing_section == 'commercial' %}active{% endif %}">
+        <i class="fa-solid fa-industry"></i> 2. Commercial Billing &amp; Bulk Overview
+    </a>
+    <a href="{% url 'admin_billing_tariffs' %}"
+       id="tabTariffSettings"
+       class="billing-tab-link tab-tariff {% if billing_section == 'tariffs' %}active{% endif %}">
+        <i class="fa-solid fa-sliders"></i> 3. Tariff &amp; Fare Settings
+    </a>
+    <a href="{% url 'admin_revenue' %}"
+       id="tabRevenueAnalytics"
+       class="billing-tab-link">
+        <i class="fa-solid fa-sack-dollar"></i> 4. Revenue &amp; Collections
+    </a>
+
+
+</nav>
+
+{% if billing_section == "tariffs" %}
+<!-- =========================================================
+     DEDICATED FUNCTION PAGE: TARIFF & FARE REVISION CONTROLS
+     ========================================================= -->
+
+<!-- DOMESTIC & COMMERCIAL METRICS ON TARIFF & FARE SETTINGS -->
+<div class="section-order-title">
+    <h3><span class="step-pill">Domestic</span> Domestic Tariff, Base Prices &amp; Connection Charges ({{ ledger_month }})</h3>
+</div>
+<section class="tariff-kpi-strip" id="tariffDomesticKpiStrip">
+    <div class="kpi-card">
+        <div>
+            <span>Current Base Price</span>
+            <strong>Rs {{ base_fare_rs }}</strong>
+            <small style="display:block; font-size:11px; color:#64748b; margin-top:2px;">Fixed Monthly Meter Base</small>
+        </div>
+        <div class="kpi-icon ki-yellow"><i class="fa-solid fa-receipt"></i></div>
+    </div>
+    <div class="kpi-card">
+        <div>
+            <span>Domestic Tariff Rate (Current Price)</span>
+            <strong>Rs {{ domestic_rate }} / Unit</strong>
+            <small style="display:block; font-size:11px; color:#64748b; margin-top:2px;">Active Unit Energy Rate</small>
+        </div>
+        <div class="kpi-icon ki-purple"><i class="fa-solid fa-bolt"></i></div>
+    </div>
+    <div class="kpi-card">
+        <div>
+            <span>Domestic Connection Cost</span>
+            <strong>Rs {{ tariff_setting.domestic_connection_fee }}</strong>
+            <small style="display:block; font-size:11px; color:#64748b; margin-top:2px;">New Connection Fee</small>
+        </div>
+        <div class="kpi-icon ki-blue"><i class="fa-solid fa-plug-circle-bolt"></i></div>
+    </div>
+    <div class="kpi-card">
+        <div>
+            <span>Connected Domestic Homes</span>
+            <strong>{{ connected_domestic|length }}</strong>
+            <small style="display:block; font-size:11px; color:#64748b; margin-top:2px;">Active Domestic Meters</small>
+        </div>
+        <div class="kpi-icon ki-blue"><i class="fa-solid fa-house"></i></div>
+    </div>
+    <div class="kpi-card">
+        <div>
+            <span>Paid ({{ ledger_month }})</span>
+            <strong>{{ dom_paid_count }} / {{ dom_total_count }}</strong>
+            <small style="display:block; font-size:11px; color:#166534; margin-top:2px;">Paid Monthly Accounts</small>
+        </div>
+        <div class="kpi-icon ki-green"><i class="fa-solid fa-circle-check"></i></div>
+    </div>
+    <div class="kpi-card">
+        <div>
+            <span>Unpaid ({{ ledger_month }})</span>
+            <strong>{{ dom_unpaid_count }} (Rs {{ dom_unpaid_total_rs }})</strong>
+            <small style="display:block; font-size:11px; color:#991b1b; margin-top:2px;">Unpaid Outstanding Dues</small>
+        </div>
+        <div class="kpi-icon ki-red"><i class="fa-solid fa-clock"></i></div>
+    </div>
+</section>
+
+<div class="section-order-title">
+    <h3><span class="step-pill">Commercial</span> Commercial Tariff, Base Prices &amp; Connection Charges ({{ ledger_month }})</h3>
+</div>
+<section class="tariff-kpi-strip" id="tariffCommercialKpiStrip">
+    <div class="kpi-card">
+        <div>
+            <span>Current Base Price</span>
+            <strong>Rs {{ base_fare_rs }}</strong>
+            <small style="display:block; font-size:11px; color:#64748b; margin-top:2px;">Fixed Base System Charge</small>
+        </div>
+        <div class="kpi-icon ki-yellow"><i class="fa-solid fa-receipt"></i></div>
+    </div>
+    <div class="kpi-card">
+        <div>
+            <span>Commercial Tariff Rate (Current Price)</span>
+            <strong>Rs {{ commercial_rate }} / Unit</strong>
+            <small style="display:block; font-size:11px; color:#64748b; margin-top:2px;">Active Bulk Unit Rate</small>
+        </div>
+        <div class="kpi-icon ki-blue"><i class="fa-solid fa-bolt"></i></div>
+    </div>
+    <div class="kpi-card">
+        <div>
+            <span>Commercial Connection Cost</span>
+            <strong>Rs {{ tariff_setting.commercial_connection_fee }}</strong>
+            <small style="display:block; font-size:11px; color:#64748b; margin-top:2px;">Commercial HT/LT Setup</small>
+        </div>
+        <div class="kpi-icon ki-purple"><i class="fa-solid fa-plug-circle-bolt"></i></div>
+    </div>
+    <div class="kpi-card">
+        <div>
+            <span>Connected Industries</span>
+            <strong>{{ connected_commercial|length }}</strong>
+            <small style="display:block; font-size:11px; color:#64748b; margin-top:2px;">Active Industrial Accounts</small>
+        </div>
+        <div class="kpi-icon ki-purple"><i class="fa-solid fa-industry"></i></div>
+    </div>
+    <div class="kpi-card">
+        <div>
+            <span>Commercial Paid ({{ ledger_month }})</span>
+            <strong>{{ comm_paid_count }} / {{ comm_total_count }}</strong>
+            <small style="display:block; font-size:11px; color:#166534; margin-top:2px;">Paid Recharged Packs</small>
+        </div>
+        <div class="kpi-icon ki-green"><i class="fa-solid fa-circle-check"></i></div>
+    </div>
+    <div class="kpi-card">
+        <div>
+            <span>Commercial Unpaid ({{ ledger_month }})</span>
+            <strong>{{ comm_unpaid_count }} (Rs {{ comm_unpaid_total_rs }})</strong>
+            <small style="display:block; font-size:11px; color:#991b1b; margin-top:2px;">Exhausted Units Dues</small>
+        </div>
+        <div class="kpi-icon ki-red"><i class="fa-solid fa-clock"></i></div>
+    </div>
+</section>
+
+<section class="panel-card" id="tariffSettingsPanel">
+    <div class="panel-header">
+        <span><i class="fa-solid fa-sliders"></i> DISCOM Tariff, Base Price &amp; Connection Cost Control Panel</span>
+        <span style="font-size:12px; font-weight:600;">
+            Current Rates: Base <b>Rs {{ base_fare_rs }}</b> | Dom <b>Rs {{ domestic_rate }}/U</b> (Conn <b>Rs {{ tariff_setting.domestic_connection_fee }}</b>) | Comm <b>Rs {{ commercial_rate }}/U</b> (Conn <b>Rs {{ tariff_setting.commercial_connection_fee }}</b>)
+        </span>
+    </div>
+    <div class="panel-body">
+        <form method="post" action="{% url 'admin_billing_tariffs' %}" id="adminTariffUpdateForm">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="update_tariff">
+            <input type="hidden" name="section" value="tariffs">
+
+            <div style="margin-bottom: 8px;">
+                <h4 style="font-size:13px; font-weight:800; color:#082f66; margin-bottom:12px; display:flex; align-items:center; gap:8px;">
+                    <i class="fa-solid fa-bolt" style="color:#07549a;"></i> 1. Monthly Consumption Base Price &amp; Energy Unit Rates
+                </h4>
+                <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px;">
+                    <div class="form-field">
+                        <label for="tariffBaseFareInput" style="display:flex; justify-content:space-between; align-items:center;">
+                            <span>Fixed Base Price (Rs)</span>
+                            <span style="font-size:11px; color:#0f766e; background:#ccfbf1; padding:1px 6px; border-radius:4px; font-weight:700;">Current: Rs {{ base_fare_rs }}</span>
+                        </label>
+                        <input type="number" step="0.01" min="1" id="tariffBaseFareInput" name="base_fare_rs" value="{{ base_fare_rs }}" required>
+                        <small style="color:#64748b; font-size:11px; display:block; margin-top:4px;">Standard monthly fixed base price applied to all meters.</small>
+                    </div>
+                    <div class="form-field">
+                        <label for="tariffDomRateInput" style="display:flex; justify-content:space-between; align-items:center;">
+                            <span>Domestic Unit Price (Rs / Unit)</span>
+                            <span style="font-size:11px; color:#5b21b6; background:#ede9fe; padding:1px 6px; border-radius:4px; font-weight:700;">Current: Rs {{ domestic_rate }}/U</span>
+                        </label>
+                        <input type="number" step="0.01" min="0.50" id="tariffDomRateInput" name="domestic_rate_per_unit" value="{{ domestic_rate }}" required>
+                        <small style="color:#64748b; font-size:11px; display:block; margin-top:4px;">Price charged per kilowatt-hour (kWh) for domestic households.</small>
+                    </div>
+                    <div class="form-field">
+                        <label for="tariffCommRateInput" style="display:flex; justify-content:space-between; align-items:center;">
+                            <span>Commercial Unit Price (Rs / Unit)</span>
+                            <span style="font-size:11px; color:#0369a1; background:#e0f2fe; padding:1px 6px; border-radius:4px; font-weight:700;">Current: Rs {{ commercial_rate }}/U</span>
+                        </label>
+                        <input type="number" step="0.01" min="0.50" id="tariffCommRateInput" name="commercial_rate_per_unit" value="{{ commercial_rate }}" required>
+                        <small style="color:#64748b; font-size:11px; display:block; margin-top:4px;">Bulk pack unit rate for commercial industrial power.</small>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top: 18px; padding-top: 16px; border-top: 1px dashed #cbdcf0;">
+                <h4 style="font-size:13px; font-weight:800; color:#082f66; margin-bottom:12px; display:flex; align-items:center; gap:8px;">
+                    <i class="fa-solid fa-plug-circle-bolt" style="color:#0f766e;"></i> 2. New Connection Costs &amp; Meter Application Charges
+                </h4>
+                <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px;">
+                    <div class="form-field">
+                        <label for="tariffDomFeeInput" style="display:flex; justify-content:space-between; align-items:center;">
+                            <span>Domestic Connection Cost (Rs)</span>
+                            <span style="font-size:11px; color:#06417f; background:#e0f2fe; padding:1px 6px; border-radius:4px; font-weight:700;">Current: Rs {{ tariff_setting.domestic_connection_fee }}</span>
+                        </label>
+                        <input type="number" step="0.01" min="1" id="tariffDomFeeInput" name="domestic_connection_fee" value="{{ tariff_setting.domestic_connection_fee }}" required>
+                        <small style="color:#64748b; font-size:11px; display:block; margin-top:4px;">One-time new domestic connection cost (Includes 20% processing, 40% line charge, 40% security deposit).</small>
+                    </div>
+                    <div class="form-field">
+                        <label for="tariffCommFeeInput" style="display:flex; justify-content:space-between; align-items:center;">
+                            <span>Commercial Connection Cost (Rs)</span>
+                            <span style="font-size:11px; color:#4c1d95; background:#ede9fe; padding:1px 6px; border-radius:4px; font-weight:700;">Current: Rs {{ tariff_setting.commercial_connection_fee }}</span>
+                        </label>
+                        <input type="number" step="0.01" min="1" id="tariffCommFeeInput" name="commercial_connection_fee" value="{{ tariff_setting.commercial_connection_fee }}" required>
+                        <small style="color:#64748b; font-size:11px; display:block; margin-top:4px;">One-time commercial HT/LT setup cost (Includes 20% processing, 35% line charge, 45% security deposit).</small>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top: 18px; padding-top: 16px; border-top: 1px dashed #cbdcf0; display: grid; grid-template-columns: 2fr 1fr; gap: 14px; align-items: end;">
+                <div class="form-field">
+                    <label for="tariffNoteInput">
+                        <span><i class="fa-solid fa-pen-to-square"></i> Revision Order Note / Regulatory Gazette Ref</span>
+                    </label>
+                    <input type="text" id="tariffNoteInput" name="revision_note" value="{{ tariff_setting.revision_note }}" placeholder="e.g. DISCOM Regulatory Order #2026/11 - Tariff &amp; Connection Charges Revision">
+                    <small style="color:#64748b; font-size:11px; display:block; margin-top:4px;">Published to public dashboards &amp; printed on official receipts.</small>
+                </div>
+                <div>
+                    <button type="submit" class="btn-primary" style="width:100%; height:40px; display:flex; align-items:center; justify-content:center; gap:8px;">
+                        <i class="fa-solid fa-arrows-rotate"></i> Update Tariff &amp; Connection Costs
+                    </button>
+                </div>
+            </div>
+        </form>
+
+        <div class="tariff-notice-bar" style="margin-top:16px;">
+            <span><i class="fa-solid fa-bullhorn"></i> <strong>Published Notice:</strong> {{ tariff_setting.revision_note }} (Updated: {{ tariff_setting.updated_at|date:"d M Y, h:i A" }})</span>
+            <span>Current Base Price: <strong>Rs {{ base_fare_rs }}</strong> | Domestic: <strong>Rs {{ domestic_rate }}/U</strong> (Conn: <strong>Rs {{ tariff_setting.domestic_connection_fee }}</strong>) | Commercial: <strong>Rs {{ commercial_rate }}/U</strong> (Conn: <strong>Rs {{ tariff_setting.commercial_connection_fee }}</strong>)</span>
+        </div>
+    </div>
+</section>
+
+{% elif billing_section == "commercial" %}
+<!-- =========================================================
+     DEDICATED FUNCTION PAGE: COMMERCIAL RECHARGE BILLING ONLY
+     ========================================================= -->
+
+
+<div class="section-order-title">
+    <h3> Enter Commercial Meter Number to View Recharges &amp; Live Remaining Units</h3>
+</div>
+<section class="panel-card" id="commercialOverviewLookupCard">
+    <div class="panel-header">
+        <span><i class="fa-solid fa-magnifying-glass-dollar"></i> Commercial Meter Recharge &amp; Remaining Units Lookup</span>
+        <span>Commercial Rate: Rs {{ commercial_rate }}/Unit</span>
+    </div>
+    <div class="panel-body">
+        <form method="get" action="{% url 'admin_billing_commercial' %}" id="commercialOverviewForm" class="form-row-inline">
+            <input type="hidden" name="ledger_month" value="{{ ledger_month }}">
+            {% if ledger_status %}<input type="hidden" name="ledger_status" value="{{ ledger_status }}">{% endif %}
+            <div class="form-field">
+                <label for="commMeterInput">Commercial Meter Number</label>
+                <input type="text"
+                       id="commMeterInput"
+                       name="meter_number"
+                       list="commMeterOptions"
+                       value="{{ entered_meter }}"
+                       placeholder="e.g. MTR-2026-1002"
+                       required>
+                <datalist id="commMeterOptions">
+                    {% for c in connected_commercial %}
+                    <option value="{{ c.meter_number }}">{{ c.applicant_name }} ({{ c.industry_type }})</option>
+                    {% endfor %}
+                </datalist>
+            </div>
+            <button type="submit" id="generateCommercialOverviewBtn" class="btn-purple">
+                <i class="fa-solid fa-gauge-high"></i> Get Recharge Bill &amp; Live Units
+            </button>
+        </form>
+
+        {% if lookup_error %}
+        <div class="flash-msg error" style="margin-top:12px; margin-bottom:0;">{{ lookup_error }}</div>
+        {% endif %}
+    </div>
+</section>
+
+{% else %}
+
+
+
+<div class="section-order-title">
+    <h3>Domestic Meter Lookup &amp; Monthly Bill Generation</h3>
+</div>
+<div class="two-col-grid">
+    <section class="panel-card" style="margin-bottom:0;">
+        <div class="panel-header">
+            <span><i class="fa-solid fa-magnifying-glass-dollar"></i> Domestic Meter Number Usage Lookup</span>
+            <span>Domestic: Rs {{ domestic_rate }}/Unit</span>
+        </div>
+        <div class="panel-body">
+            <p style="font-size:13px; color:#365070; margin-bottom:14px;">
+                Enter any Domestic Home Meter Number to inspect live appliance draw, unbilled cycle consumption, and itemized charges.
+            </p>
+            <form method="get" action="{% url 'admin_billing' %}" class="form-row-inline">
+                <input type="hidden" name="ledger_month" value="{{ ledger_month }}">
+                {% if ledger_status %}<input type="hidden" name="ledger_status" value="{{ ledger_status }}">{% endif %}
+                <div class="form-field">
+                    <label for="adminMeterLookupInput">Domestic Meter Number</label>
+                    <input type="text"
+                           id="adminMeterLookupInput"
+                           name="meter_number"
+                           list="domMeterOptions"
+                           value="{{ entered_meter }}"
+                           placeholder="e.g. MTR-2026-1001"
+                           required>
+                    <datalist id="domMeterOptions">
+                        {% for d in connected_domestic %}
+                        <option value="{{ d.meter_number }}">{{ d.applicant_name }} ({{ d.application_id }})</option>
+                        {% endfor %}
+                    </datalist>
+                </div>
+                <button type="submit" class="btn-primary">
+                    <i class="fa-solid fa-calculator"></i> Get Power Bill
+                </button>
+            </form>
+
+            {% if lookup_error %}
+            <div class="flash-msg error" style="margin-top:12px; margin-bottom:0;">{{ lookup_error }}</div>
+            {% endif %}
+        </div>
+    </section>
+
+    <section class="panel-card" style="margin-bottom:0;">
+        <div class="panel-header">
+            <span><i class="fa-solid fa-calendar-check"></i> Generate Domestic Monthly Bills</span>
+            <span>Rs {{ base_fare_rs }} + Rs {{ domestic_rate }}/Unit</span>
+        </div>
+        <div class="panel-body">
+            <p style="font-size:13px; color:#365070; margin-bottom:14px;">
+                Domestic bills generate only for <strong>{{ default_month }} or future months</strong> (previous-month generation is blocked) and carry forward from each meter's previous closing reading.
+            </p>
+            <form method="post" action="{% url 'admin_billing' %}" id="generateMonthlyBillsForm" class="form-row-inline">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="generate_monthly">
+                <div class="form-field">
+                    <label for="billingMonthInput">Billing Month (YYYY-MM)</label>
+                    <input type="month" id="billingMonthInput" name="billing_month" value="{{ default_month }}" min="{{ default_month }}" required>
+                </div>
+                <button type="submit" class="btn-green">
+                    <i class="fa-solid fa-file-circle-plus"></i> Generate Monthly Domestic Bills
+                </button>
+            </form>
+        </div>
+    </section>
+</div>
+{% endif %}
+
+{% if lookup_summary and billing_section != "tariffs" %}
+<section class="panel-card" id="adminMeterLookupResultCard">
+    <div class="panel-header">
+        <span><i class="fa-solid fa-receipt"></i> Meter Lookup Result: {{ lookup_summary.meter_number }} ({{ lookup_summary.connection.applicant_name }})</span>
+        <span class="bill-badge bb-type">
+            {% if lookup_summary.is_commercial %}Commercial Industrial{% else %}Domestic Monthly{% endif %}
+        </span>
+    </div>
+    <div class="panel-body">
+        <div class="summary-grid" style="margin-top:0;">
+            <div class="summary-item"><span>Request ID</span><strong>{{ lookup_summary.connection.application_id }}</strong></div>
+            {% if lookup_summary.is_commercial %}
+            <div class="summary-item">
+                <span>Total Recharged (Paid)</span>
+                <strong style="color:#15803d;">Rs {{ lookup_summary.total_recharged_rs }}</strong>
+                <small style="display:block; color:#4b698c; font-weight:700;">{{ lookup_summary.paid_recharge_count }} Recharge Transaction(s)</small>
+            </div>
+            <div class="summary-item">
+                <span>Total Units Got (Credited)</span>
+                <strong>{{ lookup_summary.prepaid_units_allocated_total }} Units</strong>
+                <small style="display:block; color:#4b698c; font-weight:700;">Used: {{ lookup_summary.total_units_consumed }} Units</small>
+            </div>
+            <div class="summary-item">
+                <span>Live Remaining Units to Use</span>
+                <strong style="color:#07549a;">{{ lookup_summary.prepaid_units_balance }} Units</strong>
+                <small style="display:block; color:#4b698c; font-weight:700;">{{ lookup_summary.telemetry.est_runtime_text }}</small>
+            </div>
+            {% else %}
+            <div class="summary-item"><span>Active Base Fare</span><strong>Rs {{ lookup_summary.base_fare }}</strong></div>
+            <div class="summary-item"><span>Active Rate / Unit</span><strong>Rs {{ lookup_summary.rate_per_unit }}</strong></div>
+            <div class="summary-item">
+                <span>Meter Reading Carryover</span>
+                <strong>{{ lookup_summary.last_billed_reading }} U &rarr; {{ lookup_summary.total_units_consumed }} U</strong>
+                <small style="display:block; color:#4b698c; font-weight:700;">Last Billed: {{ lookup_summary.last_billed_reading }} Units</small>
+            </div>
+            <div class="summary-item"><span>Unbilled Cycle Preview</span><strong>Rs {{ lookup_summary.estimated_total_bill }} ({{ lookup_summary.unbilled_units }} Units)</strong></div>
+            {% endif %}
+            <div class="summary-item">
+                <span>Active Appliances ON</span>
+                <strong>{{ lookup_summary.telemetry.active_kw|floatformat:2 }} kW ({{ lookup_summary.telemetry.on_count }}/{{ lookup_summary.telemetry.total_count }} ON)</strong>
+                <small style="display:block; color:#4b698c; font-weight:700;">{{ lookup_summary.telemetry.units_per_hour|floatformat:2 }} U/hr &bull; Rs {{ lookup_summary.telemetry.hourly_cost_rs|floatformat:2 }}/hr</small>
+            </div>
+        </div>
+        {% if lookup_summary.is_commercial %}
+        <div class="table-wrap" style="margin-top:14px;">
+            <table id="commercialMeterRechargesTable">
+                <thead>
+                    <tr>
+                        <th>Receipt / Bill No.</th>
+                        <th>Bulk Pack / Recharge</th>
+                        <th>Month</th>
+                        <th>Recharged Amount</th>
+                        <th>Units Got (+Credited)</th>
+                        <th>Consumed So Far</th>
+                        <th>Live Remaining Units</th>
+                        <th>Gateway TXN ID</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for bill in lookup_summary.bills %}
+                    <tr>
+                        <td><strong>{{ bill.bill_number }}</strong></td>
+                        <td>{{ bill.bulk_pack_name|default:bill.get_bill_type_display }}</td>
+                        <td>{{ bill.billing_month|default:"--" }}</td>
+                        <td><strong style="color:#15803d;">Rs {{ bill.total_amount }}</strong><br><small style="color:#4b698c;">Base Rs {{ bill.base_fare }} + Rs {{ bill.energy_charge }}</small></td>
+                        <td><strong>+{{ bill.units_billed }} Units</strong> (@ Rs {{ bill.rate_per_unit }})</td>
+                        <td>{{ lookup_summary.total_units_consumed }} Units</td>
+                        <td><strong style="color:#07549a;">{{ lookup_summary.prepaid_units_balance }} Units Left</strong></td>
+                        <td>{% if bill.transaction_id %}<code>{{ bill.transaction_id }}</code> ({{ bill.payment_method }}){% else %}--{% endif %}</td>
+                        <td><span class="bill-badge {% if bill.status == 'Paid' %}bb-paid{% else %}bb-unpaid{% endif %}">{{ bill.status }}</span></td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="9" style="text-align:center; color:#4b698c; padding:18px;">
+                            No Commercial recharges recorded yet for meter <strong>{{ lookup_summary.meter_number }}</strong>.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+        {% if lookup_summary.telemetry.appliances %}
+        <div class="table-wrap" style="margin-top:14px;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Appliance</th>
+                        <th>Rating</th>
+                        <th>Live Status</th>
+                        <th>Draw Rate</th>
+                        <th>Cost / Hr</th>
+                        <th>{% if lookup_summary.is_commercial %}Consumed Units (Total){% else %}Consumed Units (Total &amp; Unbilled Cycle){% endif %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for app in lookup_summary.telemetry.appliances %}
+                    <tr>
+                        <td><strong>{{ app.name }}</strong> ({{ app.appliance_type }})</td>
+                        <td>{{ app.wattage }} W</td>
+                        <td>
+                            <span class="bill-badge {% if app.is_running %}bb-paid{% else %}bb-unpaid{% endif %}">
+                                {% if app.is_running %}ON (Running){% elif app.switch_on %}ON (Standby){% else %}OFF{% endif %}
+                            </span>
+                        </td>
+                        <td>{{ app.active_kw|floatformat:2 }} kW ({{ app.units_per_hour|floatformat:2 }} U/hr)</td>
+                        <td>Rs {{ app.cost_per_hour_rs|floatformat:2 }} / hr</td>
+                        <td>
+                            {% if lookup_summary.is_commercial %}
+                                <strong>{{ app.consumed_units_display }} Units</strong> (Rs {{ app.total_cost_rs|floatformat:2 }})
+                            {% else %}
+                                <strong>{{ app.consumed_units_display }} U total</strong>
+                                &bull; Current Cycle: <strong>{{ app.unbilled_units_display }} U</strong> (Rs {{ app.unbilled_cost_rs|floatformat:2 }})
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr style="background:#eaf2ff; font-weight:800; color:#082f66;">
+                        <td><strong>Total</strong></td>
+                        <td>{{ lookup_summary.telemetry.active_watts }} W ON</td>
+                        <td>{{ lookup_summary.telemetry.on_count }}/{{ lookup_summary.telemetry.total_count }} ON</td>
+                        <td>{{ lookup_summary.telemetry.active_kw|floatformat:2 }} kW ({{ lookup_summary.telemetry.units_per_hour|floatformat:2 }} U/hr)</td>
+                        <td>Rs {{ lookup_summary.telemetry.hourly_cost_rs|floatformat:2 }} / hr</td>
+                        <td>
+                            {% if lookup_summary.is_commercial %}
+                                <strong>{{ lookup_summary.total_units_consumed }} Units</strong>
+                            {% else %}
+                                <strong>{{ lookup_summary.total_units_consumed }} U total</strong>
+                                &bull; Current Cycle: <strong>{{ lookup_summary.unbilled_units }} U</strong>
+                            {% endif %}
+                        </td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+        {% if not lookup_summary.is_commercial %}
+        <p style="font-size:11.5px; color:#4b698c; margin-top:8px;">
+            <i class="fa-solid fa-circle-info"></i>
+            <strong>Note:</strong> <em>Current Cycle</em> tracks unbilled usage since the last generated monthly bill and stays <code>0.00 U</code> for any appliance turned <strong>OFF</strong> during this cycle.
+        </p>
+        {% endif %}
+        {% endif %}
+    </div>
+</section>
+{% endif %}
+
+{% if billing_section != "tariffs" %}
+<!-- MONTH-WISE MASTER LEDGER (DEFAULT = CURRENT YEAR & MONTH + PAID/UNPAID FILTER) -->
+<div class="section-order-title">
+    <h3>
+        <span class="step-pill">Ledger</span>
+        {% if billing_section == "commercial" %}
+            Commercial Master Monthly Bills &amp; DISCOM Bulk Payment Gateway Ledger ({% if all_months_mode %}All Months{% else %}{{ ledger_month }}{% endif %})
+        {% else %}
+            Master Monthly Bills &amp; DISCOM Bulk Payment Gateway Ledger &mdash; Domestic ({% if all_months_mode %}All Months{% else %}{{ ledger_month }}{% endif %})
+        {% endif %}
+    </h3>
+</div>
+<section class="panel-card" id="masterBillingLedgerCard">
+    <div class="panel-header">
+        <span>
+            <i class="fa-solid fa-calendar-days"></i>
+            {% if billing_section == "commercial" %}Commercial{% else %}Domestic{% endif %}
+            {% if all_months_mode %}All Months Ledger (Paid &amp; Unpaid){% else %}Month-Wise Ledger ({{ ledger_month }}){% endif %}
+            &mdash; {{ all_bills|length }} Record(s)
+        </span>
+        <span>Paid: {{ paid_bills_count }} &bull; Unpaid: {{ unpaid_month_count }}</span>
+    </div>
+    <div class="panel-body">
+        <form method="get"
+              action="{% if billing_section == 'commercial' %}{% url 'admin_billing_commercial' %}{% else %}{% url 'admin_billing' %}{% endif %}"
+              id="ledgerFilterForm"
+              class="ledger-filter-bar">
+            {% if entered_meter %}<input type="hidden" name="meter_number" value="{{ entered_meter }}">{% endif %}
+            <div class="form-field" style="max-width:210px;">
+                <label for="ledgerMonthInput">Calendar Month Filter (Year &amp; Month)</label>
+                <input type="month"
+                       id="ledgerMonthInput"
+                       name="ledger_month"
+                       value="{{ ledger_month }}"
+                       onchange="var st=document.getElementById('ledgerStatusFilter'); if(st && st.value==='all'){ st.value=''; } this.form.submit();"
+                       required>
+            </div>
+            <div class="form-field" style="max-width:250px;">
+                <label for="ledgerStatusFilter">Payment Status / Scope Filter</label>
+                <select id="ledgerStatusFilter" name="ledger_status" onchange="this.form.submit()">
+                    <option value="" {% if not ledger_status %}selected{% endif %}>Selected Month ({{ ledger_month }}): All (Paid &amp; Unpaid)</option>
+                    <option value="all" {% if ledger_status == "all" %}selected{% endif %}>All Bills (Paid &amp; Unpaid &mdash; All Months)</option>
+                    <option value="Paid" {% if ledger_status == "Paid" %}selected{% endif %}>Paid Bills Only ({{ ledger_month }})</option>
+                    <option value="Unpaid" {% if ledger_status == "Unpaid" %}selected{% endif %}>Unpaid Bills Only ({{ ledger_month }})</option>
+                </select>
+            </div>
+            <button type="submit" id="applyLedgerFilterBtn" class="btn-primary">
+                <i class="fa-solid fa-filter"></i> Filter Month
+            </button>
+            <a href="{% if billing_section == 'commercial' %}{% url 'admin_billing_commercial' %}{% else %}{% url 'admin_billing' %}{% endif %}"
+               class="btn-reset">
+                <i class="fa-solid fa-rotate-left"></i> Current Month ({{ default_month }})
+            </a>
+        </form>
+
+        <div class="table-wrap">
+            <table id="masterLedgerTable">
+                <thead>
+                    <tr>
+                        <th>Bill / Receipt No.</th>
+                        <th>Type / Description</th>
+                        <th>Meter No. &amp; Consumer</th>
+                        <th>Month</th>
+                        {% if billing_section == "commercial" %}
+                        <th>Units Got &amp; Rate</th>
+                        <th>Recharged Amount</th>
+                        <th>Live Remaining Units</th>
+                        {% else %}
+                        <th>Units &amp; Applied Rate</th>
+                        <th>Base Fare</th>
+                        <th>Total Bill</th>
+                        {% endif %}
+                        <th>DISCOM Gateway TXN ID</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for bill in all_bills %}
+                    <tr>
+                        <td><strong>{{ bill.bill_number }}</strong></td>
+                        <td>
+                            <span class="bill-badge bb-type">{{ bill.get_bill_type_display }}</span>
+                            {% if bill.bulk_pack_name %}
+                            <br><small style="color:#07549a; font-weight:700;">{{ bill.bulk_pack_name }}</small>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <strong>{{ bill.connection.meter_number }}</strong><br>
+                            <small style="color:#4b698c;">{{ bill.connection.applicant_name }} ({{ bill.connection.application_id }})</small>
+                        </td>
+                        <td>{{ bill.billing_month|default:"--" }}</td>
+                        {% if billing_section == "commercial" %}
+                        <td><strong>+{{ bill.units_billed }} Units</strong> (@ Rs {{ bill.rate_per_unit }})</td>
+                        <td><strong style="color:#15803d;">Rs {{ bill.total_amount }}</strong><br><small style="color:#4b698c;">Base Rs {{ bill.base_fare }}</small></td>
+                        <td><strong style="color:#07549a;">{{ bill.connection.prepaid_units_balance }} Units Left</strong><br><small style="color:#4b698c;">Used: {{ bill.connection.total_units_consumed }} U</small></td>
+                        {% else %}
+                        <td>
+                            <strong>{{ bill.units_billed }} Units</strong> (@ Rs {{ bill.rate_per_unit }})
+                            <br><small style="color:#4b698c;">Meter: {{ bill.previous_reading }} U &rarr; {{ bill.current_reading }} U</small>
+                        </td>
+                        <td>Rs {{ bill.base_fare }}</td>
+                        <td>
+                            <strong>Rs {{ bill.total_amount }}</strong>
+                            {% if bill.arrears_amount > 0 %}
+                            <br><small style="color:#b45309; font-weight:700;">+ Rs {{ bill.arrears_amount }} Unpaid Arrears{% if bill.carried_from_bills %} ({{ bill.carried_from_bills }}){% endif %}</small>
+                            {% endif %}
+                        </td>
+                        {% endif %}
+                        <td>
+                            {% if bill.transaction_id %}
+                                <strong>{{ bill.payment_method|default:"DISCOM Gateway" }}</strong><br>
+                                <small style="color:#07549a;"><code>{{ bill.transaction_id }}</code></small>
+                            {% elif bill.status == "Carried Forward" %}
+                                <span style="color:#b45309; font-weight:700;">{{ bill.gateway_status|default:"Carried Forward" }}</span>
+                            {% else %}
+                                <span style="color:#64748b;">Awaiting Gateway</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if bill.status == "Paid" %}
+                            <span class="bill-badge bb-paid">Paid</span>
+                            {% elif bill.status == "Carried Forward" %}
+                            <span class="bill-badge" style="background:#fef3c7; color:#92400e;">Carried Forward</span>
+                            {% else %}
+                            <span class="bill-badge bb-unpaid">Unpaid</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="9" style="text-align:center; color:#4b698c; padding:24px;">
+                            No {% if billing_section == "commercial" %}Commercial{% else %}Domestic{% endif %}
+                            {% if ledger_status %}{{ ledger_status|lower }}{% endif %}
+                            bills found for <strong>{{ ledger_month }}</strong>.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+{% endif %}
+{% endblock %}

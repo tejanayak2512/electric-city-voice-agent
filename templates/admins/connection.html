@@ -1,0 +1,332 @@
+{% extends "admins/admin_base.html" %}
+
+{% block title %}3. Connections &amp; Meter Control | Admin Portal{% endblock %}
+
+{% block footer_tag %}Step 3 &bull; Connection Pipeline &amp; Premise Power Controls{% endblock %}
+
+{% block extra_css %}
+<style>
+    .conn-tab-nav {
+        display: flex; align-items: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;
+    }
+    .conn-tab-btn {
+        display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px;
+        background: #ffffff; border: 1.5px solid #c6d8ed; border-radius: 10px;
+        color: #102b4c; font-size: 13.5px; font-weight: 700; text-decoration: none;
+        transition: 0.2s ease;
+    }
+    .conn-tab-btn:hover { background: #eef5ff; border-color: #07549a; color: #063b78; }
+    .conn-tab-btn.active {
+        background: linear-gradient(90deg, #06417f, #07549a); color: #ffffff;
+        border-color: #06417f; box-shadow: 0 4px 12px rgba(7, 84, 154, 0.22);
+    }
+    .conn-tab-badge {
+        background: rgba(255, 255, 255, 0.25); border-radius: 999px;
+        padding: 1px 7px; font-size: 11px; font-weight: 800;
+    }
+    .conn-tab-btn:not(.active) .conn-tab-badge {
+        background: #e2e8f0; color: #1e293b;
+    }
+
+    .verify-card { border: 1px solid #c8d9ed; border-radius: 12px; padding: 18px; background: #f9fbff; margin-bottom: 16px; }
+    .verify-top {
+        display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+        padding-bottom: 12px; border-bottom: 1px solid #dce8f6; margin-bottom: 14px;
+    }
+    .verify-meta h4 { font-size: 16px; color: #082f66; font-weight: 800; margin-bottom: 4px; }
+    .verify-meta p { font-size: 13px; color: #365070; line-height: 1.45; }
+    .issue-form-grid { display: grid; grid-template-columns: 1.1fr 1fr 1fr 1.2fr; gap: 12px; align-items: end; }
+    .form-field label { display: block; font-size: 12px; font-weight: 700; color: #102b4c; margin-bottom: 5px; }
+    .form-field input, .form-field select {
+        width: 100%; height: 39px; padding: 7px 11px; border: 1.5px solid #c6d8ed; border-radius: 8px;
+        font-family: inherit; font-size: 13px; background: #ffffff;
+    }
+    .verify-actions { margin-top: 12px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+    .meter-check { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; color: #082f66; }
+    .meter-check input { width: 17px; height: 17px; }
+    .btn-approve {
+        padding: 9px 18px; border: 0; border-radius: 8px; background: linear-gradient(90deg, #15803d, #16a34a);
+        color: #ffffff; font-weight: 700; font-size: 13px; cursor: pointer;
+    }
+    .btn-reject {
+        padding: 9px 16px; border: 1px solid #fca5a5; border-radius: 8px; background: #fef2f2;
+        color: #b91c1c; font-weight: 700; font-size: 13px; cursor: pointer;
+    }
+    .status-pill { display: inline-block; padding: 4px 10px; border-radius: 999px; font-size: 11.5px; font-weight: 800; }
+    .sp-applied { background: #e0f2fe; color: #075985; }
+    .sp-verified { background: #fef3c7; color: #92400e; }
+    .sp-issued { background: #ede9fe; color: #5b21b6; }
+    .sp-connected { background: #dcfce7; color: #166534; }
+    .sp-rejected { background: #fee2e2; color: #991b1b; }
+    @media (max-width: 960px) { .issue-form-grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 600px) { .issue-form-grid { grid-template-columns: 1fr; } }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- TAB NAVIGATION FOR CONNECTIONS & METERS -->
+<div class="conn-tab-nav">
+    <a href="{% url 'admin_connections' %}" class="conn-tab-btn {% if connection_section == 'all' %}active{% endif %}">
+        <i class="fa-solid fa-layer-group"></i>
+        <span>All Operations</span>
+    </a>
+    <a href="{% url 'admin_connections_issue_meters' %}" class="conn-tab-btn {% if connection_section == 'issue' %}active{% endif %}">
+        <i class="fa-solid fa-stamp"></i>
+        <span>Issue Original Meters</span>
+        <span class="conn-tab-badge">{{ verified_apps|length }}</span>
+    </a>
+    <a href="{% url 'admin_connections_power_controls' %}" class="conn-tab-btn {% if connection_section == 'power' %}active{% endif %}">
+        <i class="fa-solid fa-sliders"></i>
+        <span>Premises Power Control</span>
+        <span class="conn-tab-badge">{{ connected_apps|length }}</span>
+    </a>
+    <a href="{% url 'admin_connections_ledger' %}" class="conn-tab-btn {% if connection_section == 'ledger' %}active{% endif %}">
+        <i class="fa-solid fa-list-check"></i>
+        <span>Applications Ledger</span>
+        <span class="conn-tab-badge">{{ all_apps|length }}</span>
+    </a>
+</div>
+
+{% if connection_section == "all" or connection_section == "issue" %}
+<!-- STEP 1: CROSS-CHECK & ISSUE ORIGINAL METER -->
+<div class="section-order-title" id="adminStageApprove">
+    <h3> Cross-Check Verified Requests &amp; Issue Original Meters</h3>
+</div>
+<section class="panel-card">
+    <div class="panel-header">
+        <span><i class="fa-solid fa-stamp"></i> Department-Verified Requests </span>
+        <span>{{ verified_apps|length }} Pending</span>
+    </div>
+    <div class="panel-body">
+        {% for app in verified_apps %}
+        <div class="verify-card">
+            <div class="verify-top">
+                <div class="verify-meta">
+                    <h4>Application No: <code>{{ app.application_number }}</code> &bull; Request ID: <code>{{ app.application_id }}</code> &mdash; {{ app.applicant_name }} ({{ app.property_type }}{% if app.industry_type %} - {{ app.industry_type }}{% endif %}, {{ app.requested_load_kw }} kW)</h4>
+                    <p>
+                        <strong>Address:</strong> {{ app.house_address }} &bull;
+                        <strong>Mobile:</strong> {{ app.mobile_number }} &bull;
+                        <strong>ID Proof:</strong> {{ app.id_proof_number }}
+                    </p>
+                    <p style="margin-top:4px; color:#15803d;">
+                        <strong>Verification 1 (Fee Payment):</strong>
+                        Rs {{ app.connection_fee_amount }} ({% if app.connection_fee_paid %}Paid &bull; {{ app.connection_transaction_id }}{% else %}Unpaid{% endif %}) &bull;
+                        <strong>{% if app.payment_verified %}Verified by {{ app.payment_verified_by }}{% else %}Pending Payment Verification{% endif %}</strong>
+                    </p>
+                    <p style="margin-top:4px; color:#07549a;">
+                        <strong>Verification 2 (Aligned by Dept):</strong>
+                        {% if app.verified_by %}{{ app.verified_by.full_name }} ({{ app.verified_by.employee_id }}){% endif %}
+                        &rarr; <strong>{{ app.transformer.code }} ({{ app.transformer.substation_name }})</strong>
+                        {% if app.department_remarks %}&mdash; "{{ app.department_remarks }}"{% endif %}
+                    </p>
+                </div>
+                <span class="status-pill sp-verified">Verified &bull; Aligned to {{ app.transformer.code }}</span>
+            </div>
+
+            <form method="post" action="{% url 'admin_process_connection' app.id %}">
+                {% csrf_token %}
+                <input type="hidden" name="transformer_id" value="{{ app.transformer.id }}">
+                <div class="issue-form-grid">
+                    <div class="form-field">
+                        <label>Department-Aligned Substation &amp; Transformer</label>
+                        <input type="text"
+                               value="{{ app.transformer.code }} — {{ app.transformer.substation_name }} ({{ app.transformer.zone }})"
+                               readonly
+                               style="background:#eaf2ff; font-weight:700; color:#082f66; border-color:#93c5fd;">
+                    </div>
+                    <div class="form-field">
+                        <label>Official Meter Number</label>
+                        <input type="text" name="meter_number" value="{{ suggested_meter }}-{{ app.id }}" placeholder="e.g. MTR-2026-1001" required>
+                    </div>
+                    <div class="form-field">
+                        <label>Original Power Meter Serial</label>
+                        <input type="text" name="original_meter_serial" value="{{ suggested_serial }}-{{ app.id }}" placeholder="e.g. ORIG-PM-1001" required>
+                    </div>
+                    <div class="form-field">
+                        <label>Admin Cross-Check Remarks</label>
+                        <input type="text" name="admin_remarks" placeholder="Cross-checked & original meter issued">
+                    </div>
+                </div>
+
+                <div class="verify-actions">
+                    <label class="meter-check">
+                        <input type="checkbox" name="original_meter_verified" checked required>
+                        Cross-checked documents &amp; verified Original Power Meter issuance
+                    </label>
+                    <div style="display:flex; gap:10px;">
+                        <button type="submit" name="action" value="approve" class="btn-approve">
+                            <i class="fa-solid fa-check-double"></i> Approve &amp; Issue Meter
+                        </button>
+                        <button type="submit" name="action" value="reject" class="btn-reject" formnovalidate>
+                            <i class="fa-solid fa-xmark"></i> Reject
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        {% empty %}
+        <p style="color:#4b698c; text-align:center; padding:18px;">
+            No Department-verified applications are currently waiting for Administration cross-check.
+        </p>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+{% if connection_section == "all" or connection_section == "power" %}
+<!-- STEP 2: CONNECTED HOMES & COMMERCIAL INDUSTRIES INDIVIDUAL POWER CUT & REMARKS -->
+<div class="section-order-title">
+    <h3> Individual Home &amp; Commercial Industry Power Cut </h3>
+</div>
+<section class="panel-card" id="connectedPowerControlsSection">
+    <div class="panel-header">
+        <span><i class="fa-solid fa-sliders"></i> Connected Homes &amp; Commercial Industries </span>
+        <span>{{ connected_apps|length }} Connected</span>
+    </div>
+    <div class="panel-body">
+        {% for app in connected_apps %}
+        <div class="verify-card" id="indControlCard-{{ app.id }}">
+            <div class="verify-top">
+                <div class="verify-meta">
+                    <h4>
+                        Request ID: <code>{{ app.application_id }}</code> &mdash; {{ app.applicant_name }}
+                        ({% if app.property_type == 'Commercial' %}Industry: {{ app.industry_type }}{% else %}Home: Domestic{% endif %})
+                    </h4>
+                    <p>
+                        <strong>Meter No:</strong> <code>{{ app.meter_number }}</code> &bull;
+                        <strong>Substation &amp; Transformer:</strong> {{ app.transformer.code }} ({{ app.transformer.substation_name }}) &bull;
+                        <strong>Premises:</strong> {{ app.house_address }}
+                    </p>
+                </div>
+                {% if app.is_power_cut %}
+                    <span class="status-pill sp-rejected">Power Cut (Individual)</span>
+                {% else %}
+                    <span class="status-pill sp-connected">Live Supply</span>
+                {% endif %}
+            </div>
+
+            <form method="post" action="{% url 'toggle_connection_power_cut' app.id %}">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="admin_connections">
+                <div class="verify-actions" style="margin-top:0; align-items:end;">
+                    <div class="form-field" style="flex:1; min-width:260px;">
+                        <label for="indRemark-{{ app.id }}">Power Cut / Supply Remark</label>
+                        <input type="text"
+                               id="indRemark-{{ app.id }}"
+                               name="power_cut_remark"
+                               value="{{ app.power_cut_remark }}"
+                               placeholder="Enter reason for power cut, maintenance note, or restoration remark...">
+                    </div>
+                    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                        {% if app.is_power_cut %}
+                            <button type="submit" name="action" value="restore" class="btn-approve">
+                                <i class="fa-solid fa-plug-circle-check"></i> Restore Power
+                            </button>
+                        {% else %}
+                            <button type="submit" name="action" value="cut" class="btn-reject">
+                                <i class="fa-solid fa-plug-circle-xmark"></i> Cut Power
+                            </button>
+                        {% endif %}
+                        <button type="submit" name="action" value="remark" class="btn-approve" style="background:linear-gradient(90deg, #06417f, #07549a);">
+                            <i class="fa-solid fa-pen-to-square"></i> Update Remark
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        {% empty %}
+        <p style="color:#4b698c; text-align:center; padding:18px;">
+            No connected Domestic Homes or Commercial Industries available for individual power control yet.
+        </p>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+{% if connection_section == "all" or connection_section == "ledger" %}
+<!-- STEP 3: ALL CONNECTION APPLICATIONS LEDGER -->
+<div class="section-order-title" id="adminAllAppsLedger">
+    <h3> Complete Consumer Connection Applications Ledger</h3>
+</div>
+<section class="panel-card">
+    <div class="panel-header">
+        <span><i class="fa-solid fa-list-check"></i> All New Connection Applications ({{ all_apps|length }})</span>
+    </div>
+    <div class="panel-body table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Request ID</th>
+                    <th>Applicant &amp; User</th>
+                    <th>Substation &amp; Transformer</th>
+                    <th>Meter No. / Original Serial</th>
+                    <th>Status &amp; Supply</th>
+                    <th>Remarks</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for app in all_apps %}
+                <tr>
+                    <td>
+                        <strong>{{ app.application_number }}</strong><br>
+                        <small style="color:#07549a;"><strong>{{ app.application_id }}</strong></small>
+                    </td>
+                    <td>
+                        <strong>{{ app.applicant_name }}</strong> (@{{ app.user.username }})<br>
+                        <small style="color:#4b698c;">{{ app.property_type }}{% if app.industry_type %} ({{ app.industry_type }}){% endif %} &bull; {{ app.house_address }}</small><br>
+                        <small style="color:#15803d;">
+                            Fee: Rs {{ app.connection_fee_amount }} &bull;
+                            {% if app.payment_verified %}Pay Verified{% elif app.connection_fee_paid %}Paid ({{ app.connection_transaction_id }}){% else %}Unpaid{% endif %}
+                        </small>
+                    </td>
+                    <td>
+                        {% if app.transformer %}
+                            <strong>{{ app.transformer.code }}</strong><br>
+                            <small style="color:#4b698c;">{{ app.transformer.substation_name }} ({{ app.transformer.zone }})</small>
+                        {% else %}
+                            <span style="color:#64748b;">Pending Dept Selection</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if app.meter_number %}
+                            <strong>{{ app.meter_number }}</strong><br>
+                            <small style="color:#15803d;">Original: {{ app.original_meter_serial }}</small>
+                        {% else %}
+                            <span style="color:#64748b;">Not Issued</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if app.status == "Applied" %}<span class="status-pill sp-applied">Applied</span>
+                        {% elif app.status == "Verified" %}<span class="status-pill sp-verified">Verified by Dept</span>
+                        {% elif app.status == "Meter Issued" %}<span class="status-pill sp-issued">Meter Issued</span>
+                        {% elif app.status == "Connected" %}
+                            {% if app.is_power_cut %}<span class="status-pill sp-rejected">Power Cut (Individual)</span>
+                            {% else %}<span class="status-pill sp-connected">Connected (Live)</span>{% endif %}
+                        {% else %}<span class="status-pill sp-rejected">Rejected</span>{% endif %}
+                        {% if app.connection_fee_paid and not app.payment_verified %}
+                        <form method="post" action="{% url 'admin_verify_payment' app.id %}" style="margin-top:6px;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-approve" style="padding:4px 9px; font-size:11px;">
+                                Verify Fee TXN
+                            </button>
+                        </form>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if app.power_cut_remark %}
+                            <strong>Supply Remark:</strong> {{ app.power_cut_remark }}<br>
+                        {% endif %}
+                        {% if app.admin_remarks %}{{ app.admin_remarks }}{% elif app.department_remarks %}{{ app.department_remarks }}{% elif not app.power_cut_remark %}--{% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="6" style="text-align:center; color:#4b698c; padding:24px;">No connection applications submitted yet.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endif %}
+
+{% endblock %}

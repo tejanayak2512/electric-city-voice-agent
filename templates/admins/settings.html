@@ -1,0 +1,983 @@
+{% extends "admins/admin_base.html" %}
+
+{% block title %}System Settings &amp; AI LLM Configuration | Admin Portal{% endblock %}
+
+{% block extra_css %}
+<style>
+    * {
+        box-sizing: border-box;
+    }
+
+    .settings-tabs {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 22px;
+        flex-wrap: nowrap;
+        white-space: nowrap;
+        overflow-x: auto;
+        border-bottom: 2px solid #d0e0f2;
+        padding-bottom: 10px;
+        scrollbar-width: none;
+    }
+    .settings-tabs::-webkit-scrollbar { display: none; }
+
+    .settings-tab-btn {
+        padding: 9px 18px;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 13.5px;
+        color: #102b4c;
+        background: #eaf2ff;
+        border: 1px solid #bfd6f2;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.16s ease;
+        flex-shrink: 0;
+        white-space: nowrap;
+    }
+    .settings-tab-btn:hover {
+        background: #d8e9ff;
+        color: #063b78;
+    }
+    .settings-tab-btn.active {
+        background: #06417f;
+        color: #ffffff;
+        border-color: #06417f;
+    }
+
+    .settings-grid {
+        display: grid;
+        grid-template-columns: 1fr 1.35fr;
+        gap: 24px;
+        align-items: start;
+        margin-bottom: 26px;
+    }
+    @media (max-width: 1080px) {
+        .settings-grid { grid-template-columns: 1fr; }
+    }
+
+    /* FORM STYLES & ALIGNMENT */
+    .form-group {
+        margin-bottom: 16px;
+    }
+    .form-group label {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12.5px;
+        font-weight: 800;
+        color: #0d2b4f;
+        margin-bottom: 6px;
+    }
+    .form-group label .req-star {
+        color: #dc2626;
+        font-weight: 900;
+    }
+    .form-col-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+        margin-bottom: 16px;
+    }
+    @media (max-width: 680px) {
+        .form-col-2 { grid-template-columns: 1fr; }
+    }
+
+    .form-control {
+        width: 100%;
+        height: 40px;
+        padding: 8px 12px;
+        border: 1.5px solid #c6d8ed;
+        border-radius: 8px;
+        font-family: inherit;
+        font-size: 13px;
+        background: #fdfefe;
+        color: #102b4c;
+        box-sizing: border-box;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    .form-control:focus {
+        outline: none;
+        border-color: #07549a;
+        box-shadow: 0 0 0 3px rgba(7, 84, 154, 0.12);
+        background: #ffffff;
+    }
+    textarea.form-control {
+        height: auto;
+        min-height: 80px;
+        resize: vertical;
+        line-height: 1.45;
+    }
+    .file-input-control {
+        padding: 7px 10px;
+        background: #f8fafc;
+        border: 1.5px dashed #cbd5e1;
+        cursor: pointer;
+    }
+    .file-input-control:hover {
+        border-color: #07549a;
+        background: #f0f7ff;
+    }
+
+    .help-hint {
+        font-size: 11.5px;
+        color: #5a7494;
+        margin-top: 5px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .form-check-card {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 12px 14px;
+        margin-bottom: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    .form-check-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+    }
+    .form-check-item input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        cursor: pointer;
+        accent-color: #06417f;
+    }
+    .form-check-item label {
+        margin-bottom: 0;
+        cursor: pointer;
+        font-weight: 700;
+        font-size: 12.5px;
+        color: #1e293b;
+    }
+
+    .form-actions-bar {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 18px;
+        padding-top: 14px;
+        border-top: 1px solid #e2ebf5;
+        flex-wrap: wrap;
+    }
+
+    .submit-btn-primary {
+        background: linear-gradient(90deg, #06417f, #07549a);
+        color: #ffffff;
+        border: none;
+        height: 40px;
+        padding: 0 20px;
+        border-radius: 8px;
+        font-weight: 800;
+        font-size: 13.5px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        box-shadow: 0 2px 6px rgba(6, 65, 127, 0.2);
+        transition: transform 0.12s ease, background 0.15s ease;
+    }
+    .submit-btn-primary:hover {
+        background: #053366;
+        transform: translateY(-1px);
+    }
+
+    .btn-action-sm {
+        height: 30px;
+        padding: 0 10px;
+        border-radius: 6px;
+        font-size: 11.5px;
+        font-weight: 800;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        border: 1px solid;
+        transition: all 0.15s ease;
+    }
+    .btn-toggle-on { background: #eafbee; color: #15803d; border-color: #bbf7d0; }
+    .btn-toggle-off { background: #fef2f2; color: #b91c1c; border-color: #fecaca; }
+    .btn-delete { background: #fef2f2; color: #b91c1c; border-color: #fca5a5; }
+    .btn-test { background: #e0f2fe; color: #0369a1; border-color: #bae6fd; }
+    .btn-default { background: #fef9c3; color: #854d0e; border-color: #fde047; }
+
+    .badge-status-chip {
+        display: inline-block;
+        padding: 3px 9px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
+    .bs-active { background: #eafbee; color: #15803d; border: 1px solid #bbf7d0; }
+    .bs-inactive { background: #f3f4f6; color: #6b7280; border: 1px solid #e5e7eb; }
+    .bs-default { background: #fef9c3; color: #854d0e; border: 1px solid #fde047; }
+    .bs-critical { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+    .bs-warning { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }
+    .bs-info { background: #e0f2fe; color: #075985; border: 1px solid #bae6fd; }
+
+    .preset-pill-row {
+        display: flex;
+        gap: 7px;
+        flex-wrap: wrap;
+        margin-top: 6px;
+        margin-bottom: 12px;
+    }
+    .preset-pill {
+        padding: 4px 11px;
+        background: #f1f5f9;
+        border: 1px solid #cbd5e1;
+        border-radius: 999px;
+        font-size: 11.5px;
+        font-weight: 700;
+        color: #334155;
+        cursor: pointer;
+        transition: all 0.15s ease;
+    }
+    .preset-pill:hover {
+        background: #e2e8f0;
+        border-color: #94a3b8;
+    }
+
+    .active-llm-banner {
+        background: linear-gradient(100deg, #063b78 0%, #0c569c 100%);
+        color: #ffffff;
+        border-radius: 12px;
+        padding: 16px 20px;
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+    .active-llm-meta h4 {
+        font-size: 16px;
+        font-weight: 800;
+        margin-bottom: 4px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .active-llm-meta p {
+        font-size: 12.5px;
+        color: #dbeafe;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- SETTINGS TAB NAVIGATION -->
+<div class="settings-tabs">
+    <a href="{% url 'admin_settings' %}?tab=all" class="settings-tab-btn {% if active_tab == 'all' %}active{% endif %}">
+        <i class="fa-solid fa-sliders"></i> All Settings Hub
+    </a>
+    <a href="{% url 'admin_settings_news' %}" class="settings-tab-btn {% if active_tab == 'news' %}active{% endif %}">
+        <i class="fa-solid fa-bullhorn"></i> News &amp; Announcements
+    </a>
+    <a href="{% url 'admin_settings_notifications' %}" class="settings-tab-btn {% if active_tab == 'notifications' %}active{% endif %}">
+        <i class="fa-solid fa-triangle-exclamation"></i> Operation Alerts
+    </a>
+    <a href="{% url 'admin_settings_media' %}" class="settings-tab-btn {% if active_tab == 'media' %}active{% endif %}">
+        <i class="fa-solid fa-photo-film"></i> Hero Media &amp; Background
+    </a>
+    <a href="{% url 'admin_settings_llm' %}" class="settings-tab-btn {% if active_tab == 'llm' %}active{% endif %}">
+        <i class="fa-solid fa-brain"></i> AI &amp; LLM Configurations
+    </a>
+</div>
+
+<!-- ========================================================
+     TAB 1: NEWS & PUBLIC ANNOUNCEMENTS
+======================================================== -->
+{% if active_tab == 'news' or active_tab == 'all' %}
+<div class="section-order-title">
+    <h3><i class="fa-solid fa-bullhorn"></i> News &amp; Public Announcements on base.html</h3>
+</div>
+
+<div class="settings-grid">
+    <!-- POST NEWS FORM -->
+    <section class="panel-card">
+        <div class="panel-header">
+            <span><i class="fa-solid fa-plus-circle"></i> Create News Announcement</span>
+        </div>
+        <div class="panel-body">
+            <form method="post" action="{% url 'admin_settings' %}?tab=news">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="add_news">
+
+                <div class="form-group">
+                    <label for="newsTitle">Announcement Title <span class="req-star">*</span></label>
+                    <input type="text" id="newsTitle" name="title" class="form-control" placeholder="e.g. 10% Rebate on Solar Rooftop Connection" required>
+                </div>
+
+                <div class="form-col-2">
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label for="newsBadge">Badge Label</label>
+                        <input type="text" id="newsBadge" name="badge_label" class="form-control" value="New" placeholder="e.g. New, Notice, Important, Offer">
+                        <span class="help-hint">Short label shown inside the badge chip</span>
+                    </div>
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label for="newsLink">External / Target URL (Optional)</label>
+                        <input type="text" id="newsLink" name="link_url" class="form-control" placeholder="https://... or /users/services/...">
+                        <span class="help-hint">Optional clickable destination</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="newsContent">Details / Announcement Content</label>
+                    <textarea id="newsContent" name="content" class="form-control" rows="3" placeholder="Provide full announcement text for consumers..."></textarea>
+                </div>
+
+                <div class="form-check-card">
+                    <label class="form-check-item">
+                        <input type="checkbox" id="newsTicker" name="is_ticker" value="1" checked>
+                        <span>Display in Top Breaking Bulletin Bar (Marquee)</span>
+                    </label>
+                    <label class="form-check-item">
+                        <input type="checkbox" id="newsActive" name="is_active" value="1" checked>
+                        <span>Publish Immediately (Active on base.html)</span>
+                    </label>
+                </div>
+
+                <div class="form-actions-bar">
+                    <button type="submit" class="submit-btn-primary">
+                        <i class="fa-solid fa-paper-plane"></i> Publish Announcement
+                    </button>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <!-- NEWS TABLE -->
+    <section class="panel-card">
+        <div class="panel-header">
+            <span><i class="fa-solid fa-list-check"></i> Published News Announcements ({{ news_list|length }})</span>
+        </div>
+        <div class="panel-body table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Title &amp; Badge</th>
+                        <th>Shows in Ticker</th>
+                        <th>Status</th>
+                        <th>Date Published</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in news_list %}
+                    <tr>
+                        <td>
+                            <strong>{{ item.title }}</strong>
+                            <span class="badge-status-chip bs-info" style="margin-left:5px;">{{ item.badge_label }}</span>
+                            {% if item.content %}<div style="font-size:11.5px; color:#5a7494; margin-top:2px;">{{ item.content|truncatechars:70 }}</div>{% endif %}
+                        </td>
+                        <td>
+                            {% if item.is_ticker %}
+                            <span class="badge-status-chip bs-active"><i class="fa-solid fa-check"></i> Ticker</span>
+                            {% else %}
+                            <span class="badge-status-chip bs-inactive">List Only</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if item.is_active %}
+                            <span class="badge-status-chip bs-active">Live</span>
+                            {% else %}
+                            <span class="badge-status-chip bs-inactive">Inactive</span>
+                            {% endif %}
+                        </td>
+                        <td style="white-space:nowrap; font-size:12px;">{{ item.created_at|date:"d M Y, h:i A" }}</td>
+                        <td style="white-space:nowrap;">
+                            <form method="post" action="{% url 'admin_settings' %}?tab=news" style="display:inline;">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="toggle_news">
+                                <input type="hidden" name="news_id" value="{{ item.id }}">
+                                <button type="submit" class="btn-action-sm {% if item.is_active %}btn-toggle-off{% else %}btn-toggle-on{% endif %}">
+                                    {% if item.is_active %}Deactivate{% else %}Activate{% endif %}
+                                </button>
+                            </form>
+                            <form method="post" action="{% url 'admin_settings' %}?tab=news" style="display:inline;" onsubmit="return confirm('Delete this announcement?');">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="delete_news">
+                                <input type="hidden" name="news_id" value="{{ item.id }}">
+                                <button type="submit" class="btn-action-sm btn-delete">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" style="text-align:center; color:#5a7494; padding:20px;">
+                            No announcements created yet. Add one above to display on base.html.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>
+{% endif %}
+
+<!-- ========================================================
+     TAB 2: OPERATION & MAINTENANCE NOTIFICATIONS
+======================================================== -->
+{% if active_tab == 'notifications' or active_tab == 'all' %}
+<div class="section-order-title" style="margin-top:20px;">
+    <h3><i class="fa-solid fa-triangle-exclamation"></i> Operation &amp; Maintenance Notifications on base.html</h3>
+</div>
+
+<div class="settings-grid">
+    <!-- BROADCAST NOTIFICATION FORM -->
+    <section class="panel-card">
+        <div class="panel-header">
+            <span><i class="fa-solid fa-bullhorn"></i> Broadcast Operation &amp; Maintenance Notice</span>
+        </div>
+        <div class="panel-body">
+            <form method="post" action="{% url 'admin_settings' %}?tab=notifications">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="add_notification">
+
+                <div class="form-group">
+                    <label for="noteTitle">Notice / Alert Title <span class="req-star">*</span></label>
+                    <input type="text" id="noteTitle" name="title" class="form-control" placeholder="e.g. Feeder T-01 Transformer Maintenance Outage" required>
+                </div>
+
+                <div class="form-col-2">
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label for="noteCategory">Category <span class="req-star">*</span></label>
+                        <select id="noteCategory" name="category" class="form-control" required>
+                            {% for code, label in category_choices %}
+                            <option value="{{ code }}">{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label for="noteSeverity">Severity Level <span class="req-star">*</span></label>
+                        <select id="noteSeverity" name="severity" class="form-control" required>
+                            {% for code, label in severity_choices %}
+                            <option value="{{ code }}" {% if code == 'warning' %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-col-2">
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label for="noteTransformer">Related Feeder / Transformer</label>
+                        <select id="noteTransformer" name="transformer_id" class="form-control">
+                            <option value="">-- All Grid / Not Feeder-Specific --</option>
+                            {% for tf in transformers %}
+                            <option value="{{ tf.id }}">{{ tf.code }} - {{ tf.name }} ({{ tf.zone }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label for="noteAreas">Affected Areas / Zone</label>
+                        <input type="text" id="noteAreas" name="affected_areas" class="form-control" placeholder="e.g. North Zone, Sectors 1 to 4">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="noteMessage">Full Notice Message <span class="req-star">*</span></label>
+                    <textarea id="noteMessage" name="message" class="form-control" rows="3" placeholder="Power outage expected from 14:00 to 17:00 due to scheduled line maintenance..." required></textarea>
+                </div>
+
+                <div class="form-check-card">
+                    <label class="form-check-item">
+                        <input type="checkbox" id="noteActive" name="is_active" value="1" checked>
+                        <span>Broadcast to base.html immediately (Active Bulletin)</span>
+                    </label>
+                </div>
+
+                <div class="form-actions-bar">
+                    <button type="submit" class="submit-btn-primary">
+                        <i class="fa-solid fa-tower-broadcast"></i> Broadcast Alert to base.html
+                    </button>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <!-- NOTIFICATIONS TABLE -->
+    <section class="panel-card">
+        <div class="panel-header">
+            <span><i class="fa-solid fa-bell"></i> Active &amp; Logged Operation Alerts ({{ notifications_list|length }})</span>
+        </div>
+        <div class="panel-body table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Category &amp; Title</th>
+                        <th>Severity</th>
+                        <th>Feeder / Area</th>
+                        <th>Status</th>
+                        <th>Broadcast Time</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for note in notifications_list %}
+                    <tr>
+                        <td>
+                            <span class="badge-status-chip bs-info">{{ note.get_category_display }}</span>
+                            <div style="font-weight:800; color:#0f172a; margin-top:3px;">{{ note.title }}</div>
+                            <div style="font-size:11.5px; color:#5a7494;">{{ note.message|truncatechars:65 }}</div>
+                        </td>
+                        <td>
+                            {% if note.severity == 'critical' %}
+                            <span class="badge-status-chip bs-critical">Critical</span>
+                            {% elif note.severity == 'warning' %}
+                            <span class="badge-status-chip bs-warning">Warning</span>
+                            {% else %}
+                            <span class="badge-status-chip bs-info">Info</span>
+                            {% endif %}
+                        </td>
+                        <td style="font-size:12px;">
+                            {% if note.related_transformer %}<strong>{{ note.related_transformer.code }}</strong><br>{% endif %}
+                            {{ note.affected_areas|default:"All Areas" }}
+                        </td>
+                        <td>
+                            {% if note.is_active %}
+                            <span class="badge-status-chip bs-active">Broadcasting</span>
+                            {% else %}
+                            <span class="badge-status-chip bs-inactive">Paused</span>
+                            {% endif %}
+                        </td>
+                        <td style="white-space:nowrap; font-size:12px;">{{ note.created_at|date:"d M Y, h:i A" }}</td>
+                        <td style="white-space:nowrap;">
+                            <form method="post" action="{% url 'admin_settings' %}?tab=notifications" style="display:inline;">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="toggle_notification">
+                                <input type="hidden" name="notification_id" value="{{ note.id }}">
+                                <button type="submit" class="btn-action-sm {% if note.is_active %}btn-toggle-off{% else %}btn-toggle-on{% endif %}">
+                                    {% if note.is_active %}Stop{% else %}Broadcast{% endif %}
+                                </button>
+                            </form>
+                            <form method="post" action="{% url 'admin_settings' %}?tab=notifications" style="display:inline;" onsubmit="return confirm('Remove this notification?');">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="delete_notification">
+                                <input type="hidden" name="notification_id" value="{{ note.id }}">
+                                <button type="submit" class="btn-action-sm btn-delete">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" style="text-align:center; color:#5a7494; padding:20px;">
+                            No operation or maintenance notifications active.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>
+{% endif %}
+
+<!-- ========================================================
+     TAB: HERO BACKGROUND IMAGE & VIDEO UPDATE (base.html)
+======================================================== -->
+{% if active_tab == 'media' or active_tab == 'all' %}
+<div class="section-order-title" style="margin-top:20px;">
+    <h3><i class="fa-solid fa-photo-film"></i> Hero Background Image &amp; Voice Agent Video on base.html</h3>
+</div>
+
+<div class="settings-grid">
+    <!-- UPDATE FORM -->
+    <section class="panel-card">
+        <div class="panel-header">
+            <span><i class="fa-solid fa-cloud-arrow-up"></i> Update base.html Background &amp; Video</span>
+        </div>
+        <div class="panel-body">
+            <form method="post" action="{% url 'admin_settings' %}?tab=media" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="save_media">
+
+                <!-- 1. BACKGROUND IMAGE -->
+                <div class="form-col-2">
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label for="bgImageUpload"><i class="fa-solid fa-upload"></i> Upload Background Image</label>
+                        <input type="file" id="bgImageUpload" name="hero_bg_image" accept="image/*" class="form-control file-input-control">
+                        <span class="help-hint">Upload PNG, JPG, or WebP from PC</span>
+                    </div>
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label for="bgImageUrl"><i class="fa-solid fa-link"></i> OR Image URL / Static Path</label>
+                        <input type="text" id="bgImageUrl" name="hero_bg_image_url" class="form-control" value="{{ site_media.hero_bg_image_url }}" placeholder="/static/images/electricity-grid-background.png">
+                        <div class="preset-pill-row">
+                            <button type="button" class="preset-pill" onclick="document.getElementById('bgImageUrl').value='/static/images/electricity-grid-background.png'">Default Grid Sunset</button>
+                        </div>
+                    </div>
+                </div>
+
+                <hr style="border:0; border-top:1px solid #e2edf8; margin:16px 0;">
+
+                <!-- 2. HERO VIDEO -->
+                <div class="form-col-2">
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label for="videoUpload"><i class="fa-solid fa-upload"></i> Upload Hero Video</label>
+                        <input type="file" id="videoUpload" name="hero_video" accept="video/mp4,video/webm" class="form-control file-input-control">
+                        <span class="help-hint">Upload MP4 or WebM video file</span>
+                    </div>
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label for="videoUrl"><i class="fa-solid fa-link"></i> OR Video URL / Static Path</label>
+                        <input type="text" id="videoUrl" name="hero_video_url" class="form-control" value="{{ site_media.hero_video_url }}" placeholder="/static/videos/ai-electricity-voice-agent.mp4">
+                        <div class="preset-pill-row">
+                            <button type="button" class="preset-pill" onclick="document.getElementById('videoUrl').value='/static/videos/ai-electricity-voice-agent.mp4'">Agent Video 1 (Default)</button>
+                            <button type="button" class="preset-pill" onclick="document.getElementById('videoUrl').value='/static/videos/ai-electricity-voice-agent1.mp4'">Agent Video 2 (Alternative)</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-top:6px;">
+                    <label for="posterUrl"><i class="fa-solid fa-image"></i> Video Poster Thumbnail (Optional)</label>
+                    <input type="text" id="posterUrl" name="hero_video_poster_url" class="form-control" value="{{ site_media.hero_video_poster_url }}" placeholder="/static/images/electricity-grid-background.png">
+                </div>
+
+                <hr style="border:0; border-top:1px solid #e2edf8; margin:16px 0;">
+
+                <!-- 3. HERO HEADINGS OVERRIDE -->
+                <div class="form-col-2">
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label for="heroHeading">Hero Title Override (Optional)</label>
+                        <input type="text" id="heroHeading" name="hero_heading" class="form-control" value="{{ site_media.hero_heading }}" placeholder="Leave blank for default DISCOM title">
+                    </div>
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label for="heroSubheading">Hero Subtitle Override (Optional)</label>
+                        <input type="text" id="heroSubheading" name="hero_subheading" class="form-control" value="{{ site_media.hero_subheading }}" placeholder="Leave blank for standard greeting text">
+                    </div>
+                </div>
+
+                <div class="form-actions-bar">
+                    <button type="submit" class="submit-btn-primary">
+                        <i class="fa-solid fa-floppy-disk"></i> Save &amp; Update base.html
+                    </button>
+                    <button type="submit" form="resetMediaForm" class="btn-action-sm btn-delete" style="height:40px; padding:0 14px;">
+                        <i class="fa-solid fa-rotate-left"></i> Reset to Defaults
+                    </button>
+                </div>
+            </form>
+            <form id="resetMediaForm" method="post" action="{% url 'admin_settings' %}?tab=media" style="display:none;" onsubmit="return confirm('Reset background image and video back to original DISCOM defaults?');">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="reset_media">
+            </form>
+        </div>
+    </section>
+
+    <!-- LIVE PREVIEW CARD -->
+    <section class="panel-card">
+        <div class="panel-header">
+            <span><i class="fa-solid fa-eye"></i> Active Media Live Preview</span>
+            <a href="{% url 'home' %}" target="_blank" style="font-size:12px; color:#07549a; text-decoration:underline; font-weight:700;">
+                View on Public Site <i class="fa-solid fa-arrow-up-right-from-square"></i>
+            </a>
+        </div>
+        <div class="panel-body">
+            <!-- BACKGROUND PREVIEW -->
+            <div style="margin-bottom:18px;">
+                <div style="font-size:12px; font-weight:800; color:#102b4c; margin-bottom:6px;">Current Background Image:</div>
+                <div style="border-radius:10px; overflow:hidden; border:1.5px solid #cbdcf0; height:180px; position:relative; background-image:linear-gradient(90deg, rgba(255,255,255,.48) 0%, rgba(255,255,255,.2) 60%), url('{{ site_media.effective_bg_image_url }}'); background-size:cover; background-position:center; display:flex; align-items:center; padding:18px;">
+                    <div style="background:rgba(255,255,255,0.9); padding:10px 14px; border-radius:8px; font-weight:800; font-size:13px; color:#082f66; box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+                        {{ site_media.hero_heading|default:"Electricity Department AI Voice Agent" }}
+                    </div>
+                </div>
+                <div style="font-size:11.5px; color:#5a7494; margin-top:5px; word-break:break-all;">
+                    URL: <code>{{ site_media.effective_bg_image_url }}</code>
+                </div>
+            </div>
+
+            <!-- VIDEO PREVIEW -->
+            <div>
+                <div style="font-size:12px; font-weight:800; color:#102b4c; margin-bottom:6px;">Current Hero Video:</div>
+                <div style="border-radius:10px; overflow:hidden; border:1.5px solid #cbdcf0; background:#000;">
+                    <video controls style="width:100%; max-height:220px; display:block;" poster="{{ site_media.effective_poster_url }}">
+                        <source src="{{ site_media.effective_video_url }}" type="video/mp4">
+                        Your browser does not support HTML5 video.
+                    </video>
+                </div>
+                <div style="font-size:11.5px; color:#5a7494; margin-top:5px; word-break:break-all;">
+                    URL: <code>{{ site_media.effective_video_url }}</code>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+{% endif %}
+
+<!-- ========================================================
+     TAB 3: AI & LLM CONFIGURATIONS
+======================================================== -->
+{% if active_tab == 'llm' or active_tab == 'all' %}
+<div class="section-order-title" style="margin-top:20px;">
+    <h3><i class="fa-solid fa-brain"></i> Database-Configured AI &amp; LLM Settings</h3>
+</div>
+
+<!-- ACTIVE DEFAULT LLM STRIP -->
+<div class="active-llm-banner">
+    <div class="active-llm-meta">
+        <h4><i class="fa-solid fa-circle-check" style="color:#4ade80;"></i> Active Default LLM: {{ active_default_llm.name }}</h4>
+        <p>
+            Provider: <strong>{{ active_default_llm.get_provider_display }}</strong> &bull;
+            Model: <strong>{{ active_default_llm.model_name }}</strong> &bull;
+            API Key: <strong>{{ active_default_llm.masked_api_key }}</strong> &bull;
+            Temperature: <strong>{{ active_default_llm.temperature }}</strong> &bull;
+            Max Tokens: <strong>{{ active_default_llm.max_tokens }}</strong>
+        </p>
+    </div>
+    <form method="post" action="{% url 'admin_settings' %}?tab=llm" style="margin:0;">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="test_llm">
+        <input type="hidden" name="config_id" value="{{ active_default_llm.id }}">
+        <button type="submit" class="submit-btn-primary" style="background:#ffffff; color:#06417f; font-weight:800;">
+            <i class="fa-solid fa-bolt"></i> Test Default Connection
+        </button>
+    </form>
+</div>
+
+<div class="settings-grid">
+    <!-- ADD / EDIT LLM CONFIG FORM -->
+    <section class="panel-card">
+        <div class="panel-header">
+            <span><i class="fa-solid fa-gear"></i> Configure New / Edit LLM in Database</span>
+        </div>
+        <div class="panel-body">
+            <!-- QUICK MODEL PRESETS -->
+            <label style="font-size:11.5px; font-weight:800; color:#102b4c; margin-bottom:6px; display:block;">Quick Presets:</label>
+            <div class="preset-pill-row">
+                <button type="button" class="preset-pill" onclick="applyPreset('Google Gemini 1.5 Flash', 'gemini', 'gemini-1.5-flash', '')">Gemini 1.5 Flash</button>
+                <button type="button" class="preset-pill" onclick="applyPreset('Google Gemini 1.5 Pro', 'gemini', 'gemini-1.5-pro', '')">Gemini 1.5 Pro</button>
+                <button type="button" class="preset-pill" onclick="applyPreset('OpenAI GPT-4o-mini', 'openai', 'gpt-4o-mini', '')">OpenAI GPT-4o-mini</button>
+                <button type="button" class="preset-pill" onclick="applyPreset('Groq Llama 3.1 70B', 'groq', 'llama-3.1-70b-versatile', '')">Groq Llama 3.1 70B</button>
+                <button type="button" class="preset-pill" onclick="applyPreset('Local Ollama Mistral', 'ollama', 'mistral', 'http://localhost:11434')">Local Ollama</button>
+            </div>
+
+            <form method="post" action="{% url 'admin_settings' %}?tab=llm" id="llmConfigForm">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="save_llm">
+                <input type="hidden" id="llmConfigId" name="config_id" value="">
+
+                <div class="form-group">
+                    <label for="llmName">Configuration Name <span class="req-star">*</span></label>
+                    <input type="text" id="llmName" name="name" class="form-control" placeholder="e.g. Production Gemini 1.5 Flash" required>
+                </div>
+
+                <div class="form-col-2">
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label for="llmProvider">LLM Provider <span class="req-star">*</span></label>
+                        <select id="llmProvider" name="provider" class="form-control" required>
+                            {% for code, label in provider_choices %}
+                            <option value="{{ code }}">{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label for="llmModel">Model Name / Identifier <span class="req-star">*</span></label>
+                        <input type="text" id="llmModel" name="model_name" class="form-control" value="gemini-1.5-flash" placeholder="e.g. gemini-1.5-flash, gpt-4o-mini" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="llmApiKey">API Key</label>
+                    <div style="display:flex; gap:8px;">
+                        <input type="password" id="llmApiKey" name="api_key" class="form-control" placeholder="Paste your API key here (saved directly in database)">
+                        <button type="button" class="btn-action-sm btn-test" onclick="toggleApiKeyVisibility()" style="height:40px; padding:0 14px; flex-shrink:0;">
+                            <i class="fa-solid fa-eye" id="apiKeyEye"></i>
+                        </button>
+                    </div>
+                    <span class="help-hint"><i class="fa-solid fa-shield-halved"></i> Stored securely in database. Eliminates need for .env variables.</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="llmEndpoint">Custom Endpoint / API URL (Optional)</label>
+                    <input type="text" id="llmEndpoint" name="api_url" class="form-control" placeholder="e.g. http://localhost:11434 for Ollama or custom gateway">
+                    <span class="help-hint">Leave blank for standard provider cloud endpoints</span>
+                </div>
+
+                <div class="form-col-2">
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label for="llmTemperature">Temperature (0.00 - 1.00)</label>
+                        <input type="number" id="llmTemperature" name="temperature" class="form-control" step="0.05" min="0" max="1" value="0.70">
+                    </div>
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label for="llmMaxTokens">Max Tokens</label>
+                        <input type="number" id="llmMaxTokens" name="max_tokens" class="form-control" min="64" max="8192" value="1024">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="llmSystemPrompt">System Prompt</label>
+                    <textarea id="llmSystemPrompt" name="system_prompt" class="form-control" rows="3">You are an intelligent, courteous AI voice and chat assistant for the Electricity Department / DISCOM.</textarea>
+                </div>
+
+                <div class="form-check-card">
+                    <label class="form-check-item">
+                        <input type="checkbox" id="llmIsDefault" name="is_default" value="1" checked>
+                        <span>Set as Active Default Configuration</span>
+                    </label>
+                    <label class="form-check-item">
+                        <input type="checkbox" id="llmIsActive" name="is_active" value="1" checked>
+                        <span>Configuration is Active</span>
+                    </label>
+                </div>
+
+                <div class="form-actions-bar">
+                    <button type="submit" class="submit-btn-primary">
+                        <i class="fa-solid fa-database"></i> Save in Database
+                    </button>
+                    <button type="button" class="btn-action-sm btn-test" onclick="resetLlmForm()" style="height:40px; padding:0 14px;">
+                        Clear Form
+                    </button>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <!-- SAVED LLM CONFIGURATIONS TABLE -->
+    <section class="panel-card">
+        <div class="panel-header">
+            <span><i class="fa-solid fa-server"></i> Saved Database Configurations ({{ llm_configs|length }})</span>
+        </div>
+        <div class="panel-body table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Configuration &amp; Model</th>
+                        <th>API Key</th>
+                        <th>Params</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cfg in llm_configs %}
+                    <tr>
+                        <td>
+                            <strong>{{ cfg.name }}</strong>
+                            {% if cfg.is_default %}
+                            <span class="badge-status-chip bs-default"><i class="fa-solid fa-star"></i> Default</span>
+                            {% endif %}
+                            <div style="font-size:12px; color:#07549a; font-weight:700; margin-top:2px;">
+                                {{ cfg.get_provider_display }} &bull; {{ cfg.model_name }}
+                            </div>
+                            {% if cfg.api_url %}
+                            <div style="font-size:11px; color:#64748b;">Endpoint: {{ cfg.api_url }}</div>
+                            {% endif %}
+                        </td>
+                        <td style="font-family:monospace; font-size:11.5px; color:#475569;">
+                            {{ cfg.masked_api_key }}
+                        </td>
+                        <td style="font-size:11.5px; color:#334155;">
+                            Temp: {{ cfg.temperature }}<br>
+                            Tokens: {{ cfg.max_tokens }}
+                        </td>
+                        <td>
+                            {% if cfg.is_active %}
+                            <span class="badge-status-chip bs-active">Active</span>
+                            {% else %}
+                            <span class="badge-status-chip bs-inactive">Disabled</span>
+                            {% endif %}
+                        </td>
+                        <td style="white-space:nowrap;">
+                            <form method="post" action="{% url 'admin_settings' %}?tab=llm" style="display:inline;">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="test_llm">
+                                <input type="hidden" name="config_id" value="{{ cfg.id }}">
+                                <button type="submit" class="btn-action-sm btn-test" title="Test Connection">
+                                    <i class="fa-solid fa-bolt"></i> Test
+                                </button>
+                            </form>
+
+                            {% if not cfg.is_default %}
+                            <form method="post" action="{% url 'admin_settings' %}?tab=llm" style="display:inline;">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="set_default_llm">
+                                <input type="hidden" name="config_id" value="{{ cfg.id }}">
+                                <button type="submit" class="btn-action-sm btn-default" title="Set as Active Default">
+                                    <i class="fa-solid fa-star"></i> Default
+                                </button>
+                            </form>
+                            {% endif %}
+
+                            <button type="button" class="btn-action-sm btn-test" onclick="populateEditForm({{ cfg.id }}, '{{ cfg.name|escapejs }}', '{{ cfg.provider|escapejs }}', '{{ cfg.model_name|escapejs }}', '{{ cfg.api_url|escapejs }}', '{{ cfg.temperature }}', '{{ cfg.max_tokens }}', '{{ cfg.is_default|yesno:'1,0' }}', '{{ cfg.is_active|yesno:'1,0' }}')">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </button>
+
+                            {% if not cfg.is_default %}
+                            <form method="post" action="{% url 'admin_settings' %}?tab=llm" style="display:inline;" onsubmit="return confirm('Delete this LLM configuration?');">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="delete_llm">
+                                <input type="hidden" name="config_id" value="{{ cfg.id }}">
+                                <button type="submit" class="btn-action-sm btn-delete">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" style="text-align:center; color:#5a7494; padding:20px;">
+                            No configurations in database.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>
+{% endif %}
+
+<script>
+    function toggleApiKeyVisibility() {
+        var inp = document.getElementById('llmApiKey');
+        var eye = document.getElementById('apiKeyEye');
+        if (inp.type === 'password') {
+            inp.type = 'text';
+            eye.className = 'fa-solid fa-eye-slash';
+        } else {
+            inp.type = 'password';
+            eye.className = 'fa-solid fa-eye';
+        }
+    }
+
+    function applyPreset(name, provider, model, endpoint) {
+        document.getElementById('llmName').value = name;
+        document.getElementById('llmProvider').value = provider;
+        document.getElementById('llmModel').value = model;
+        document.getElementById('llmEndpoint').value = endpoint;
+        document.getElementById('llmConfigId').value = '';
+    }
+
+    function populateEditForm(id, name, provider, model, endpoint, temp, tokens, isDef, isAct) {
+        document.getElementById('llmConfigId').value = id;
+        document.getElementById('llmName').value = name;
+        document.getElementById('llmProvider').value = provider;
+        document.getElementById('llmModel').value = model;
+        document.getElementById('llmEndpoint').value = endpoint;
+        document.getElementById('llmTemperature').value = temp;
+        document.getElementById('llmMaxTokens').value = tokens;
+        document.getElementById('llmIsDefault').checked = (isDef === '1');
+        document.getElementById('llmIsActive').checked = (isAct === '1');
+        window.scrollTo({ top: document.getElementById('llmConfigForm').offsetTop - 60, behavior: 'smooth' });
+    }
+
+    function resetLlmForm() {
+        document.getElementById('llmConfigForm').reset();
+        document.getElementById('llmConfigId').value = '';
+    }
+</script>
+{% endblock %}

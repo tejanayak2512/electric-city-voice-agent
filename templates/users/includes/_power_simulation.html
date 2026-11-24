@@ -1,0 +1,1585 @@
+<!-- DYNAMIC DOMESTIC / COMMERCIAL SIMULATION PANEL -->
+<section class="house-sim-panel" id="houseSimPanel">
+    <div class="house-sim-header">
+        <div class="house-sim-title">
+            <i class="fa-solid {% if is_commercial %}fa-industry{% else %}fa-house-signal{% endif %}"></i>
+            <span>
+                {% if is_commercial %}
+                    Commercial Facility Simulation &mdash; {{ connection.industry_type }}
+                {% else %}
+                    Domestic House Power &amp; Smart Appliances Simulation
+                {% endif %}
+            </span>
+        </div>
+
+        <div class="sim-badges">
+            <span class="sim-pill type">
+                <i class="fa-solid {% if is_commercial %}fa-building{% else %}fa-house{% endif %}"></i>
+                {% if is_commercial %}Commercial: {{ connection.industry_type }}{% else %}Domestic House{% endif %}
+            </span>
+
+            <span id="transformerGridBadge"
+                  class="sim-pill {% if not is_connected %}off{% elif transformer_power_on %}on{% else %}off{% endif %}">
+                <i class="fa-solid {% if is_connected and transformer_power_on %}fa-bolt{% else %}fa-plug-circle-xmark{% endif %}"></i>
+                <span id="transformerGridBadgeText">
+                    {% if not is_connected %}
+                        Transformer Supply: Not Connected
+                    {% elif transformer_power_on %}
+                        {{ connection.transformer.code }} Supply: ON
+                    {% else %}
+                        {{ connection.transformer.code }} Supply: OFF
+                    {% endif %}
+                </span>
+            </span>
+
+            <span id="houseEffectiveBadge"
+                  class="sim-pill {% if not is_connected or individual_power_cut or prepaid_units_exhausted %}off{% elif effective_power_on %}on{% elif transformer_power_on %}standby{% else %}off{% endif %}">
+                <i class="fa-solid fa-fan"></i>
+                <span id="houseEffectiveBadgeText">
+                    {% if not is_connected %}
+                        Power Not Connected
+                    {% elif individual_power_cut %}
+                        Individual Power Cut
+                    {% elif prepaid_units_exhausted %}
+                        Prepaid Units Exhausted
+                    {% elif effective_power_on %}
+                        {% if is_commercial %}Facility Power: ACTIVE{% else %}House Power: ACTIVE{% endif %}
+                    {% elif transformer_power_on %}
+                        Main Switch: OFF
+                    {% else %}
+                        Power Cut (No Supply)
+                    {% endif %}
+                </span>
+            </span>
+
+            <span class="sim-pill load">
+                <i class="fa-solid fa-gauge"></i>
+                Load: <span id="liveWattageBadge">{{ appliance_telemetry.active_watts|default:0 }} W</span>
+            </span>
+        </div>
+    </div>
+
+    <div class="house-sim-grid">
+
+        <div id="houseStage"
+             class="house-stage {% if is_connected %}conn-active{% endif %} {% if transformer_power_on %}grid-on{% endif %} {% if effective_power_on %}house-energized{% endif %}">
+
+            {% if is_commercial %}
+            <!-- ================= COMMERCIAL / INDUSTRIAL FACILITY SVG ================= -->
+            <svg id="commercialSvg" viewBox="0 0 860 390" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Commercial Industrial Power Simulation">
+                <defs>
+                    <linearGradient id="commSky" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="#051121" />
+                        <stop offset="70%" stop-color="#10294a" />
+                        <stop offset="100%" stop-color="#1b3e6b" />
+                    </linearGradient>
+                    <linearGradient id="commSteel" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="#334155" />
+                        <stop offset="100%" stop-color="#1e293b" />
+                    </linearGradient>
+                    <linearGradient id="commCone" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.38" />
+                        <stop offset="100%" stop-color="#38bdf8" stop-opacity="0" />
+                    </linearGradient>
+                    <linearGradient id="scadaGrad" x1="0" y1="0" x2="1" y2="1">
+                        <stop offset="0%" stop-color="#0284c7" />
+                        <stop offset="100%" stop-color="#22c55e" />
+                    </linearGradient>
+                </defs>
+
+                <rect x="0" y="0" width="860" height="330" fill="url(#commSky)" />
+                <rect x="0" y="330" width="860" height="60" fill="#0f172a" />
+                <rect x="0" y="330" width="860" height="6" fill="#475569" />
+
+                <!-- 3-PHASE POLE -->
+                <g>
+                    <rect x="46" y="76" width="16" height="258" rx="3" fill="#475569" stroke="#94a3b8" />
+                    <rect x="20" y="96" width="68" height="8" rx="2" fill="#94a3b8" />
+                    <rect x="28" y="86" width="8" height="10" rx="2" fill="#b45309" />
+                    <rect x="50" y="86" width="8" height="10" rx="2" fill="#b45309" />
+                    <rect x="72" y="86" width="8" height="10" rx="2" fill="#b45309" />
+                    <text id="svgPoleLabel" x="54" y="66" fill="#93c5fd" font-size="9.5" font-weight="800" text-anchor="middle">
+                        {% if is_connected %}FROM {{ connection.transformer.code }}{% else %}NO LINK{% endif %}
+                    </text>
+                </g>
+
+                <path d="M 76 92 Q 124 142 164 152" class="service-drop-wire" />
+                <path d="M 76 92 Q 124 142 164 152" class="grid-wire-flow" />
+
+                <!-- INDUSTRIAL COMPLEX ROOF & SHELL -->
+                <polygon points="176,128 176,82 296,128 296,82 416,128 416,82 536,128 536,82 656,128 814,128" fill="url(#commSteel)" stroke="#64748b" stroke-width="2" />
+                <rect x="176" y="128" width="638" height="202" fill="#0f2137" stroke="#64748b" stroke-width="2.5" />
+                <rect x="222" y="96" width="548" height="26" rx="4" fill="#082f66" stroke="#38bdf8" stroke-width="1.5" />
+                <text x="496" y="114" fill="#fde047" font-size="11.5" font-weight="800" text-anchor="middle">
+                    COMMERCIAL: {{ connection.industry_type|upper }}
+                </text>
+
+                <!-- 3-PHASE CT SMART METER -->
+                <rect x="146" y="148" width="46" height="62" rx="5" fill="#0f172a" stroke="#94a3b8" stroke-width="2" />
+                <rect x="153" y="156" width="32" height="24" rx="2" fill="#052e16" stroke="#334155" />
+                <text id="svgMeterVolt" x="169" y="167" fill="{% if is_connected and transformer_power_on %}#4ade80{% else %}#f87171{% endif %}" font-size="7.5" font-weight="800" text-anchor="middle">
+                    {% if is_connected and transformer_power_on %}415V{% else %}0V{% endif %}
+                </text>
+                <text id="svgMeterLoad" x="169" y="176" fill="#38bdf8" font-size="7" font-weight="700" text-anchor="middle">
+                    {% if effective_power_on %}5500W{% elif is_connected %}0W{% else %}NO MTR{% endif %}
+                </text>
+                <circle id="meterLed" cx="169" cy="196" r="4.5" fill="{% if is_connected and transformer_power_on %}#22c55e{% else %}#ef4444{% endif %}" />
+                <text id="svgMeterLabel" x="169" y="222" fill="#cbd5e1" font-size="7.5" font-weight="800" text-anchor="middle">
+                    {% if connection.meter_number %}{{ connection.meter_number }}{% else %}CT METER{% endif %}
+                </text>
+
+                <!-- INDUSTRIAL ZONES -->
+                <rect id="livingRoomBg" x="202" y="142" width="278" height="182" rx="3" class="room-bg {% if effective_power_on %}lit{% endif %}" />
+                <text x="341" y="158" fill="#93c5fd" font-size="10.5" font-weight="800" text-anchor="middle">OPERATIONS FLOOR</text>
+
+                <rect id="kitchenBg" x="486" y="142" width="144" height="182" rx="3" class="room-bg {% if effective_power_on %}lit{% endif %}" />
+                <text x="558" y="158" fill="#93c5fd" font-size="10.5" font-weight="800" text-anchor="middle">PLANT &amp; COOLING</text>
+
+                <rect id="bedroomBg" x="636" y="142" width="166" height="182" rx="3" class="room-bg {% if effective_power_on %}lit{% endif %}" />
+                <text x="719" y="158" fill="#93c5fd" font-size="10.5" font-weight="800" text-anchor="middle">CONTROL &amp; HVAC</text>
+
+                <!-- MAIN SWITCHGEAR -->
+                <rect x="206" y="218" width="24" height="40" rx="3" fill="#1e293b" stroke="#64748b" />
+                <text x="218" y="232" fill="#cbd5e1" font-size="6.5" font-weight="800" text-anchor="middle">MCCB</text>
+                <circle id="breakerLed" cx="218" cy="246" r="4" fill="{% if effective_power_on %}#22c55e{% else %}#ef4444{% endif %}" />
+
+                <!-- INDUSTRIAL CONDUITS -->
+                <g stroke="#293a52" stroke-width="3.5" fill="none">
+                    <path d="M 192 178 L 218 178 L 218 218 L 218 142 L 762 142" />
+                    <line x1="274" y1="142" x2="274" y2="174" />
+                    <line x1="348" y1="142" x2="348" y2="188" />
+                    <line x1="428" y1="142" x2="428" y2="232" />
+                    <line x1="558" y1="142" x2="558" y2="206" />
+                    <line x1="686" y1="142" x2="686" y2="188" />
+                    <line x1="762" y1="142" x2="762" y2="174" />
+                </g>
+
+                <path id="flowMainBus" d="M 192 178 L 218 178 L 218 218 L 218 142 L 762 142" class="branch-flow {% if effective_power_on %}active{% endif %}" />
+                <line id="flowLights" x1="274" y1="142" x2="274" y2="174" class="branch-flow {% if effective_power_on %}active{% endif %}" />
+                <line id="flowFan1" x1="348" y1="142" x2="348" y2="188" class="branch-flow {% if effective_power_on %}active{% endif %}" />
+                <line id="flowTv" x1="428" y1="142" x2="428" y2="232" class="branch-flow {% if effective_power_on %}active{% endif %}" />
+                <line id="flowFridge" x1="558" y1="142" x2="558" y2="206" class="branch-flow {% if effective_power_on %}active{% endif %}" />
+                <line id="flowFan2" x1="686" y1="142" x2="686" y2="188" class="branch-flow {% if effective_power_on %}active{% endif %}" />
+                <line id="flowAc" x1="762" y1="142" x2="762" y2="174" class="branch-flow {% if effective_power_on %}active{% endif %}" />
+
+                <!-- HIGH-BAY LIGHTS -->
+                <polygon id="livingLightCone" points="274,178 216,318 332,318" fill="url(#commCone)" class="light-cone {% if effective_power_on %}lit{% endif %}" />
+                <rect x="260" y="170" width="28" height="8" rx="2" fill="#475569" />
+                <circle id="livingBulbCore" cx="274" cy="180" r="6" class="bulb-glass {% if effective_power_on %}lit{% endif %}" />
+
+                <polygon id="bedLightCone" points="656,178 616,318 696,318" fill="url(#commCone)" class="light-cone {% if effective_power_on %}lit{% endif %}" />
+                <circle id="bedBulbCore" cx="656" cy="180" r="6" class="bulb-glass {% if effective_power_on %}lit{% endif %}" />
+                <circle id="kitchenBulbCore" cx="558" cy="176" r="6" class="bulb-glass {% if effective_power_on %}lit{% endif %}" />
+
+                <!-- EXHAUST FAN 1 (OPERATIONS BAY) -->
+                <circle cx="348" cy="196" r="30" fill="#0f172a" stroke="#64748b" stroke-width="2" />
+                <g transform="translate(348, 196)">
+                    <g id="fan1Rotor" class="fan-rotor {% if effective_power_on %}spinning{% endif %}">
+                        <ellipse cx="0" cy="-16" rx="5" ry="13" fill="#e2e8f0" />
+                        <ellipse cx="14" cy="8" rx="5" ry="13" transform="rotate(120 14 8)" fill="#e2e8f0" />
+                        <ellipse cx="-14" cy="8" rx="5" ry="13" transform="rotate(-120 -14 8)" fill="#e2e8f0" />
+                    </g>
+                    <circle cx="0" cy="0" r="6" fill="#38bdf8" />
+                </g>
+                <g id="fan1Breeze" class="fan-breeze {% if effective_power_on %}active{% endif %}" stroke="#7dd3fc" stroke-width="2" fill="none">
+                    <path d="M 326 232 Q 348 240 370 232" />
+                </g>
+
+                <!-- CONTROL MONITOR / SCADA CONSOLE -->
+                <rect x="386" y="226" width="84" height="52" rx="4" fill="#0f172a" stroke="#475569" stroke-width="2" />
+                <g id="smartTvScreen" class="tv-screen-active {% if effective_power_on %}on{% endif %}">
+                    <rect x="392" y="232" width="72" height="40" rx="2" fill="url(#scadaGrad)" opacity="0.9" />
+                    <path d="M 398 256 L 414 244 L 428 258 L 444 238 L 458 250" stroke="#fde047" stroke-width="2.5" fill="none" />
+                </g>
+                <circle id="tvStandbyLed" cx="462" cy="272" r="2.2" fill="{% if effective_power_on %}#22c55e{% elif is_connected and transformer_power_on %}#ef4444{% else %}#1e293b{% endif %}" />
+                <rect x="384" y="282" width="88" height="38" rx="3" fill="#334155" />
+                <text x="428" y="305" fill="#cbd5e1" font-size="8" font-weight="800" text-anchor="middle">WORKSTATION</text>
+
+                <!-- INDUSTRY CORE PLANT UNIT -->
+                <rect x="502" y="204" width="112" height="114" rx="6" fill="#334155" stroke="#94a3b8" stroke-width="2" />
+                <rect x="514" y="216" width="88" height="44" rx="4" fill="#0f172a" stroke="#475569" />
+                <g id="fridgeActiveGlow" class="fridge-active-glow {% if effective_power_on %}on{% endif %}">
+                    <text x="558" y="236" fill="#38bdf8" font-size="9" font-weight="800" text-anchor="middle">PLANT ACTIVE</text>
+                    <rect x="524" y="244" width="68" height="6" rx="2" fill="#22c55e" />
+                </g>
+                <text x="558" y="294" fill="#e2e8f0" font-size="8.5" font-weight="800" text-anchor="middle">INDUSTRY LOAD</text>
+
+                <!-- EXHAUST FAN 2 (CONTROL BAY) -->
+                <circle cx="686" cy="196" r="26" fill="#0f172a" stroke="#64748b" stroke-width="2" />
+                <g transform="translate(686, 196)">
+                    <g id="fan2Rotor" class="fan-rotor {% if effective_power_on %}spinning{% endif %}">
+                        <ellipse cx="0" cy="-14" rx="4.5" ry="11" fill="#e2e8f0" />
+                        <ellipse cx="12" cy="7" rx="4.5" ry="11" transform="rotate(120 12 7)" fill="#e2e8f0" />
+                        <ellipse cx="-12" cy="7" rx="4.5" ry="11" transform="rotate(-120 -12 7)" fill="#e2e8f0" />
+                    </g>
+                    <circle cx="0" cy="0" r="5.5" fill="#38bdf8" />
+                </g>
+                <g id="fan2Breeze" class="fan-breeze {% if effective_power_on %}active{% endif %}" stroke="#7dd3fc" stroke-width="2" fill="none">
+                    <path d="M 668 228 Q 686 235 704 228" />
+                </g>
+
+                <!-- COMMERCIAL HVAC CHILLER -->
+                <rect x="722" y="170" width="72" height="28" rx="5" fill="#e2e8f0" stroke="#64748b" stroke-width="1.5" />
+                <rect x="762" y="176" width="24" height="11" rx="2" fill="#0f172a" />
+                <text id="acTempText" x="774" y="184" fill="{% if effective_power_on %}#38bdf8{% else %}#334155{% endif %}" font-size="7" font-weight="800" text-anchor="middle">
+                    {% if effective_power_on %}18°C{% else %}OFF{% endif %}
+                </text>
+                <line id="acLouver" x1="728" y1="196" x2="788" y2="196" stroke="#475569" stroke-width="3" class="ac-louver {% if effective_power_on %}open{% endif %}" />
+                <g id="acCoolAir" class="ac-air {% if effective_power_on %}active{% endif %}" stroke="#38bdf8" stroke-width="2" fill="none">
+                    <path d="M 738 206 Q 730 218 738 230" />
+                    <path d="M 758 206 Q 750 218 758 230" />
+                    <path d="M 778 206 Q 770 218 778 230" />
+                </g>
+
+                <rect id="livingWindow" x="220" y="256" width="82" height="44" rx="3" class="house-window-glass {% if effective_power_on %}lit{% endif %}" stroke="#64748b" />
+                <rect id="bedWindow" x="664" y="256" width="112" height="44" rx="3" class="house-window-glass {% if effective_power_on %}lit{% endif %}" stroke="#64748b" />
+                <g id="customAppliancesLayer"></g>
+            </svg>
+            {% else %}
+            <!-- ================= DOMESTIC HOUSE SVG ================= -->
+            <svg id="domesticSvg" viewBox="0 0 860 390" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Domestic House Power and Electronic Appliances Simulation">
+                <defs>
+                    <linearGradient id="nightSky" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="#051121" />
+                        <stop offset="68%" stop-color="#0e2648" />
+                        <stop offset="100%" stop-color="#173a66" />
+                    </linearGradient>
+                    <linearGradient id="roofTile" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="#7c2d12" />
+                        <stop offset="55%" stop-color="#9a3412" />
+                        <stop offset="100%" stop-color="#431407" />
+                    </linearGradient>
+                    <linearGradient id="warmCone" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="#fde047" stop-opacity="0.52" />
+                        <stop offset="100%" stop-color="#fde047" stop-opacity="0" />
+                    </linearGradient>
+                    <linearGradient id="tvBroadcast" x1="0" y1="0" x2="1" y2="1">
+                        <stop offset="0%" stop-color="#0ea5e9" />
+                        <stop offset="50%" stop-color="#6366f1" />
+                        <stop offset="100%" stop-color="#ec4899" />
+                    </linearGradient>
+                    <linearGradient id="steelFridge" x1="0" y1="0" x2="1" y2="0">
+                        <stop offset="0%" stop-color="#64748b" />
+                        <stop offset="35%" stop-color="#cbd5e1" />
+                        <stop offset="75%" stop-color="#94a3b8" />
+                        <stop offset="100%" stop-color="#475569" />
+                    </linearGradient>
+                    <linearGradient id="lawnGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="#14532d" />
+                        <stop offset="100%" stop-color="#052e16" />
+                    </linearGradient>
+                </defs>
+
+                <rect x="0" y="0" width="860" height="330" fill="url(#nightSky)" />
+                <rect x="0" y="330" width="860" height="60" fill="url(#lawnGrad)" />
+                <line x1="0" y1="330" x2="860" y2="330" stroke="#22c55e" stroke-opacity="0.3" stroke-width="2" />
+
+                <circle cx="95" cy="48" r="16" fill="#fef3c7" opacity="0.85" />
+                <circle cx="102" cy="44" r="14" fill="#07162c" />
+
+                <g>
+                    <rect x="48" y="88" width="14" height="246" rx="3" fill="#475569" stroke="#64748b" stroke-width="1" />
+                    <rect x="24" y="106" width="62" height="7" rx="2" fill="#94a3b8" />
+                    <rect x="30" y="96" width="8" height="10" rx="2" fill="#9a3412" />
+                    <rect x="72" y="96" width="8" height="10" rx="2" fill="#9a3412" />
+                    <text id="svgPoleLabel" x="55" y="78" fill="#93c5fd" font-size="9.5" font-weight="800" text-anchor="middle">
+                        {% if is_connected %}FROM {{ connection.transformer.code }}{% else %}NO LINK{% endif %}
+                    </text>
+                </g>
+
+                <path d="M 76 102 Q 124 148 164 156" class="service-drop-wire" />
+                <path d="M 76 102 Q 124 148 164 156" class="grid-wire-flow" />
+
+                <ellipse cx="148" cy="330" rx="28" ry="14" fill="#166534" />
+                <ellipse cx="818" cy="330" rx="30" ry="16" fill="#166534" />
+
+                <rect x="688" y="42" width="28" height="54" rx="2" fill="#7c2d12" stroke="#431407" stroke-width="1.5" />
+                <polygon points="154,134 504,24 834,134" fill="url(#roofTile)" stroke="#431407" stroke-width="2.5" />
+                <rect x="164" y="128" width="660" height="10" rx="2" fill="#cbd5e1" stroke="#64748b" stroke-width="1.5" />
+                <text x="504" y="88" fill="#fef3c7" font-size="12" font-weight="800" text-anchor="middle" letter-spacing="1">DOMESTIC CONSUMER HOUSE</text>
+
+                <rect x="176" y="138" width="636" height="192" fill="#0f2137" stroke="#64748b" stroke-width="2.5" />
+                <rect x="170" y="324" width="648" height="12" rx="2" fill="#334155" stroke="#475569" stroke-width="1.5" />
+
+                <rect x="148" y="150" width="44" height="58" rx="5" fill="#0f172a" stroke="#94a3b8" stroke-width="2" />
+                <rect x="155" y="158" width="30" height="22" rx="2" fill="#052e16" stroke="#334155" stroke-width="1" />
+                <text id="svgMeterVolt" x="170" y="168" fill="{% if is_connected and transformer_power_on %}#4ade80{% else %}#f87171{% endif %}" font-size="7.5" font-weight="800" text-anchor="middle">
+                    {% if is_connected and transformer_power_on %}230V{% else %}0V{% endif %}
+                </text>
+                <text id="svgMeterLoad" x="170" y="177" fill="#38bdf8" font-size="7" font-weight="700" text-anchor="middle">
+                    {% if effective_power_on %}2070W{% elif is_connected %}0W{% else %}NO MTR{% endif %}
+                </text>
+                <circle id="meterLed" cx="170" cy="194" r="4.5" fill="{% if is_connected and transformer_power_on %}#22c55e{% else %}#ef4444{% endif %}" />
+                <text id="svgMeterLabel" x="170" y="220" fill="#cbd5e1" font-size="7.5" font-weight="800" text-anchor="middle">
+                    {% if connection.meter_number %}{{ connection.meter_number }}{% else %}METER{% endif %}
+                </text>
+
+                <rect id="livingRoomBg" x="198" y="146" width="272" height="176" rx="3" class="room-bg {% if effective_power_on %}lit{% endif %}" />
+                <rect x="198" y="310" width="272" height="12" fill="#451a03" opacity="0.8" />
+                <text x="334" y="162" fill="#93c5fd" font-size="10.5" font-weight="800" text-anchor="middle">LIVING ROOM</text>
+
+                <rect id="kitchenBg" x="474" y="146" width="132" height="176" rx="3" class="room-bg {% if effective_power_on %}lit{% endif %}" />
+                <rect x="474" y="310" width="132" height="12" fill="#334155" opacity="0.9" />
+                <text x="540" y="162" fill="#93c5fd" font-size="10.5" font-weight="800" text-anchor="middle">KITCHEN</text>
+
+                <rect id="bedroomBg" x="610" y="146" width="192" height="176" rx="3" class="room-bg {% if effective_power_on %}lit{% endif %}" />
+                <rect x="610" y="310" width="192" height="12" fill="#451a03" opacity="0.8" />
+                <text x="706" y="162" fill="#93c5fd" font-size="10.5" font-weight="800" text-anchor="middle">BEDROOM</text>
+
+                <rect x="470" y="144" width="5" height="178" fill="#1e293b" />
+                <rect x="606" y="144" width="5" height="178" fill="#1e293b" />
+                <rect x="204" y="218" width="24" height="38" rx="3" fill="#1e293b" stroke="#64748b" stroke-width="1.5" />
+                <text x="216" y="232" fill="#cbd5e1" font-size="6.5" font-weight="800" text-anchor="middle">MCB</text>
+                <circle id="breakerLed" cx="216" cy="244" r="4" fill="{% if effective_power_on %}#22c55e{% else %}#ef4444{% endif %}" />
+
+                <g stroke="#293a52" stroke-width="3.5" fill="none">
+                    <path d="M 192 178 L 216 178 L 216 218 L 216 146 L 762 146" />
+                    <line x1="274" y1="146" x2="274" y2="174" />
+                    <line x1="348" y1="146" x2="348" y2="180" />
+                    <path d="M 424 146 L 424 238" />
+                    <path d="M 540 146 L 540 202" />
+                    <line x1="686" y1="146" x2="686" y2="180" />
+                    <line x1="762" y1="146" x2="762" y2="174" />
+                </g>
+
+                <path id="flowMainBus" d="M 192 178 L 216 178 L 216 218 L 216 146 L 762 146" class="branch-flow {% if effective_power_on %}active{% endif %}" />
+                <line id="flowLights" x1="274" y1="146" x2="274" y2="174" class="branch-flow {% if effective_power_on %}active{% endif %}" />
+                <line id="flowFan1" x1="348" y1="146" x2="348" y2="180" class="branch-flow {% if effective_power_on %}active{% endif %}" />
+                <path id="flowTv" d="M 424 146 L 424 238" class="branch-flow {% if effective_power_on %}active{% endif %}" />
+                <path id="flowFridge" d="M 540 146 L 540 202" class="branch-flow {% if effective_power_on %}active{% endif %}" />
+                <line id="flowFan2" x1="686" y1="146" x2="686" y2="180" class="branch-flow {% if effective_power_on %}active{% endif %}" />
+                <line id="flowAc" x1="762" y1="146" x2="762" y2="174" class="branch-flow {% if effective_power_on %}active{% endif %}" />
+
+                <polygon id="livingLightCone" points="274,180 220,308 328,308" fill="url(#warmCone)" class="light-cone {% if effective_power_on %}lit{% endif %}" />
+                <path d="M 264 176 Q 274 166 284 176 Z" fill="#475569" />
+                <circle id="livingBulbCore" cx="274" cy="180" r="7" class="bulb-glass {% if effective_power_on %}lit{% endif %}" />
+
+                <rect id="livingWindow" x="218" y="196" width="44" height="44" rx="3" class="house-window-glass {% if effective_power_on %}lit{% endif %}" stroke="#64748b" stroke-width="2" />
+                <line x1="240" y1="196" x2="240" y2="240" stroke="#334155" stroke-width="2" />
+                <line x1="218" y1="218" x2="262" y2="218" stroke="#334155" stroke-width="2" />
+
+                <rect x="242" y="272" width="118" height="28" rx="6" fill="#1d4ed8" />
+                <rect x="234" y="280" width="12" height="24" rx="4" fill="#1e3a8a" />
+                <rect x="354" y="280" width="12" height="24" rx="4" fill="#1e3a8a" />
+                <rect x="246" y="300" width="110" height="8" rx="2" fill="#0f172a" />
+
+                <line x1="348" y1="162" x2="348" y2="188" stroke="#94a3b8" stroke-width="4" />
+                <g transform="translate(348, 188)">
+                    <g id="fan1Rotor" class="fan-rotor {% if effective_power_on %}spinning{% endif %}">
+                        <ellipse cx="0" cy="-24" rx="6" ry="19" fill="#e2e8f0" stroke="#475569" stroke-width="1.2" />
+                        <ellipse cx="21" cy="12" rx="6" ry="19" transform="rotate(120 21 12)" fill="#e2e8f0" stroke="#475569" stroke-width="1.2" />
+                        <ellipse cx="-21" cy="12" rx="6" ry="19" transform="rotate(-120 -21 12)" fill="#e2e8f0" stroke="#475569" stroke-width="1.2" />
+                    </g>
+                    <circle cx="0" cy="0" r="8" fill="#0284c7" stroke="#f8fafc" stroke-width="1.5" />
+                </g>
+                <g id="fan1Breeze" class="fan-breeze {% if effective_power_on %}active{% endif %}" stroke="#7dd3fc" stroke-width="2" fill="none" stroke-linecap="round">
+                    <path d="M 324 218 Q 338 225 352 218" />
+                    <path d="M 332 228 Q 348 235 364 228" />
+                </g>
+
+                <g>
+                    <rect x="386" y="218" width="76" height="48" rx="4" fill="#0f172a" stroke="#475569" stroke-width="2.5" />
+                    <rect x="391" y="223" width="66" height="38" rx="2" fill="#020617" />
+                    <g id="smartTvScreen" class="tv-screen-active {% if effective_power_on %}on{% endif %}">
+                        <rect x="391" y="223" width="66" height="38" rx="2" fill="url(#tvBroadcast)" opacity="0.92" />
+                        <path d="M 396 246 Q 412 232 424 244 T 452 236" stroke="#fde047" stroke-width="2.5" fill="none" />
+                    </g>
+                    <rect x="418" y="266" width="12" height="8" fill="#475569" />
+                    <rect x="406" y="274" width="36" height="4" rx="2" fill="#64748b" />
+                    <rect x="382" y="278" width="82" height="32" rx="3" fill="#334155" />
+                    <circle id="tvStandbyLed" cx="456" cy="264" r="2" fill="{% if effective_power_on %}#22c55e{% elif is_connected and transformer_power_on %}#ef4444{% else %}#1e293b{% endif %}" />
+                    <text x="424" y="297" fill="#cbd5e1" font-size="8" font-weight="700" text-anchor="middle">SMART TV</text>
+                </g>
+
+                <g>
+                    <circle id="kitchenBulbCore" cx="540" cy="176" r="6" class="bulb-glass {% if effective_power_on %}lit{% endif %}" />
+                    <rect x="504" y="198" width="72" height="112" rx="6" fill="url(#steelFridge)" stroke="#475569" stroke-width="2" />
+                    <line x1="504" y1="238" x2="576" y2="238" stroke="#334155" stroke-width="2" />
+                    <rect x="562" y="210" width="4" height="20" rx="2" fill="#1e293b" />
+                    <rect x="562" y="248" width="4" height="32" rx="2" fill="#1e293b" />
+                    <rect x="514" y="209" width="28" height="14" rx="2" fill="#0f172a" />
+                    <g id="fridgeActiveGlow" class="fridge-active-glow {% if effective_power_on %}on{% endif %}">
+                        <text x="528" y="219" fill="#38bdf8" font-size="8" font-weight="800" text-anchor="middle">4°C</text>
+                        <rect x="506" y="239" width="68" height="3" fill="#38bdf8" opacity="0.7" />
+                    </g>
+                    <text x="540" y="299" fill="#0f172a" font-size="8" font-weight="800" text-anchor="middle">FRIDGE</text>
+                </g>
+
+                <polygon id="bedLightCone" points="638,180 598,308 678,308" fill="url(#warmCone)" class="light-cone {% if effective_power_on %}lit{% endif %}" />
+                <circle id="bedBulbCore" cx="638" cy="178" r="6.5" class="bulb-glass {% if effective_power_on %}lit{% endif %}" />
+                <rect id="bedWindow" x="620" y="206" width="38" height="40" rx="3" class="house-window-glass {% if effective_power_on %}lit{% endif %}" stroke="#64748b" stroke-width="2" />
+
+                <line x1="686" y1="162" x2="686" y2="188" stroke="#94a3b8" stroke-width="4" />
+                <g transform="translate(686, 188)">
+                    <g id="fan2Rotor" class="fan-rotor {% if effective_power_on %}spinning{% endif %}">
+                        <ellipse cx="0" cy="-22" rx="5.5" ry="18" fill="#e2e8f0" stroke="#475569" stroke-width="1.2" />
+                        <ellipse cx="19" cy="11" rx="5.5" ry="18" transform="rotate(120 19 11)" fill="#e2e8f0" stroke="#475569" stroke-width="1.2" />
+                        <ellipse cx="-19" cy="11" rx="5.5" ry="18" transform="rotate(-120 -19 11)" fill="#e2e8f0" stroke="#475569" stroke-width="1.2" />
+                    </g>
+                    <circle cx="0" cy="0" r="7.5" fill="#0284c7" stroke="#f8fafc" stroke-width="1.5" />
+                </g>
+                <g id="fan2Breeze" class="fan-breeze {% if effective_power_on %}active{% endif %}" stroke="#7dd3fc" stroke-width="2" fill="none" stroke-linecap="round">
+                    <path d="M 664 216 Q 678 223 692 216" />
+                    <path d="M 672 226 Q 688 233 702 226" />
+                </g>
+
+                <g>
+                    <rect x="722" y="168" width="72" height="24" rx="5" fill="#e2e8f0" stroke="#64748b" stroke-width="1.5" />
+                    <rect x="764" y="173" width="22" height="10" rx="2" fill="#0f172a" />
+                    <text id="acTempText" x="775" y="181" fill="{% if effective_power_on %}#38bdf8{% else %}#334155{% endif %}" font-size="7" font-weight="800" text-anchor="middle">
+                        {% if effective_power_on %}22°C{% else %}OFF{% endif %}
+                    </text>
+                    <line id="acLouver" x1="728" y1="191" x2="788" y2="191" stroke="#475569" stroke-width="3" stroke-linecap="round" class="ac-louver {% if effective_power_on %}open{% endif %}" />
+                    <g id="acCoolAir" class="ac-air {% if effective_power_on %}active{% endif %}" stroke="#38bdf8" stroke-width="2" fill="none" stroke-linecap="round">
+                        <path d="M 738 200 Q 730 212 738 224" />
+                        <path d="M 756 200 Q 748 212 756 224" />
+                        <path d="M 774 200 Q 766 212 774 224" />
+                    </g>
+                    <text x="758" y="164" fill="#cbd5e1" font-size="7.5" font-weight="800" text-anchor="middle">SPLIT AC</text>
+                </g>
+
+                <rect x="676" y="274" width="114" height="26" rx="5" fill="#0369a1" />
+                <rect x="770" y="254" width="20" height="46" rx="4" fill="#334155" />
+                <rect x="748" y="264" width="20" height="10" rx="3" fill="#e2e8f0" />
+                <g id="customAppliancesLayer"></g>
+            </svg>
+            {% endif %}
+        </div>
+
+        <!-- CONTROLS PANEL -->
+        <div class="house-controls-card">
+
+            <div class="house-power-buttons">
+                <button type="button" id="userPowerOnBtn" class="house-power-btn btn-on {% if effective_power_on %}active{% endif %}" onclick="setHousePower('on')">
+                    <i class="fa-solid fa-power-off"></i> Power ON
+                </button>
+                <button type="button" id="userPowerOffBtn" class="house-power-btn btn-off {% if not effective_power_on %}active{% endif %}" onclick="setHousePower('off')">
+                    <i class="fa-solid fa-plug-circle-xmark"></i> Power OFF
+                </button>
+            </div>
+
+            <div id="houseSimAlert" class="house-alert-box {% if not is_connected or not transformer_power_on or individual_power_cut or prepaid_units_exhausted %}show error{% elif power_cut_remark %}show info{% endif %}" role="status">
+                <i class="fa-solid fa-circle-info"></i>
+                <span id="houseSimAlertText">
+                    {% if not is_connected %}
+                        Power is NOT connected yet. Apply via Services &rarr; New Connection and wait for Department installation.
+                    {% elif not transformer_power_on %}
+                        Transformer {{ connection.transformer.code }} Power Supply is currently OFF from Administration Substation.
+                    {% elif individual_power_cut %}
+                        Individual power supply is CUT for your {{ connection.property_type }} connection.{% if power_cut_remark %} Remark: {{ power_cut_remark }}{% endif %}
+                    {% elif prepaid_units_exhausted %}
+                        Allocated Prepaid Units exhausted (0.00 Units). Pay an electricity bill via Services &rarr; Power Billing to allocate units.
+                    {% elif power_cut_remark %}
+                        Supply Remark: {{ power_cut_remark }}
+                    {% endif %}
+                </span>
+            </div>
+
+            <div class="appliance-list">
+                <div class="appliance-row">
+                    <div class="appliance-info">
+                        <i class="fa-solid fa-fan"></i>
+                        <div>
+                            <strong>{% if is_commercial %}Operations Exhaust Fan{% else %}Living Room Fan{% endif %}</strong>
+                            <small id="fan1StatusLabel">{% if effective_power_on %}Spinning{% else %}Stopped{% endif %}</small>
+                        </div>
+                    </div>
+                    <div class="appliance-actions">
+                        <span class="watt-tag">{% if is_commercial %}250 W{% else %}75 W{% endif %}</span>
+                        <button type="button" id="fan1ToggleBtn" class="mini-toggle-btn {% if effective_power_on %}is-on{% endif %}" onclick="toggleAppliance('fan1')">
+                            {% if effective_power_on %}ON{% else %}OFF{% endif %}
+                        </button>
+                    </div>
+                </div>
+
+                <div class="appliance-row">
+                    <div class="appliance-info">
+                        <i class="fa-solid fa-fan"></i>
+                        <div>
+                            <strong>{% if is_commercial %}Control Bay Exhaust Fan{% else %}Bedroom Fan{% endif %}</strong>
+                            <small id="fan2StatusLabel">{% if effective_power_on %}Spinning{% else %}Stopped{% endif %}</small>
+                        </div>
+                    </div>
+                    <div class="appliance-actions">
+                        <span class="watt-tag">{% if is_commercial %}250 W{% else %}75 W{% endif %}</span>
+                        <button type="button" id="fan2ToggleBtn" class="mini-toggle-btn {% if effective_power_on %}is-on{% endif %}" onclick="toggleAppliance('fan2')">
+                            {% if effective_power_on %}ON{% else %}OFF{% endif %}
+                        </button>
+                    </div>
+                </div>
+
+                <div class="appliance-row">
+                    <div class="appliance-info">
+                        <i class="fa-solid fa-lightbulb"></i>
+                        <div>
+                            <strong>{% if is_commercial %}High-Bay Facility Lights{% else %}House Lights{% endif %}</strong>
+                            <small id="lightsStatusLabel">{% if effective_power_on %}Illuminated{% else %}Off{% endif %}</small>
+                        </div>
+                    </div>
+                    <div class="appliance-actions">
+                        <span class="watt-tag">{% if is_commercial %}300 W{% else %}60 W{% endif %}</span>
+                        <button type="button" id="lightsToggleBtn" class="mini-toggle-btn {% if effective_power_on %}is-on{% endif %}" onclick="toggleAppliance('lights')">
+                            {% if effective_power_on %}ON{% else %}OFF{% endif %}
+                        </button>
+                    </div>
+                </div>
+
+                <div class="appliance-row">
+                    <div class="appliance-info">
+                        <i class="fa-solid fa-tv"></i>
+                        <div>
+                            <strong>{% if is_commercial %}SCADA Workstations{% else %}Smart LED TV{% endif %}</strong>
+                            <small id="tvStatusLabel">{% if effective_power_on %}Playing{% else %}Off{% endif %}</small>
+                        </div>
+                    </div>
+                    <div class="appliance-actions">
+                        <span class="watt-tag">{% if is_commercial %}450 W{% else %}140 W{% endif %}</span>
+                        <button type="button" id="tvToggleBtn" class="mini-toggle-btn {% if effective_power_on %}is-on{% endif %}" onclick="toggleAppliance('tv')">
+                            {% if effective_power_on %}ON{% else %}OFF{% endif %}
+                        </button>
+                    </div>
+                </div>
+
+                <div class="appliance-row">
+                    <div class="appliance-info">
+                        <i class="fa-solid fa-snowflake"></i>
+                        <div>
+                            <strong>{% if is_commercial %}Central HVAC Chiller{% else %}Split AC (22&deg;C){% endif %}</strong>
+                            <small id="acStatusLabel">{% if effective_power_on %}Cooling{% else %}Off{% endif %}</small>
+                        </div>
+                    </div>
+                    <div class="appliance-actions">
+                        <span class="watt-tag">{% if is_commercial %}2500 W{% else %}1500 W{% endif %}</span>
+                        <button type="button" id="acToggleBtn" class="mini-toggle-btn {% if effective_power_on %}is-on{% endif %}" onclick="toggleAppliance('ac')">
+                            {% if effective_power_on %}ON{% else %}OFF{% endif %}
+                        </button>
+                    </div>
+                </div>
+
+                <div class="appliance-row">
+                    <div class="appliance-info">
+                        <i class="fa-solid fa-industry"></i>
+                        <div>
+                            <strong>{% if is_commercial %}Industry Plant Unit{% else %}Refrigerator (4&deg;C){% endif %}</strong>
+                            <small id="fridgeStatusLabel">{% if effective_power_on %}Active{% else %}Off{% endif %}</small>
+                        </div>
+                    </div>
+                    <div class="appliance-actions">
+                        <span class="watt-tag">{% if is_commercial %}1750 W{% else %}220 W{% endif %}</span>
+                        <button type="button" id="fridgeToggleBtn" class="mini-toggle-btn {% if effective_power_on %}is-on{% endif %}" onclick="toggleAppliance('fridge')">
+                            {% if effective_power_on %}ON{% else %}OFF{% endif %}
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="custom-app-header">
+                <span><i class="fa-solid fa-plug"></i> Added Appliances</span>
+                <button type="button" class="add-appliance-btn" id="openAddApplianceBtn" onclick="openAddApplianceModal()">
+                    <i class="fa-solid fa-plus"></i> Add Appliance
+                </button>
+            </div>
+            <div id="customApplianceList" class="appliance-list"></div>
+
+            <div class="grid-telemetry-bar">
+                <span><strong>Transformer:</strong> <span id="simTransformerName">{% if is_connected %}{{ connection.transformer.code }}{% else %}Not Connected{% endif %}</span></span>
+                <span><strong id="simVoltageText">{% if is_connected %}{{ connection.transformer.voltage }}{% else %}0 V{% endif %}</strong></span>
+            </div>
+
+            {% if is_connected %}
+            <div class="grid-telemetry-bar" id="simBillingBar" style="background:#eef5ff; border-color:#bfd6f2; flex-wrap:wrap;">
+                {% if is_commercial %}
+                <span>
+                    <strong>Allocated Units Left:</strong> <strong id="simPrepaidBalance" style="color:#07549a;">{{ connection.prepaid_units_balance }}</strong> Units
+                    <small id="simEstRuntime" style="color:#365070; font-weight:700; margin-left:4px;">{{ appliance_telemetry.est_runtime_text }}</small>
+                    <small id="simHourlyBurn" style="color:#15803d; font-weight:700; margin-left:6px;"></small>
+                </span>
+                {% else %}
+                <span>
+                    <strong>Live Current Usage:</strong> <strong id="simUnbilledUnits" style="color:#07549a;">{{ connection.unbilled_units }}</strong> Units
+                    <small id="simDomesticDraw" style="color:#365070; font-weight:700; margin-left:4px;"></small> &bull;
+                    <span id="simDomesticBillNotice" style="font-weight:700; color:#365070;">
+                        {% if billing_summary.unpaid_monthly_bills %}
+                            Generated Monthly Bill Due: <strong style="color:#b91c1c;">Rs {{ billing_summary.unpaid_monthly_total }}</strong>
+                        {% else %}
+                            Monthly Bill: Pending Admin Generation
+                        {% endif %}
+                    </span>
+                </span>
+                {% endif %}
+                <span style="display:flex; gap:6px; align-items:center;">
+                    <button type="button" class="add-appliance-btn" style="padding:4px 9px; font-size:11px;" title="Fast-forward 1 simulated hour at currently ON appliances load" onclick="recordUsageTick(1.0)">
+                        <i class="fa-solid fa-forward"></i> Simulate 1 Hr
+                    </button>
+                    <a href="{% url 'user_billing' %}?meter_number={{ connection.meter_number }}" style="font-size:11.5px; font-weight:800; color:#063b78; text-decoration:underline;">
+                        {% if is_commercial %}Recharge{% else %}Billing{% endif %}
+                    </a>
+                </span>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<!-- ADD APPLIANCE POPUP MODAL -->
+<div id="addApplianceModal"
+     class="conn-modal-overlay"
+     role="dialog"
+     aria-modal="true"
+     aria-labelledby="addApplianceModalTitle">
+    <div class="conn-modal-card" style="max-width: 460px;">
+        <div class="conn-modal-header">
+            <div>
+                <h3 id="addApplianceModalTitle">Add Electronic Appliance</h3>
+                <p>Added devices appear directly inside your simulation</p>
+            </div>
+            <button type="button" class="conn-modal-close" id="closeAddAppModalBtn" aria-label="Close">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <div class="conn-modal-body">
+            <div id="addAppErrorBox" class="house-alert-box error" style="margin-bottom: 12px;">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <span id="addAppErrorText"></span>
+            </div>
+            <form id="addApplianceForm" method="post" action="{% url 'add_appliance' %}">
+                {% csrf_token %}
+                <div class="apply-form-grid" style="grid-template-columns: 1fr;">
+                    <div class="apply-field">
+                        <label for="newAppName">Appliance Name</label>
+                        <input type="text" id="newAppName" name="name" placeholder="e.g. Washing Machine, Geyser, EV Charger" required>
+                    </div>
+                    <div class="apply-field">
+                        <label for="newAppType">Appliance Type</label>
+                        <select id="newAppType" name="appliance_type" required>
+                            {% for val, label in appliance_types %}
+                            <option value="{{ val }}">{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-submit-row">
+                    <button type="submit" class="apply-submit-btn">
+                        <i class="fa-solid fa-plus"></i> Add to Simulation
+                    </button>
+                    <button type="button" class="apply-cancel-btn" id="cancelAddAppModalBtn">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{{ custom_appliances|json_script:"initialCustomAppliances" }}
+{{ builtin_states|json_script:"initialBuiltinStates" }}
+
+<script>
+    (function () {
+        const IS_COMMERCIAL = {{ is_commercial|yesno:"true,false" }};
+        const APPLIANCE_WATTS = IS_COMMERCIAL
+            ? { fan1: 250, fan2: 250, lights: 300, tv: 450, ac: 2500, fridge: 1750 }
+            : { fan1: 75, fan2: 75, lights: 60, tv: 140, ac: 1500, fridge: 220 };
+
+        const simState = {
+            isConnected: {{ is_connected|yesno:"true,false" }},
+            transformerOn: {{ transformer_power_on|yesno:"true,false" }},
+            individualPowerCut: {{ individual_power_cut|yesno:"true,false" }},
+            prepaidExhausted: {{ prepaid_units_exhausted|yesno:"true,false" }},
+            prepaidBalance: Number("{{ connection.prepaid_units_balance|default:'0.00' }}"),
+            unbilledUnits: Number("{{ connection.unbilled_units|default:'0.00' }}"),
+            estimatedBillRs: Number("{{ billing_summary.estimated_total_bill|default:base_fare_rs }}"),
+            unpaidMonthlyCount: Number("{{ billing_summary.unpaid_monthly_bills|length|default:0 }}"),
+            unpaidMonthlyTotal: Number("{{ billing_summary.unpaid_monthly_total|default:'0.00' }}"),
+            ratePerUnit: IS_COMMERCIAL ? Number("{{ commercial_rate|default:'7.00' }}") : Number("{{ domestic_rate|default:'5.00' }}"),
+            powerCutRemark: "{{ power_cut_remark|default:''|escapejs }}",
+            houseSwitchOn: {{ user_account.house_power_on|yesno:"true,false" }},
+            lastTotalWatts: 0,
+            togglePending: false,
+            tabId: 'tab-' + Math.random().toString(36).slice(2, 10),
+            lastMeterTickMs: Date.now(),
+            pendingEnergyKwh: 0,
+            pendingHours: 0,
+            transformerCode: "{{ connection.transformer.code|default:'--' }}",
+            meterNumber: "{{ connection.meter_number|default:'' }}",
+            appliances: JSON.parse(
+                (document.getElementById('initialBuiltinStates') || {
+                    textContent: '{"fan1":true,"fan2":true,"lights":true,"tv":true,"ac":true,"fridge":true}'
+                }).textContent
+            ),
+            customAppliances: JSON.parse(
+                (document.getElementById('initialCustomAppliances') || { textContent: '[]' }).textContent
+            )
+        };
+
+        const TYPE_ICON_MAP = {
+            Fan: 'fa-solid fa-fan',
+            Light: 'fa-solid fa-lightbulb',
+            AC: 'fa-solid fa-snowflake',
+            TV: 'fa-solid fa-tv',
+            Motor: 'fa-solid fa-gear',
+            Heater: 'fa-solid fa-fire-flame-curved',
+            Server: 'fa-solid fa-server',
+            Charger: 'fa-solid fa-charging-station'
+        };
+
+        const addAppModal = document.getElementById('addApplianceModal');
+        const closeAddAppBtn = document.getElementById('closeAddAppModalBtn');
+        const cancelAddAppBtn = document.getElementById('cancelAddAppModalBtn');
+        const addAppForm = document.getElementById('addApplianceForm');
+        const addAppErrorBox = document.getElementById('addAppErrorBox');
+        const addAppErrorText = document.getElementById('addAppErrorText');
+
+        function openAddApplianceModal() {
+            if (addAppErrorBox) addAppErrorBox.classList.remove('show');
+            if (addAppModal) {
+                addAppModal.classList.add('open');
+                document.body.style.overflow = 'hidden';
+                const nameEl = document.getElementById('newAppName');
+                if (nameEl) setTimeout(function () { nameEl.focus(); }, 40);
+            }
+        }
+        function closeAddApplianceModal() {
+            if (addAppModal) {
+                addAppModal.classList.remove('open');
+                document.body.style.overflow = '';
+            }
+        }
+        window.openAddApplianceModal = openAddApplianceModal;
+
+        if (closeAddAppBtn) closeAddAppBtn.addEventListener('click', closeAddApplianceModal);
+        if (cancelAddAppBtn) cancelAddAppBtn.addEventListener('click', closeAddApplianceModal);
+        if (addAppModal) {
+            addAppModal.addEventListener('click', function (e) {
+                if (e.target === addAppModal) closeAddApplianceModal();
+            });
+        }
+        if (addAppForm) {
+            addAppForm.addEventListener('submit', function (e) {
+                e.preventDefault();
+                const csrfInput = document.querySelector('#userCsrfHolder input[name="csrfmiddlewaretoken"]');
+                const formData = new URLSearchParams(new FormData(addAppForm));
+                fetch(addAppForm.action, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-CSRFToken': csrfInput ? csrfInput.value : '',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    },
+                    body: formData.toString()
+                })
+                .then(function (resp) { return resp.json(); })
+                .then(function (data) {
+                    if (data.ok) {
+                        simState.customAppliances = data.appliances || [];
+                        addAppForm.reset();
+                        closeAddApplianceModal();
+                        renderHouseSimulation();
+                    } else if (addAppErrorBox && addAppErrorText) {
+                        addAppErrorText.textContent = data.error || 'Could not add appliance.';
+                        addAppErrorBox.classList.add('show');
+                    }
+                })
+                .catch(function () {
+                    if (addAppErrorBox && addAppErrorText) {
+                        addAppErrorText.textContent = 'Error adding appliance.';
+                        addAppErrorBox.classList.add('show');
+                    }
+                });
+            });
+        }
+
+        function toggleCustomAppliance(appId) {
+            const csrfInput = document.querySelector('#userCsrfHolder input[name="csrfmiddlewaretoken"]');
+            flushPendingUsageBeforeToggle();
+            simState.togglePending = true;
+            fetch('/users/appliances/' + appId + '/toggle/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfInput ? csrfInput.value : '',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(function (resp) { return resp.json(); })
+            .then(function (data) {
+                simState.togglePending = false;
+                if (data.appliances) simState.customAppliances = data.appliances;
+                renderHouseSimulation();
+                if (data.blocked && data.message) {
+                    showHouseAlert('error', data.message);
+                }
+            })
+            .catch(function (err) {
+                simState.togglePending = false;
+                console.error(err);
+            });
+        }
+
+        function deleteCustomAppliance(appId) {
+            const csrfInput = document.querySelector('#userCsrfHolder input[name="csrfmiddlewaretoken"]');
+            fetch('/users/appliances/' + appId + '/delete/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfInput ? csrfInput.value : '',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(function (resp) { return resp.json(); })
+            .then(function (data) {
+                if (data.appliances) simState.customAppliances = data.appliances;
+                renderHouseSimulation();
+            })
+            .catch(function (err) { console.error(err); });
+        }
+
+        function svgEl(tag, attrs) {
+            const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+            Object.keys(attrs || {}).forEach(function (k) {
+                el.setAttribute(k, attrs[k]);
+            });
+            return el;
+        }
+
+        function renderCustomAppliancesList(effectivePower) {
+            const container = document.getElementById('customApplianceList');
+            if (!container) return;
+            container.innerHTML = '';
+
+            if (!simState.customAppliances.length) {
+                const empty = document.createElement('div');
+                empty.className = 'custom-empty-note';
+                empty.textContent = 'No added appliances yet. Click "+ Add Appliance" to add devices to your simulation.';
+                container.appendChild(empty);
+                return;
+            }
+
+            simState.customAppliances.forEach(function (app) {
+                const isRunning = effectivePower && app.is_on;
+                const row = document.createElement('div');
+                row.className = 'appliance-row';
+                row.setAttribute('data-custom-app-id', String(app.id));
+
+                const info = document.createElement('div');
+                info.className = 'appliance-info';
+                const icon = document.createElement('i');
+                icon.className = TYPE_ICON_MAP[app.appliance_type] || 'fa-solid fa-plug';
+                const txtWrap = document.createElement('div');
+                const title = document.createElement('strong');
+                title.textContent = app.name;
+                const sub = document.createElement('small');
+                sub.textContent = app.appliance_type + ' • ' + (isRunning ? 'Running' : 'Off');
+                txtWrap.appendChild(title);
+                txtWrap.appendChild(sub);
+                info.appendChild(icon);
+                info.appendChild(txtWrap);
+
+                const actions = document.createElement('div');
+                actions.className = 'appliance-actions';
+                const watt = document.createElement('span');
+                watt.className = 'watt-tag';
+                watt.textContent = app.wattage + ' W';
+
+                const toggleBtn = document.createElement('button');
+                toggleBtn.type = 'button';
+                toggleBtn.className = 'mini-toggle-btn' + (isRunning ? ' is-on' : '');
+                toggleBtn.textContent = isRunning ? 'ON' : 'OFF';
+                toggleBtn.addEventListener('click', function () { toggleCustomAppliance(app.id); });
+
+                const delBtn = document.createElement('button');
+                delBtn.type = 'button';
+                delBtn.className = 'delete-app-btn';
+                delBtn.title = 'Remove appliance';
+                delBtn.innerHTML = '<i class="fa-solid fa-trash"></i>';
+                delBtn.addEventListener('click', function () { deleteCustomAppliance(app.id); });
+
+                actions.appendChild(watt);
+                actions.appendChild(toggleBtn);
+                actions.appendChild(delBtn);
+
+                row.appendChild(info);
+                row.appendChild(actions);
+                container.appendChild(row);
+            });
+        }
+
+        function renderCustomAppliancesSvg(effectivePower) {
+            const svg = document.getElementById(IS_COMMERCIAL ? 'commercialSvg' : 'domesticSvg');
+            const layer = document.getElementById('customAppliancesLayer');
+            if (!svg || !layer) return;
+            layer.innerHTML = '';
+
+            const items = simState.customAppliances;
+            if (!items.length) {
+                svg.setAttribute('viewBox', '0 0 860 390');
+                return;
+            }
+
+            const cols = 4;
+            const rows = Math.ceil(items.length / cols);
+            const bayHeight = 32 + rows * 108;
+            const totalHeight = 342 + bayHeight + 16;
+            svg.setAttribute('viewBox', '0 0 860 ' + totalHeight);
+
+            layer.appendChild(svgEl('rect', {
+                x: 0, y: 336, width: 860, height: totalHeight - 336, fill: '#071426'
+            }));
+            layer.appendChild(svgEl('rect', {
+                x: 176, y: 342, width: 636, height: bayHeight, rx: 10,
+                fill: '#0f2137', stroke: '#3b6ea5', 'stroke-width': 2
+            }));
+            const bayTitle = svgEl('text', {
+                x: 248, y: 360, fill: '#93c5fd', 'font-size': 10.5, 'font-weight': 800
+            });
+            bayTitle.textContent = 'ADDED APPLIANCES EXTENSION BAY';
+            layer.appendChild(bayTitle);
+
+            const anyCustomActive = effectivePower && items.some(function (a) { return a.is_on; });
+            layer.appendChild(svgEl('path', {
+                d: 'M 216 256 L 216 372 L 770 372',
+                stroke: '#293a52', 'stroke-width': 3.5, fill: 'none'
+            }));
+            if (anyCustomActive) {
+                layer.appendChild(svgEl('path', {
+                    d: 'M 216 256 L 216 372 L 770 372',
+                    class: 'branch-flow active'
+                }));
+            }
+
+            items.forEach(function (app, idx) {
+                const col = idx % cols;
+                const rowIdx = Math.floor(idx / cols);
+                const x = 196 + col * 154;
+                const y = 382 + rowIdx * 104;
+                const isRunning = effectivePower && app.is_on;
+
+                const tapX = x + 70;
+                const busY = 372 + rowIdx * 104;
+                if (rowIdx > 0) {
+                    layer.appendChild(svgEl('path', {
+                        d: 'M 216 ' + (busY - 104) + ' L 216 ' + busY + ' L ' + tapX + ' ' + busY,
+                        stroke: '#293a52', 'stroke-width': 3, fill: 'none'
+                    }));
+                    if (isRunning) {
+                        layer.appendChild(svgEl('path', {
+                            d: 'M 216 ' + (busY - 104) + ' L 216 ' + busY + ' L ' + tapX + ' ' + busY,
+                            class: 'branch-flow active'
+                        }));
+                    }
+                }
+                layer.appendChild(svgEl('line', {
+                    x1: tapX, y1: busY, x2: tapX, y2: y,
+                    stroke: '#293a52', 'stroke-width': 3
+                }));
+                if (isRunning) {
+                    layer.appendChild(svgEl('line', {
+                        x1: tapX, y1: busY, x2: tapX, y2: y,
+                        class: 'branch-flow active'
+                    }));
+                }
+
+                layer.appendChild(svgEl('rect', {
+                    x: x, y: y, width: 140, height: 88, rx: 8,
+                    fill: isRunning ? '#173052' : '#0d1c30',
+                    stroke: isRunning ? '#38bdf8' : '#334155',
+                    'stroke-width': 1.8
+                }));
+
+                layer.appendChild(svgEl('circle', {
+                    cx: x + 124, cy: y + 14, r: 4,
+                    fill: isRunning ? '#22c55e' : '#ef4444'
+                }));
+
+                const cx = x + 70;
+                const cy = y + 34;
+
+                if (app.appliance_type === 'Fan' || app.appliance_type === 'Motor') {
+                    layer.appendChild(svgEl('circle', {
+                        cx: cx, cy: cy, r: 19, fill: '#091526', stroke: '#475569', 'stroke-width': 1.5
+                    }));
+                    const rotorWrap = svgEl('g', { transform: 'translate(' + cx + ',' + cy + ')' });
+                    const rotor = svgEl('g', { class: 'fan-rotor' + (isRunning ? ' spinning' : '') });
+                    rotor.appendChild(svgEl('ellipse', { cx: 0, cy: -10, rx: 3.5, ry: 8.5, fill: '#e2e8f0' }));
+                    rotor.appendChild(svgEl('ellipse', { cx: 8.5, cy: 5, rx: 3.5, ry: 8.5, transform: 'rotate(120 8.5 5)', fill: '#e2e8f0' }));
+                    rotor.appendChild(svgEl('ellipse', { cx: -8.5, cy: 5, rx: 3.5, ry: 8.5, transform: 'rotate(-120 -8.5 5)', fill: '#e2e8f0' }));
+                    rotorWrap.appendChild(rotor);
+                    rotorWrap.appendChild(svgEl('circle', { cx: 0, cy: 0, r: 4, fill: '#38bdf8' }));
+                    layer.appendChild(rotorWrap);
+                } else if (app.appliance_type === 'Light') {
+                    if (isRunning) {
+                        layer.appendChild(svgEl('circle', { cx: cx, cy: cy, r: 22, fill: '#fde047', opacity: '0.28' }));
+                    }
+                    layer.appendChild(svgEl('circle', {
+                        cx: cx, cy: cy, r: 11, fill: isRunning ? '#fde047' : '#475569',
+                        stroke: '#94a3b8', 'stroke-width': 1.5
+                    }));
+                } else if (app.appliance_type === 'TV') {
+                    layer.appendChild(svgEl('rect', {
+                        x: cx - 24, y: cy - 15, width: 48, height: 30, rx: 3,
+                        fill: isRunning ? '#0ea5e9' : '#020617', stroke: '#64748b', 'stroke-width': 2
+                    }));
+                    if (isRunning) {
+                        layer.appendChild(svgEl('path', {
+                            d: 'M ' + (cx - 18) + ' ' + (cy + 3) + ' Q ' + (cx - 6) + ' ' + (cy - 10) + ' ' + cx + ' ' + cy + ' T ' + (cx + 18) + ' ' + (cy - 5),
+                            stroke: '#fde047', 'stroke-width': 2, fill: 'none'
+                        }));
+                    }
+                } else if (app.appliance_type === 'AC') {
+                    layer.appendChild(svgEl('rect', {
+                        x: cx - 26, y: cy - 12, width: 52, height: 18, rx: 4, fill: '#e2e8f0', stroke: '#64748b'
+                    }));
+                    if (isRunning) {
+                        layer.appendChild(svgEl('path', {
+                            d: 'M ' + (cx - 12) + ' ' + (cy + 10) + ' Q ' + (cx - 16) + ' ' + (cy + 16) + ' ' + (cx - 12) + ' ' + (cy + 21) +
+                               ' M ' + (cx + 8) + ' ' + (cy + 10) + ' Q ' + (cx + 4) + ' ' + (cy + 16) + ' ' + (cx + 8) + ' ' + (cy + 21),
+                            stroke: '#38bdf8', 'stroke-width': 2, fill: 'none'
+                        }));
+                    }
+                } else if (app.appliance_type === 'Heater') {
+                    layer.appendChild(svgEl('rect', {
+                        x: cx - 22, y: cy - 14, width: 44, height: 28, rx: 4, fill: '#1e293b', stroke: '#64748b'
+                    }));
+                    [-7, 0, 7].forEach(function (dy) {
+                        layer.appendChild(svgEl('line', {
+                            x1: cx - 15, y1: cy + dy, x2: cx + 15, y2: cy + dy,
+                            stroke: isRunning ? '#f97316' : '#475569', 'stroke-width': 3, 'stroke-linecap': 'round',
+                            class: 'heater-glow' + (isRunning ? ' on' : '')
+                        }));
+                    });
+                } else if (app.appliance_type === 'Server') {
+                    layer.appendChild(svgEl('rect', {
+                        x: cx - 20, y: cy - 15, width: 40, height: 30, rx: 3, fill: '#0f172a', stroke: '#64748b'
+                    }));
+                    [-10, 0, 10].forEach(function (dx) {
+                        layer.appendChild(svgEl('circle', {
+                            cx: cx + dx, cy: cy, r: 3, fill: isRunning ? '#22c55e' : '#334155'
+                        }));
+                    });
+                } else {
+                    layer.appendChild(svgEl('rect', {
+                        x: cx - 22, y: cy - 13, width: 40, height: 26, rx: 4, fill: '#0f172a', stroke: '#64748b'
+                    }));
+                    layer.appendChild(svgEl('rect', {
+                        x: cx + 18, y: cy - 6, width: 5, height: 12, rx: 1, fill: '#94a3b8'
+                    }));
+                    layer.appendChild(svgEl('rect', {
+                        x: cx - 17, y: cy - 8, width: isRunning ? 30 : 8, height: 16, rx: 2,
+                        fill: isRunning ? '#22c55e' : '#475569'
+                    }));
+                }
+
+                const nameLabel = svgEl('text', {
+                    x: x + 70, y: y + 69, fill: '#f8fafc', 'font-size': 9.5, 'font-weight': 800, 'text-anchor': 'middle'
+                });
+                nameLabel.textContent = app.name.length > 18 ? app.name.slice(0, 17) + '…' : app.name;
+                layer.appendChild(nameLabel);
+
+                const wattLabel = svgEl('text', {
+                    x: x + 70, y: y + 81, fill: isRunning ? '#38bdf8' : '#94a3b8', 'font-size': 8.5, 'font-weight': 700, 'text-anchor': 'middle'
+                });
+                wattLabel.textContent = app.wattage + ' W • ' + (isRunning ? 'ON' : 'OFF');
+                layer.appendChild(wattLabel);
+            });
+        }
+
+        function showHouseAlert(kind, text) {
+            const box = document.getElementById('houseSimAlert');
+            const msgEl = document.getElementById('houseSimAlertText');
+            if (!box || !msgEl) return;
+            if (!text) {
+                box.className = 'house-alert-box';
+                msgEl.textContent = '';
+                return;
+            }
+            box.className = 'house-alert-box show ' + kind;
+            msgEl.textContent = text;
+        }
+
+        function setFlow(id, active) {
+            const el = document.getElementById(id);
+            if (el) el.classList.toggle('active', active);
+        }
+
+        function renderHouseSimulation() {
+            const hasGridVoltage = simState.isConnected && simState.transformerOn;
+            const hasSupply = hasGridVoltage && !simState.individualPowerCut && !simState.prepaidExhausted;
+            const effectivePower = hasSupply && simState.houseSwitchOn;
+            const running = {
+                fan1: effectivePower && simState.appliances.fan1,
+                fan2: effectivePower && simState.appliances.fan2,
+                lights: effectivePower && simState.appliances.lights,
+                tv: effectivePower && simState.appliances.tv,
+                ac: effectivePower && simState.appliances.ac,
+                fridge: effectivePower && simState.appliances.fridge
+            };
+
+            let totalWatts = 0;
+            Object.keys(running).forEach(function (k) {
+                if (running[k]) totalWatts += APPLIANCE_WATTS[k];
+            });
+            simState.customAppliances.forEach(function (app) {
+                if (effectivePower && app.is_on) {
+                    totalWatts += Number(app.wattage) || 0;
+                }
+            });
+            simState.lastTotalWatts = totalWatts;
+
+            renderCustomAppliancesList(effectivePower);
+            renderCustomAppliancesSvg(effectivePower);
+
+            const stage = document.getElementById('houseStage');
+            if (stage) {
+                stage.classList.toggle('conn-active', simState.isConnected);
+                stage.classList.toggle('grid-on', hasSupply);
+                stage.classList.toggle('house-energized', effectivePower);
+            }
+
+            const meterLed = document.getElementById('meterLed');
+            const breakerLed = document.getElementById('breakerLed');
+            const svgMeterVolt = document.getElementById('svgMeterVolt');
+            const svgMeterLoad = document.getElementById('svgMeterLoad');
+            const svgPoleLabel = document.getElementById('svgPoleLabel');
+            const svgMeterLabel = document.getElementById('svgMeterLabel');
+            if (meterLed) meterLed.setAttribute('fill', hasSupply ? '#22c55e' : '#ef4444');
+            if (breakerLed) breakerLed.setAttribute('fill', effectivePower ? '#22c55e' : '#ef4444');
+            if (svgMeterVolt) {
+                svgMeterVolt.textContent = hasSupply ? (IS_COMMERCIAL ? '415V' : '230V') : '0V';
+                svgMeterVolt.setAttribute('fill', hasSupply ? '#4ade80' : '#f87171');
+            }
+            if (svgMeterLoad) svgMeterLoad.textContent = simState.isConnected ? (totalWatts + 'W') : 'NO MTR';
+            if (svgPoleLabel) svgPoleLabel.textContent = simState.isConnected ? ('FROM ' + simState.transformerCode) : 'NO LINK';
+            if (svgMeterLabel) svgMeterLabel.textContent = simState.meterNumber || 'METER';
+
+            setFlow('flowMainBus', effectivePower && totalWatts > 0);
+            setFlow('flowLights', running.lights);
+            setFlow('flowFan1', running.fan1);
+            setFlow('flowTv', running.tv);
+            setFlow('flowFridge', running.fridge);
+            setFlow('flowFan2', running.fan2);
+            setFlow('flowAc', running.ac);
+
+            const fan1Rotor = document.getElementById('fan1Rotor');
+            const fan2Rotor = document.getElementById('fan2Rotor');
+            const fan1Breeze = document.getElementById('fan1Breeze');
+            const fan2Breeze = document.getElementById('fan2Breeze');
+            if (fan1Rotor) fan1Rotor.classList.toggle('spinning', running.fan1);
+            if (fan2Rotor) fan2Rotor.classList.toggle('spinning', running.fan2);
+            if (fan1Breeze) fan1Breeze.classList.toggle('active', running.fan1);
+            if (fan2Breeze) fan2Breeze.classList.toggle('active', running.fan2);
+
+            [
+                'livingRoomBg', 'kitchenBg', 'bedroomBg',
+                'livingLightCone', 'bedLightCone',
+                'livingBulbCore', 'kitchenBulbCore', 'bedBulbCore',
+                'livingWindow', 'bedWindow'
+            ].forEach(function (id) {
+                const el = document.getElementById(id);
+                if (el) el.classList.toggle('lit', running.lights);
+            });
+
+            const tvScreen = document.getElementById('smartTvScreen');
+            const tvLed = document.getElementById('tvStandbyLed');
+            if (tvScreen) tvScreen.classList.toggle('on', running.tv);
+            if (tvLed) tvLed.setAttribute('fill', running.tv ? '#22c55e' : (hasSupply ? '#ef4444' : '#1e293b'));
+
+            const acLouver = document.getElementById('acLouver');
+            const acCoolAir = document.getElementById('acCoolAir');
+            const acTempText = document.getElementById('acTempText');
+            if (acLouver) acLouver.classList.toggle('open', running.ac);
+            if (acCoolAir) acCoolAir.classList.toggle('active', running.ac);
+            if (acTempText) {
+                acTempText.textContent = running.ac ? (IS_COMMERCIAL ? '18°C' : '22°C') : 'OFF';
+                acTempText.setAttribute('fill', running.ac ? '#38bdf8' : '#334155');
+            }
+
+            const fridgeGlow = document.getElementById('fridgeActiveGlow');
+            if (fridgeGlow) fridgeGlow.classList.toggle('on', running.fridge);
+
+            const wattageBadge = document.getElementById('liveWattageBadge');
+            if (wattageBadge) wattageBadge.textContent = totalWatts + ' W';
+
+            const gridBadge = document.getElementById('transformerGridBadge');
+            const gridText = document.getElementById('transformerGridBadgeText');
+            const gridIcon = gridBadge ? gridBadge.querySelector('i') : null;
+            if (gridBadge) gridBadge.className = 'sim-pill ' + (hasSupply ? 'on' : 'off');
+            if (gridIcon) gridIcon.className = 'fa-solid ' + (hasSupply ? 'fa-bolt' : 'fa-plug-circle-xmark');
+            if (gridText) {
+                gridText.textContent = !simState.isConnected
+                    ? 'Transformer Supply: Not Connected'
+                    : (simState.transformerOn ? simState.transformerCode + ' Supply: ON' : simState.transformerCode + ' Supply: OFF');
+            }
+
+            const effBadge = document.getElementById('houseEffectiveBadge');
+            const effText = document.getElementById('houseEffectiveBadgeText');
+            if (effBadge) {
+                if (!simState.isConnected) {
+                    effBadge.className = 'sim-pill off';
+                    effText.textContent = 'Power Not Connected';
+                } else if (simState.individualPowerCut) {
+                    effBadge.className = 'sim-pill off';
+                    effText.textContent = 'Individual Power Cut';
+                } else if (simState.prepaidExhausted) {
+                    effBadge.className = 'sim-pill off';
+                    effText.textContent = 'Prepaid Units Exhausted';
+                } else if (effectivePower) {
+                    effBadge.className = 'sim-pill on';
+                    effText.textContent = IS_COMMERCIAL ? 'Facility Power: ACTIVE' : 'House Power: ACTIVE';
+                } else if (simState.transformerOn) {
+                    effBadge.className = 'sim-pill standby';
+                    effText.textContent = 'Main Switch: OFF';
+                } else {
+                    effBadge.className = 'sim-pill off';
+                    effText.textContent = 'Power Cut (No Supply)';
+                }
+            }
+
+            const preBalEl = document.getElementById('simPrepaidBalance');
+            if (preBalEl) preBalEl.textContent = simState.prepaidBalance.toFixed(2);
+            const estRuntimeEl = document.getElementById('simEstRuntime');
+            const hourlyBurnEl = document.getElementById('simHourlyBurn');
+            const kwLoad = totalWatts / 1000;
+            const hourlyRs = kwLoad * (simState.ratePerUnit || 7);
+            if (estRuntimeEl) {
+                if (simState.prepaidBalance <= 0) {
+                    estRuntimeEl.textContent = '(Exhausted — Recharge required)';
+                } else if (!effectivePower) {
+                    estRuntimeEl.textContent = '(Paused • 0.00 kW — Main Supply OFF)';
+                } else if (totalWatts <= 0) {
+                    estRuntimeEl.textContent = '(Standby • 0.00 kW — All Appliances OFF)';
+                } else {
+                    const hrsLeft = simState.prepaidBalance / kwLoad;
+                    const totalMins = Math.max(1, Math.round(hrsLeft * 60));
+                    const hh = Math.floor(totalMins / 60);
+                    const mm = totalMins % 60;
+                    estRuntimeEl.textContent = '(~' + (hh > 0 ? hh + 'h ' + mm + 'm' : mm + 'm') + ' @ ' + kwLoad.toFixed(2) + ' kW)';
+                }
+            }
+            if (hourlyBurnEl) {
+                hourlyBurnEl.textContent = (effectivePower && totalWatts > 0)
+                    ? ('• Draw: ' + kwLoad.toFixed(2) + ' Units/hr (Rs ' + hourlyRs.toFixed(2) + '/hr)')
+                    : '• Draw: 0.00 Units/hr (Rs 0.00/hr)';
+            }
+            const unbilledEl = document.getElementById('simUnbilledUnits');
+            if (unbilledEl) unbilledEl.textContent = simState.unbilledUnits.toFixed(2);
+            const domDrawEl = document.getElementById('simDomesticDraw');
+            if (domDrawEl) {
+                domDrawEl.textContent = (effectivePower && totalWatts > 0)
+                    ? ('(@ ' + kwLoad.toFixed(2) + ' kW • ' + kwLoad.toFixed(2) + ' U/hr • Rs ' + hourlyRs.toFixed(2) + '/hr)')
+                    : '(@ 0.00 kW • Standby)';
+            }
+            const domBillNotice = document.getElementById('simDomesticBillNotice');
+            if (domBillNotice) {
+                if (simState.unpaidMonthlyCount > 0) {
+                    domBillNotice.innerHTML = 'Generated Monthly Bill Due: <strong style="color:#b91c1c;">Rs ' + simState.unpaidMonthlyTotal.toFixed(2) + '</strong>';
+                } else {
+                    domBillNotice.textContent = 'Monthly Bill: Pending Admin Generation';
+                }
+            }
+
+            const onBtn = document.getElementById('userPowerOnBtn');
+            const offBtn = document.getElementById('userPowerOffBtn');
+            if (onBtn && offBtn) {
+                onBtn.classList.toggle('active', effectivePower);
+                offBtn.classList.toggle('active', !effectivePower);
+            }
+
+            const meta = [
+                { key: 'fan1', label: 'fan1StatusLabel', btn: 'fan1ToggleBtn', onText: 'Spinning', offText: 'Stopped' },
+                { key: 'fan2', label: 'fan2StatusLabel', btn: 'fan2ToggleBtn', onText: 'Spinning', offText: 'Stopped' },
+                { key: 'lights', label: 'lightsStatusLabel', btn: 'lightsToggleBtn', onText: 'Illuminated', offText: 'Off' },
+                { key: 'tv', label: 'tvStatusLabel', btn: 'tvToggleBtn', onText: 'Playing', offText: 'Off' },
+                { key: 'ac', label: 'acStatusLabel', btn: 'acToggleBtn', onText: 'Cooling', offText: 'Off' },
+                { key: 'fridge', label: 'fridgeStatusLabel', btn: 'fridgeToggleBtn', onText: 'Active', offText: 'Off' }
+            ];
+            meta.forEach(function (item) {
+                const isActive = running[item.key];
+                const lbl = document.getElementById(item.label);
+                const btn = document.getElementById(item.btn);
+                if (lbl) lbl.textContent = isActive ? item.onText : item.offText;
+                if (btn) {
+                    btn.classList.toggle('is-on', isActive);
+                    btn.textContent = isActive ? 'ON' : 'OFF';
+                }
+            });
+        }
+
+        function flushPendingUsageBeforeToggle() {
+            simState.pendingEnergyKwh = 0;
+            simState.pendingHours = 0;
+            simState.lastMeterTickMs = Date.now();
+        }
+
+        function setHousePower(action) {
+            const csrfInput = document.querySelector('#userCsrfHolder input[name="csrfmiddlewaretoken"]');
+            const csrfToken = csrfInput ? csrfInput.value : '';
+            const body = new URLSearchParams({ action: action });
+            if (action === 'off') {
+                flushPendingUsageBeforeToggle();
+            }
+
+            fetch("{% url 'toggle_house_power' %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': csrfToken,
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                },
+                body: body.toString()
+            })
+            .then(function (resp) {
+                if (!resp.ok) throw new Error('Failed to toggle house power');
+                return resp.json();
+            })
+            .then(function (data) {
+                simState.isConnected = Boolean(data.is_connected);
+                simState.transformerOn = Boolean(data.transformer_power_on);
+                simState.individualPowerCut = Boolean(data.individual_power_cut);
+                simState.prepaidExhausted = Boolean(data.prepaid_units_exhausted);
+                if (data.prepaid_units_balance !== undefined) simState.prepaidBalance = Number(data.prepaid_units_balance);
+                if (data.power_cut_remark !== undefined) simState.powerCutRemark = data.power_cut_remark || '';
+                simState.houseSwitchOn = Boolean(data.house_power_on);
+                renderHouseSimulation();
+                showHouseAlert(data.blocked ? 'error' : 'info', data.message);
+            })
+            .catch(function (err) { console.error(err); });
+        }
+        window.setHousePower = setHousePower;
+
+        function recordUsageTick(hoursOverride, wattsOverride) {
+            if (!simState.isConnected || !simState.transformerOn || simState.individualPowerCut || simState.prepaidExhausted || !simState.houseSwitchOn) {
+                return;
+            }
+            const wattsToUse = wattsOverride !== undefined ? wattsOverride : simState.lastTotalWatts;
+            if (wattsToUse <= 0) return;
+
+            const csrfInput = document.querySelector('#userCsrfHolder input[name="csrfmiddlewaretoken"]');
+            const csrfToken = csrfInput ? csrfInput.value : '';
+            const body = new URLSearchParams({
+                active_watts: String(wattsToUse),
+                duration_hours: String(hoursOverride || 0.05)
+            });
+
+            fetch("{% url 'record_power_usage' %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': csrfToken,
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                },
+                body: body.toString()
+            })
+            .then(function (resp) { return resp.ok ? resp.json() : null; })
+            .then(function (data) {
+                if (!data) return;
+                if (data.unbilled_units !== undefined) simState.unbilledUnits = Number(data.unbilled_units);
+                if (data.prepaid_units_balance !== undefined) simState.prepaidBalance = Number(data.prepaid_units_balance);
+                if (data.estimated_bill_rs !== undefined) simState.estimatedBillRs = Number(data.estimated_bill_rs);
+                if (data.exhausted) {
+                    simState.prepaidExhausted = true;
+                    simState.houseSwitchOn = false;
+                    showHouseAlert('error', data.message || 'Allocated Prepaid Units exhausted (0.00 Units). Pay bill to allocate units.');
+                }
+                renderHouseSimulation();
+            })
+            .catch(function () {});
+        }
+        window.recordUsageTick = recordUsageTick;
+
+        function toggleAppliance(key) {
+            if (!simState.isConnected) {
+                showHouseAlert('error', 'Connection is not completed yet. Power cannot reach your appliances.');
+                return;
+            }
+            if (!simState.transformerOn) {
+                showHouseAlert('error', 'Transformer ' + simState.transformerCode + ' Power Supply is currently OFF.');
+                return;
+            }
+            if (simState.individualPowerCut) {
+                const rem = simState.powerCutRemark ? (' Remark: ' + simState.powerCutRemark) : '';
+                showHouseAlert('error', 'Individual power supply is currently CUT for your premises.' + rem);
+                return;
+            }
+            if (simState.prepaidExhausted) {
+                showHouseAlert('error', 'Allocated Prepaid Units exhausted (0.00 Units). Pay a Commercial bill to recharge units.');
+                return;
+            }
+            if (!simState.houseSwitchOn) {
+                showHouseAlert('info', 'Turn ON Main Power first to operate appliances.');
+                return;
+            }
+            flushPendingUsageBeforeToggle();
+            simState.appliances[key] = !simState.appliances[key];
+            renderHouseSimulation();
+
+            const csrfInput = document.querySelector('#userCsrfHolder input[name="csrfmiddlewaretoken"]');
+            simState.togglePending = true;
+            fetch('/users/appliances/builtin/' + encodeURIComponent(key) + '/toggle/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfInput ? csrfInput.value : '',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(function (resp) { return resp.ok ? resp.json() : null; })
+            .then(function (data) {
+                simState.togglePending = false;
+                if (!data) return;
+                if (data.blocked && data.message) {
+                    showHouseAlert('error', data.message);
+                }
+                if (data.builtin_states) {
+                    simState.appliances = data.builtin_states;
+                    renderHouseSimulation();
+                }
+            })
+            .catch(function () {
+                simState.togglePending = false;
+            });
+        }
+        window.toggleAppliance = toggleAppliance;
+
+        function pollTransformerStatus() {
+            fetch("{% url 'power_status_api' %}", {
+                headers: { 'Accept': 'application/json' }
+            })
+            .then(function (resp) { return resp.ok ? resp.json() : null; })
+            .then(function (data) {
+                if (!data) return;
+                const prevConnected = simState.isConnected;
+                const prevGrid = simState.transformerOn;
+                const prevIndCut = simState.individualPowerCut;
+
+                simState.isConnected = Boolean(data.is_connected);
+                simState.transformerOn = Boolean(data.is_power_on);
+                simState.individualPowerCut = Boolean(data.individual_power_cut);
+                simState.prepaidExhausted = Boolean(data.prepaid_units_exhausted);
+                if (data.prepaid_units_balance !== undefined) simState.prepaidBalance = Number(data.prepaid_units_balance);
+                if (data.unbilled_units !== undefined) simState.unbilledUnits = Number(data.unbilled_units);
+                if (data.estimated_bill_rs !== undefined) simState.estimatedBillRs = Number(data.estimated_bill_rs);
+                if (data.unpaid_monthly_count !== undefined) simState.unpaidMonthlyCount = Number(data.unpaid_monthly_count);
+                if (data.unpaid_monthly_total !== undefined) simState.unpaidMonthlyTotal = Number(data.unpaid_monthly_total);
+                if (data.house_power_on !== undefined && !simState.togglePending) simState.houseSwitchOn = Boolean(data.house_power_on);
+                if (data.builtin_appliances && !simState.togglePending) simState.appliances = data.builtin_appliances;
+                if (data.custom_appliances && !simState.togglePending) simState.customAppliances = data.custom_appliances;
+                if (data.base_fare_rs !== undefined) {
+                    const nb = document.getElementById('navTariffBase');
+                    if (nb) nb.textContent = Number(data.base_fare_rs).toFixed(2);
+                }
+                if (data.rate_per_unit !== undefined) {
+                    simState.ratePerUnit = Number(data.rate_per_unit);
+                    const el = document.getElementById(IS_COMMERCIAL ? 'navTariffComm' : 'navTariffDom');
+                    if (el) el.textContent = Number(data.rate_per_unit).toFixed(2);
+                }
+                if (data.tariff_revision_note) {
+                    const nn = document.getElementById('navTariffNote');
+                    if (nn) nn.textContent = data.tariff_revision_note;
+                }
+                simState.powerCutRemark = data.power_cut_remark || '';
+                if (data.code) simState.transformerCode = data.code;
+                if (data.meter_number) {
+                    simState.meterNumber = data.meter_number;
+                    const navPill = document.getElementById('navMeterPill');
+                    const navMeterText = document.getElementById('navMeterNumberText');
+                    if (navMeterText) navMeterText.textContent = data.meter_number;
+                    if (navPill) {
+                        navPill.className = 'nav-meter-highlight assigned';
+                        navPill.href = "{% url 'user_billing' %}?meter_number=" + encodeURIComponent(data.meter_number);
+                    }
+                }
+
+                const simNameEl = document.getElementById('simTransformerName');
+                const simVoltEl = document.getElementById('simVoltageText');
+                if (simNameEl) simNameEl.textContent = simState.isConnected ? simState.transformerCode : 'Not Connected';
+                if (simVoltEl) simVoltEl.textContent = simState.individualPowerCut ? '0 V (Individual Power Cut)' : (data.voltage || '0 V');
+
+                renderHouseSimulation();
+
+                if (!simState.isConnected) {
+                    showHouseAlert(
+                        'error',
+                        'Power is NOT connected yet. Apply via Services -> New Connection and wait for Department installation.'
+                    );
+                } else if (!prevConnected && simState.isConnected) {
+                    showHouseAlert('info', 'Connected to ' + simState.transformerCode + ' (Meter ' + simState.meterNumber + ')!');
+                } else if (!simState.transformerOn) {
+                    showHouseAlert('error', 'Transformer ' + simState.transformerCode + ' Power Supply is OFF from Administration.');
+                } else if (simState.individualPowerCut) {
+                    const rem = simState.powerCutRemark ? (' Remark: ' + simState.powerCutRemark) : '';
+                    showHouseAlert('error', 'Individual power supply is CUT for your ' + (IS_COMMERCIAL ? 'Commercial' : 'Domestic') + ' connection.' + rem);
+                } else if (simState.prepaidExhausted) {
+                    showHouseAlert('error', 'Allocated Prepaid Units exhausted (0.00 Units). Pay bill via Services -> Power Billing to allocate units.');
+                } else if (prevIndCut && !simState.individualPowerCut) {
+                    const rem = simState.powerCutRemark ? (' Remark: ' + simState.powerCutRemark) : '';
+                    showHouseAlert('info', 'Individual power supply RESTORED!' + rem);
+                } else if (!prevGrid && simState.transformerOn) {
+                    showHouseAlert('info', 'Grid Power Restored on Transformer ' + simState.transformerCode + '!');
+                } else if (simState.powerCutRemark) {
+                    showHouseAlert('info', 'Supply Remark: ' + simState.powerCutRemark);
+                } else if (prevGrid && simState.transformerOn) {
+                    const box = document.getElementById('houseSimAlert');
+                    if (box && box.classList.contains('error')) showHouseAlert('', '');
+                }
+            })
+            .catch(function (err) { console.error(err); });
+        }
+
+        function claimLiveMeterLease(nowMs) {
+            try {
+                const key = 'voltgrid_live_meter_lease';
+                const raw = localStorage.getItem(key);
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    if (parsed && parsed.tabId !== simState.tabId && (nowMs - Number(parsed.ts || 0)) < 3000) {
+                        return false;
+                    }
+                }
+                localStorage.setItem(key, JSON.stringify({ tabId: simState.tabId, ts: nowMs }));
+                return true;
+            } catch (e) {
+                return true;
+            }
+        }
+
+        function stepRealTimeMetering() {
+            const nowMs = Date.now();
+            if (
+                document.hidden ||
+                !simState.isConnected ||
+                !simState.transformerOn ||
+                simState.individualPowerCut ||
+                simState.prepaidExhausted ||
+                !simState.houseSwitchOn ||
+                simState.lastTotalWatts <= 0 ||
+                !claimLiveMeterLease(nowMs)
+            ) {
+                simState.lastMeterTickMs = nowMs;
+                return;
+            }
+
+            const elapsedMs = Math.min(5000, Math.max(0, nowMs - simState.lastMeterTickMs));
+            simState.lastMeterTickMs = nowMs;
+            const deltaHours = elapsedMs / 3600000;
+            simState.pendingHours += deltaHours;
+            simState.pendingEnergyKwh += (simState.lastTotalWatts / 1000) * deltaHours;
+
+            if (simState.pendingEnergyKwh >= 0.01) {
+                simState.pendingEnergyKwh = 0;
+                simState.pendingHours = 0;
+                pollTransformerStatus();
+            }
+        }
+
+        document.addEventListener('visibilitychange', function () {
+            if (!document.hidden) {
+                simState.lastMeterTickMs = Date.now();
+            }
+        });
+
+        renderHouseSimulation();
+        setInterval(pollTransformerStatus, 2000);
+        setInterval(stepRealTimeMetering, 1000);
+    })();
+</script>

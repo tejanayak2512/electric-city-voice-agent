@@ -1,0 +1,1073 @@
+<style>
+    .master-grid-bar {
+        background: linear-gradient(120deg, #063b78, #07549a);
+        color: #ffffff;
+        border-radius: 13px;
+        padding: 15px 20px;
+        margin-bottom: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+        box-shadow: 0 8px 22px rgba(6, 59, 120, 0.16);
+    }
+    .master-grid-info { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .master-grid-info h3 { font-size: 15.5px; font-weight: 800; margin: 0; }
+    .master-grid-info p { font-size: 12px; color: #dbeafe; margin-top: 2px; }
+    .master-status-pill {
+        display: inline-flex; align-items: center; gap: 7px; padding: 6px 13px; border-radius: 999px;
+        font-size: 12px; font-weight: 800; border: 1.5px solid;
+    }
+    .master-status-pill.all-on { background: #dcfce7; color: #166534; border-color: #86efac; }
+    .master-status-pill.partial { background: #fef3c7; color: #92400e; border-color: #fcd34d; }
+    .master-status-pill.all-off { background: #fee2e2; color: #991b1b; border-color: #fca5a5; }
+    .master-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .master-btn {
+        height: 40px; padding: 0 16px; border-radius: 9px; border: 2px solid transparent;
+        font-family: inherit; font-size: 13px; font-weight: 800; cursor: pointer;
+        display: inline-flex; align-items: center; gap: 7px; transition: all 0.2s ease;
+    }
+    .master-btn.on { background: #ecfdf3; color: #15803d; border-color: #86efac; }
+    .master-btn.on.active, .master-btn.on:hover { background: #16a34a; color: #ffffff; border-color: #dcfce7; }
+    .master-btn.off { background: #fef2f2; color: #b91c1c; border-color: #fca5a5; }
+    .master-btn.off.active, .master-btn.off:hover { background: #dc2626; color: #ffffff; border-color: #fecaca; }
+
+    /* SUBSTATION OVERVIEW + MULTI-TRANSFORMER FLEET + REALISTIC SCADA BAY */
+    .substation-grid {
+        display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 14px; margin-bottom: 18px;
+    }
+    .substation-card {
+        background: linear-gradient(135deg, #ffffff, #f6faff);
+        border: 1.5px solid #c6d8ed; border-radius: 13px; padding: 14px 16px;
+        box-shadow: 0 4px 14px rgba(8, 47, 96, 0.06);
+        display: flex; flex-direction: column; gap: 10px;
+    }
+    .substation-card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+    .substation-title { display: flex; align-items: center; gap: 9px; font-size: 14.5px; font-weight: 800; color: #082f66; }
+    .substation-title i { color: #07549a; font-size: 17px; }
+    .substation-sub { font-size: 12px; color: #476385; font-weight: 600; margin-top: 2px; }
+    .substation-metrics {
+        display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px;
+        background: #eef5ff; border: 1px solid #d5e4f5; border-radius: 9px; padding: 8px 10px;
+    }
+    .substation-metrics div span { display: block; font-size: 10px; font-weight: 700; text-transform: uppercase; color: #4b698c; }
+    .substation-metrics div strong { font-size: 13px; color: #082f66; }
+
+    .transformer-fleet-bar {
+        display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; margin-bottom: 20px;
+    }
+    .tf-card {
+        background: #ffffff; border: 2px solid #c6d8ed; border-radius: 12px; padding: 14px 16px;
+        cursor: pointer; transition: all 0.2s ease; display: flex; flex-direction: column; gap: 8px;
+    }
+    .tf-card.selected {
+        border-color: #07549a; box-shadow: 0 8px 22px rgba(7, 84, 154, 0.16); background: #f5f9ff;
+    }
+    .tf-card-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .tf-code { font-size: 15.5px; font-weight: 800; color: #082f66; }
+    .tf-sub-tag {
+        display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; font-weight: 700;
+        color: #07549a; background: #eaf2ff; border-radius: 6px; padding: 3px 8px; width: fit-content;
+    }
+    .tf-badge { padding: 3px 10px; border-radius: 999px; font-size: 11px; font-weight: 800; }
+    .tf-badge.on { background: #dcfce7; color: #166534; }
+    .tf-badge.off { background: #fee2e2; color: #991b1b; }
+    .tf-zone { font-size: 12.5px; color: #365070; font-weight: 600; }
+    .tf-meter-chip {
+        display: flex; align-items: center; justify-content: space-between; font-size: 11.5px; font-weight: 700;
+        color: #1e3a5f; background: #f8fbff; border: 1px solid #dbe7f4; border-radius: 7px; padding: 5px 9px;
+    }
+    .tf-actions { display: flex; gap: 8px; margin-top: 2px; }
+    .tf-mini-btn {
+        flex: 1; height: 32px; border-radius: 7px; border: 1px solid; font-family: inherit;
+        font-size: 12px; font-weight: 800; cursor: pointer;
+    }
+    .tf-mini-btn.on { background: #ecfdf3; border-color: #86efac; color: #15803d; }
+    .tf-mini-btn.on.active { background: #16a34a; border-color: #15803d; color: #ffffff; }
+    .tf-mini-btn.off { background: #fef2f2; border-color: #fca5a5; color: #b91c1c; }
+    .tf-mini-btn.off.active { background: #dc2626; border-color: #991b1b; color: #ffffff; }
+
+    .transformer-panel {
+        background: #ffffff; border: 1px solid #c6d8ed; border-radius: 16px; overflow: hidden;
+        box-shadow: 0 12px 32px rgba(8, 47, 96, 0.1); margin-bottom: 24px;
+    }
+    .transformer-panel-header {
+        background: linear-gradient(90deg, #e9f2ff, #f3f8ff); border-bottom: 1px solid #cbdcf0;
+        padding: 14px 22px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+    }
+    .transformer-panel-title { display: flex; align-items: center; gap: 10px; color: #082f69; font-size: 16.5px; font-weight: 800; }
+    .grid-status-pill {
+        display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; border-radius: 999px; font-size: 12.5px; font-weight: 800;
+    }
+    .grid-status-pill.on { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+    .grid-status-pill.off { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+
+    .transformer-grid { display: grid; grid-template-columns: 1.75fr 1fr; gap: 20px; padding: 20px; align-items: stretch; }
+    .transformer-stage {
+        border-radius: 14px; border: 1px solid #1e3f6e; background: #061428; position: relative;
+        overflow: hidden; box-shadow: inset 0 0 36px rgba(0, 0, 0, 0.45);
+    }
+    .transformer-stage svg { width: 100%; height: auto; display: block; }
+
+    .hv-pulse { stroke: #38bdf8; stroke-width: 3.2; stroke-dasharray: 10 14; fill: none; opacity: 0; transition: opacity 0.3s ease; }
+    .lv-pulse { stroke: #facc15; stroke-width: 3.4; stroke-dasharray: 9 11; fill: none; opacity: 0; transition: opacity 0.3s ease; }
+    .transformer-stage.power-on .hv-pulse { opacity: 0.95; animation: currentTravel 0.7s linear infinite; filter: drop-shadow(0 0 5px #38bdf8); }
+    .transformer-stage.power-on .lv-pulse { opacity: 1; animation: currentTravel 0.55s linear infinite; filter: drop-shadow(0 0 6px #facc15); }
+    @keyframes currentTravel { from { stroke-dashoffset: 48; } to { stroke-dashoffset: 0; } }
+
+    .coil-energize { opacity: 0.12; transition: opacity 0.35s ease; }
+    .transformer-stage.power-on .coil-energize { opacity: 1; animation: transformerHum 1.5s ease-in-out infinite; }
+    @keyframes transformerHum {
+        0%, 100% { filter: drop-shadow(0 0 5px rgba(56, 189, 248, 0.8)); opacity: 0.85; }
+        50% { filter: drop-shadow(0 0 14px rgba(250, 204, 21, 0.95)); opacity: 1; }
+    }
+    .radiator-fan-blades { transform-origin: 0px 0px; }
+    .transformer-stage.power-on .radiator-fan-blades { animation: radiatorSpin 0.55s linear infinite; }
+    @keyframes radiatorSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    .breaker-blade { transform-origin: 552px 172px; transition: transform 0.38s cubic-bezier(0.34, 1.56, 0.64, 1); transform: rotate(-38deg); }
+    .transformer-stage.power-on .breaker-blade { transform: rotate(0deg); }
+    .temp-needle { transform-origin: 354px 250px; transition: transform 0.7s ease; transform: rotate(-45deg); }
+    .transformer-stage.power-on .temp-needle { transform: rotate(28deg); }
+    .substation-lamp-on { fill: #1e293b; transition: fill 0.3s ease; }
+    .transformer-stage.power-on .substation-lamp-on { fill: #22c55e; filter: drop-shadow(0 0 8px #22c55e); }
+    .substation-lamp-off { fill: #ef4444; filter: drop-shadow(0 0 8px #ef4444); transition: fill 0.3s ease; }
+    .transformer-stage.power-on .substation-lamp-off { fill: #334155; filter: none; }
+
+    .transformer-controls {
+        display: flex; flex-direction: column; justify-content: space-between; gap: 12px;
+        background: #f8fbff; border: 1px solid #d6e4f3; border-radius: 14px; padding: 16px;
+    }
+    .scada-header { display: flex; align-items: center; justify-content: space-between; padding-bottom: 10px; border-bottom: 1px solid #d6e4f3; }
+    .scada-header h3 { font-size: 15px; font-weight: 800; color: #082f66; display: flex; align-items: center; gap: 8px; }
+    .scada-live-dot { display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; font-weight: 800; color: #07549a; }
+    .scada-live-dot::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #16a34a; box-shadow: 0 0 6px #16a34a; }
+    .telemetry-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 9px; }
+    .telemetry-box { background: #ffffff; border: 1px solid #d7e4f3; border-radius: 10px; padding: 9px 11px; }
+    .telemetry-box span { display: block; font-size: 10px; font-weight: 700; text-transform: uppercase; color: #4b698c; margin-bottom: 3px; }
+    .telemetry-box strong { font-size: 13.5px; color: #082f66; word-break: break-word; }
+
+    .power-buttons-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .power-ctrl-btn {
+        height: 48px; border-radius: 10px; border: 2px solid transparent; font-family: inherit;
+        font-size: 14.5px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s ease;
+    }
+    .power-ctrl-btn.btn-on { background: #ecfdf3; color: #15803d; border-color: #86efac; }
+    .power-ctrl-btn.btn-on.active, .power-ctrl-btn.btn-on:hover { background: linear-gradient(135deg, #16a34a, #15803d); color: #ffffff; border-color: #166534; }
+    .power-ctrl-btn.btn-off { background: #fef2f2; color: #b91c1c; border-color: #fca5a5; }
+    .power-ctrl-btn.btn-off.active, .power-ctrl-btn.btn-off:hover { background: linear-gradient(135deg, #dc2626, #b91c1c); color: #ffffff; border-color: #991b1b; }
+    .power-note { font-size: 12.5px; color: #365070; line-height: 1.5; background: #ffffff; border-left: 4px solid #07549a; padding: 10px 12px; border-radius: 6px; }
+
+    /* ALLOCATED & CONNECTED METERS SUBPANEL INSIDE SUBSTATION CARD */
+    .substation-meters-strip {
+        border-top: 1px solid #d5e3f3;
+        background: #f7faff;
+        padding: 16px 22px 20px;
+    }
+    .substation-meters-head {
+        display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 12px;
+    }
+    .substation-meters-head h4 { font-size: 14.5px; font-weight: 800; color: #082f66; display: flex; align-items: center; gap: 8px; }
+    .substation-meters-table-wrap { overflow-x: auto; background: #ffffff; border: 1px solid #d5e3f3; border-radius: 10px; }
+    .substation-meters-table-wrap table { width: 100%; border-collapse: collapse; min-width: 780px; }
+    .substation-meters-table-wrap th,
+    .substation-meters-table-wrap td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #e6eef8; font-size: 12.5px; }
+    .substation-meters-table-wrap th { background: #f1f6fe; color: #082f66; font-weight: 800; font-size: 11px; text-transform: uppercase; }
+    .meter-stage-pill { display: inline-block; padding: 3px 9px; border-radius: 999px; font-size: 11px; font-weight: 800; }
+    .msp-live { background: #dcfce7; color: #166534; }
+    .msp-outage { background: #fee2e2; color: #991b1b; }
+    .msp-issued { background: #ede9fe; color: #5b21b6; }
+    .msp-verified { background: #fef3c7; color: #92400e; }
+
+    .unit-kind-pill {
+        display: inline-flex; align-items: center; gap: 5px; padding: 2px 8px; border-radius: 6px;
+        font-size: 11px; font-weight: 800; margin-bottom: 3px;
+    }
+    .uk-home { background: #e0f2fe; color: #075985; }
+    .uk-industry { background: #ede9fe; color: #5b21b6; }
+    .meter-action-wrap { display: flex; flex-direction: column; gap: 6px; min-width: 250px; }
+    .meter-remark-input {
+        width: 100%; height: 32px; padding: 5px 9px; border: 1.5px solid #c6d8ed; border-radius: 7px;
+        font-family: inherit; font-size: 12px; background: #ffffff; color: #102b4c;
+    }
+    .meter-btn-row { display: flex; gap: 6px; flex-wrap: wrap; }
+    .meter-mini-btn {
+        height: 29px; padding: 0 10px; border-radius: 6px; border: 1px solid transparent;
+        font-family: inherit; font-size: 11.5px; font-weight: 700; cursor: pointer;
+        display: inline-flex; align-items: center; gap: 5px;
+    }
+    .mm-cut { background: #fee2e2; border-color: #fca5a5; color: #b91c1c; }
+    .mm-cut:hover { background: #dc2626; color: #ffffff; }
+    .mm-restore { background: #dcfce7; border-color: #86efac; color: #15803d; }
+    .mm-restore:hover { background: #16a34a; color: #ffffff; }
+    .mm-remark { background: #eaf2ff; border-color: #93c5fd; color: #07549a; }
+    .mm-remark:hover { background: #07549a; color: #ffffff; }
+    .meter-feedback-banner {
+        display: none; padding: 9px 13px; border-radius: 8px; font-size: 12.5px; font-weight: 700; margin-bottom: 10px;
+    }
+    .meter-feedback-banner.show { display: block; }
+    .meter-feedback-banner.ok { background: #dcfce7; border: 1px solid #86efac; color: #166534; }
+    .meter-feedback-banner.err { background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; }
+
+    @media (max-width: 1120px) {
+        .transformer-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 768px) {
+        .power-buttons-wrap, .telemetry-grid { grid-template-columns: 1fr; }
+    }
+</style>
+
+<!-- OVERALL GRID POWER CONTROL (ALL TRANSFORMERS) -->
+<div style="font-size:13px; font-weight:800; color:#082f66; margin:4px 0 8px; display:flex; align-items:center; gap:7px;">
+    Overall Substation Grid Control
+</div>
+<section class="master-grid-bar" id="masterGridControlBar" aria-label="Overall Transformers Control">
+    <div class="master-grid-info">
+        <div>
+            <h3><i class="fa-solid fa-power-off"></i> Overall Substation Grid &amp; Transformers Control</h3>
+        </div>
+
+    </div>
+
+    {% if can_control_transformers %}
+    <div class="master-actions">
+        <button type="button"
+                id="masterPowerOnBtn"
+                class="master-btn on {% if overall_grid.all_on %}active{% endif %}"
+                onclick="setAllTransformersPower('on')">
+            <i class="fa-solid fa-power-off"></i> Overall Power ON
+        </button>
+        <button type="button"
+                id="masterPowerOffBtn"
+                class="master-btn off {% if overall_grid.all_off %}active{% endif %}"
+                onclick="setAllTransformersPower('off')">
+            <i class="fa-solid fa-plug-circle-xmark"></i> Overall Power OFF
+        </button>
+    </div>
+    {% endif %}
+</section>
+
+<!-- SUBSTATIONS FLEET OVERVIEW -->
+
+
+<!-- MULTI-TRANSFORMER SELECTOR CARDS -->
+<div style="font-size:13px; font-weight:800; color:#082f66; margin:4px 0 8px; display:flex; align-items:center; gap:7px;">
+    Feeder Transformers Fleet (Select Unit for Live SCADA &amp; Meters)
+</div>
+<div class="transformer-fleet-bar" id="transformerFleetBar">
+    {% for item in fleet_items %}
+    <div class="tf-card {% if item.tf.id == selected_transformer.id %}selected{% endif %}"
+         id="tfCard-{{ item.tf.id }}"
+         onclick="selectTransformer({{ item.tf.id }})">
+        <div class="tf-card-top">
+            <span class="tf-code">{{ item.tf.code }} &bull; {{ item.tf.capacity_kva }} kVA</span>
+            <span id="tfCardBadge-{{ item.tf.id }}" class="tf-badge {% if item.tf.is_power_on %}on{% else %}off{% endif %}">
+                {% if item.tf.is_power_on %}ON{% else %}OFF{% endif %}
+            </span>
+        </div>
+        <span class="tf-sub-tag"><i class="fa-solid fa-building-shield"></i> {{ item.tf.substation_name }}</span>
+        <div class="tf-zone">{{ item.tf.zone }}</div>
+        <div class="tf-meter-chip">
+            <span><i class="fa-solid fa-gauge-high"></i> Allocated Meters: <strong id="tfCardAlloc-{{ item.tf.id }}">{{ item.allocated_count }}</strong></span>
+            <span>Connected: <strong id="tfCardConn-{{ item.tf.id }}">{{ item.connected_count }}</strong></span>
+        </div>
+        {% if can_control_transformers %}
+        <div class="tf-actions" onclick="event.stopPropagation()">
+            <button type="button"
+                    id="tfCardOn-{{ item.tf.id }}"
+                    class="tf-mini-btn on {% if item.tf.is_power_on %}active{% endif %}"
+                    onclick="setTransformerPower('on', {{ item.tf.id }})">
+                Power ON
+            </button>
+            <button type="button"
+                    id="tfCardOff-{{ item.tf.id }}"
+                    class="tf-mini-btn off {% if not item.tf.is_power_on %}active{% endif %}"
+                    onclick="setTransformerPower('off', {{ item.tf.id }})">
+                Power OFF
+            </button>
+            <form method="post"
+                  action="{% url 'delete_transformer' item.tf.id %}"
+                  style="display:inline-flex;"
+                  onsubmit="return confirm('Delete transformer {{ item.tf.code }} ({{ item.tf.substation_name }})? Only unassigned units with no active meters can be deleted.');">
+                {% csrf_token %}
+                <button type="submit"
+                        id="tfCardDelete-{{ item.tf.id }}"
+                        class="tf-mini-btn off"
+                        style="flex:0 0 auto; padding:0 10px;"
+                        title="Delete Transformer {{ item.tf.code }}">
+                    <i class="fa-solid fa-trash"></i>
+                </button>
+            </form>
+        </div>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+
+<!-- REALISTIC 33/11 KV SUBSTATION + STEP-DOWN TRANSFORMER + ALLOCATED METERS VISUALIZER -->
+<div style="font-size:13px; font-weight:800; color:#082f66; margin:4px 0 8px; display:flex; align-items:center; gap:7px;">
+</div>
+<section class="transformer-panel" id="transformerPanel">
+    <div class="transformer-panel-header">
+        <div class="transformer-panel-title">
+            <i class="fa-solid fa-bolt"></i>
+            <span id="selectedTransformerHeading">
+                {{ selected_transformer.substation_name }} &mdash; {{ selected_transformer.name }} ({{ selected_transformer.zone }})
+            </span>
+        </div>
+
+        <span id="adminGridStatusPill"
+              class="grid-status-pill {% if selected_transformer.is_power_on %}on{% else %}off{% endif %}">
+            <i class="fa-solid {% if selected_transformer.is_power_on %}fa-plug-circle-check{% else %}fa-plug-circle-xmark{% endif %}"></i>
+            <span id="adminGridStatusText">
+                {% if selected_transformer.is_power_on %}
+                    POWER SUPPLY ON (ACTIVE)
+                {% else %}
+                    POWER SUPPLY OFF (OUTAGE)
+                {% endif %}
+            </span>
+        </span>
+    </div>
+
+    <div class="transformer-grid">
+
+        <div id="transformerStage"
+             class="transformer-stage {% if selected_transformer.is_power_on %}power-on{% endif %}">
+            <svg id="substationRealisticSvg" viewBox="0 0 920 385" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Realistic Substation Power Transformer and Connected Meters Schematic">
+                <defs>
+                    <linearGradient id="subSky" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="#051020" />
+                        <stop offset="60%" stop-color="#0e2a4f" />
+                        <stop offset="100%" stop-color="#19426e" />
+                    </linearGradient>
+                    <linearGradient id="tankSteel" x1="0" y1="0" x2="1" y2="0">
+                        <stop offset="0%" stop-color="#1e293b" />
+                        <stop offset="22%" stop-color="#475569" />
+                        <stop offset="52%" stop-color="#334155" />
+                        <stop offset="85%" stop-color="#1e293b" />
+                        <stop offset="100%" stop-color="#0f172a" />
+                    </linearGradient>
+                    <linearGradient id="conservatorGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="#64748b" />
+                        <stop offset="45%" stop-color="#334155" />
+                        <stop offset="100%" stop-color="#0f172a" />
+                    </linearGradient>
+                    <linearGradient id="porcelainHV" x1="0" y1="0" x2="1" y2="0">
+                        <stop offset="0%" stop-color="#7c2d12" />
+                        <stop offset="45%" stop-color="#c2410c" />
+                        <stop offset="100%" stop-color="#431407" />
+                    </linearGradient>
+                    <linearGradient id="porcelainLV" x1="0" y1="0" x2="1" y2="0">
+                        <stop offset="0%" stop-color="#0c4a6e" />
+                        <stop offset="45%" stop-color="#0284c7" />
+                        <stop offset="100%" stop-color="#082f49" />
+                    </linearGradient>
+                    <linearGradient id="concretePad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="#334155" />
+                        <stop offset="100%" stop-color="#1e293b" />
+                    </linearGradient>
+                    <pattern id="hazardStripe" width="16" height="12" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+                        <rect width="8" height="12" fill="#eab308" />
+                        <rect x="8" width="8" height="12" fill="#0f172a" />
+                    </pattern>
+                    <radialGradient id="substationGlow" cx="50%" cy="50%" r="50%">
+                        <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.32" />
+                        <stop offset="100%" stop-color="#38bdf8" stop-opacity="0" />
+                    </radialGradient>
+                </defs>
+
+                <rect x="0" y="0" width="920" height="320" fill="url(#subSky)" />
+                <rect x="0" y="302" width="920" height="83" fill="#0d1b2d" />
+
+                <!-- SUBSTATION HEADER SIGNPLATE -->
+                <rect x="16" y="12" width="590" height="24" rx="5" fill="#08254c" stroke="#38bdf8" stroke-opacity="0.6" />
+                <text id="svgSubstationName" x="311" y="28" fill="#bae6fd" font-size="10.5" font-weight="800" text-anchor="middle">
+                    {{ selected_transformer.substation_name|upper }} &bull; {{ selected_transformer.code }} GRID BAY
+                </text>
+
+                <!-- SUBSTATION FOUNDATION PADS -->
+                <rect x="190" y="304" width="268" height="28" rx="3" fill="url(#concretePad)" stroke="#64748b" stroke-width="1.5" />
+                <rect x="192" y="322" width="264" height="8" fill="url(#hazardStripe)" opacity="0.9" />
+                <rect x="500" y="304" width="128" height="24" rx="3" fill="url(#concretePad)" stroke="#64748b" stroke-width="1.5" />
+
+                <!-- 33/11kV SUBSTATION GANTRY TOWER & ISOLATOR -->
+                <g>
+                    <polygon points="44,306 64,74 92,74 112,306 100,306 84,84 72,84 56,306" fill="#334155" stroke="#64748b" stroke-width="1.2" />
+                    <rect x="22" y="96" width="112" height="7" rx="2" fill="#475569" stroke="#94a3b8" />
+                    <rect x="30" y="136" width="96" height="6" rx="2" fill="#475569" stroke="#94a3b8" />
+                    <rect x="110" y="103" width="8" height="16" rx="2" fill="#b45309" />
+                    <rect x="110" y="142" width="8" height="14" rx="2" fill="#b45309" />
+                    <!-- Lightning Arrester -->
+                    <rect x="134" y="196" width="12" height="110" rx="2" fill="#475569" />
+                    <rect x="132" y="166" width="16" height="30" rx="3" fill="url(#porcelainHV)" />
+                    <text x="78" y="64" fill="#93c5fd" font-size="10.5" font-weight="800" text-anchor="middle">33/11 kV INCOMER</text>
+                </g>
+
+                <!-- HV SUBSTATION BUS WIRES -->
+                <g fill="none">
+                    <path d="M 114 118 Q 176 150 248 104" stroke="#475569" stroke-width="3.5" />
+                    <path d="M 114 118 Q 176 150 248 104" class="hv-pulse" />
+                    <path d="M 114 154 Q 188 178 278 104" stroke="#475569" stroke-width="3.5" />
+                    <path d="M 114 154 Q 188 178 278 104" class="hv-pulse" />
+                    <path d="M 44 118 Q 168 124 308 104" stroke="#475569" stroke-width="3.5" />
+                    <path d="M 44 118 Q 168 124 308 104" class="hv-pulse" />
+                </g>
+
+                <circle cx="324" cy="216" r="122" fill="url(#substationGlow)" class="coil-energize" />
+
+                <!-- CONSERVATOR & SILICA GEL BREATHER -->
+                <line x1="256" y1="92" x2="256" y2="132" stroke="#64748b" stroke-width="4" />
+                <line x1="338" y1="92" x2="338" y2="132" stroke="#64748b" stroke-width="4" />
+                <rect x="234" y="48" width="128" height="44" rx="20" fill="url(#conservatorGrad)" stroke="#94a3b8" stroke-width="1.8" />
+                <rect x="242" y="60" width="7" height="20" rx="2" fill="#0f172a" stroke="#64748b" />
+                <rect x="243.5" y="67" width="4" height="11" fill="#eab308" />
+                <rect x="212" y="88" width="12" height="22" rx="4" fill="#1d4ed8" stroke="#93c5fd" />
+
+                <!-- HV & LV BUSHINGS -->
+                <g>
+                    <rect x="243" y="100" width="10" height="34" rx="2" fill="url(#porcelainHV)" />
+                    <rect x="273" y="100" width="10" height="34" rx="2" fill="url(#porcelainHV)" />
+                    <rect x="303" y="100" width="10" height="34" rx="2" fill="url(#porcelainHV)" />
+                    <rect x="380" y="106" width="8" height="28" rx="2" fill="url(#porcelainLV)" />
+                    <rect x="402" y="106" width="8" height="28" rx="2" fill="url(#porcelainLV)" />
+                </g>
+
+                <!-- RADIATOR COOLING FINS & FAN -->
+                <g fill="#1e293b" stroke="#64748b" stroke-width="1.2">
+                    <rect x="194" y="156" width="10" height="126" rx="2" />
+                    <rect x="207" y="156" width="10" height="126" rx="2" />
+                    <rect x="220" y="156" width="10" height="126" rx="2" />
+                    <rect x="416" y="156" width="10" height="126" rx="2" />
+                    <rect x="429" y="156" width="10" height="126" rx="2" />
+                    <rect x="442" y="156" width="10" height="126" rx="2" />
+                </g>
+                <g transform="translate(212, 219)">
+                    <circle cx="0" cy="0" r="17" fill="#0f172a" stroke="#64748b" stroke-width="2" />
+                    <g class="radiator-fan-blades">
+                        <ellipse cx="0" cy="-9" rx="3" ry="7" fill="#94a3b8" />
+                        <ellipse cx="8" cy="5" rx="3" ry="7" transform="rotate(120 8 5)" fill="#94a3b8" />
+                        <ellipse cx="-8" cy="5" rx="3" ry="7" transform="rotate(-120 -8 5)" fill="#94a3b8" />
+                    </g>
+                    <circle cx="0" cy="0" r="3.5" fill="#38bdf8" />
+                </g>
+
+                <!-- TRANSFORMER MAIN TANK & CORE -->
+                <rect x="232" y="136" width="182" height="164" rx="6" fill="url(#tankSteel)" stroke="#94a3b8" stroke-width="2" />
+                <rect x="226" y="130" width="194" height="12" rx="3" fill="#475569" stroke="#cbd5e1" stroke-width="1.2" />
+                <rect x="250" y="156" width="146" height="72" rx="6" fill="#071324" stroke="#475569" stroke-width="2" />
+                <g class="coil-energize">
+                    <rect x="266" y="167" width="38" height="50" rx="4" fill="#9a3412" stroke="#fbbf24" stroke-width="1.8" />
+                    <rect x="313" y="163" width="20" height="58" rx="2" fill="#38bdf8" opacity="0.65" />
+                    <rect x="342" y="167" width="38" height="50" rx="4" fill="#075985" stroke="#38bdf8" stroke-width="1.8" />
+                </g>
+
+                <!-- NAMEPLATE -->
+                <rect x="250" y="238" width="84" height="44" rx="3" fill="#cbd5e1" stroke="#475569" stroke-width="1.5" />
+                <text id="svgNameplateCode" x="292" y="253" fill="#0f172a" font-size="9" font-weight="800" text-anchor="middle">{{ selected_transformer.code }} STEP-DOWN</text>
+                <text id="svgNameplateCap" x="292" y="265" fill="#1e293b" font-size="8" font-weight="700" text-anchor="middle">{{ selected_transformer.capacity_kva }} kVA | 11kV/230V</text>
+                <text x="292" y="276" fill="#334155" font-size="7.5" font-weight="700" text-anchor="middle">OIL IMMERSED</text>
+
+                <!-- OIL TEMP & PILOT LAMPS -->
+                <circle cx="354" cy="250" r="14" fill="#f8fafc" stroke="#475569" stroke-width="2.5" />
+                <line x1="354" y1="250" x2="354" y2="239" stroke="#dc2626" stroke-width="2" stroke-linecap="round" class="temp-needle" />
+                <circle cx="384" cy="250" r="6" class="substation-lamp-on" stroke="#0f172a" />
+                <circle cx="401" cy="250" r="6" class="substation-lamp-off" stroke="#0f172a" />
+
+                <!-- CIRCUIT BREAKER CABINET -->
+                <path d="M 384 106 L 384 82 L 518 82 L 518 172 L 552 172" stroke="#475569" stroke-width="4" fill="none" />
+                <path d="M 384 106 L 384 82 L 518 82 L 518 172 L 552 172" class="lv-pulse" />
+                <rect x="504" y="132" width="120" height="168" rx="6" fill="url(#tankSteel)" stroke="#94a3b8" stroke-width="2" />
+                <rect x="514" y="142" width="100" height="72" rx="4" fill="#091526" stroke="#475569" stroke-width="1.5" />
+                <text x="564" y="157" fill="#93c5fd" font-size="8.5" font-weight="800" text-anchor="middle">FEEDER BREAKER</text>
+                <circle cx="552" cy="172" r="5" fill="#94a3b8" />
+                <circle cx="602" cy="172" r="5" fill="#94a3b8" />
+                <line x1="552" y1="172" x2="602" y2="172" stroke="#facc15" stroke-width="5.5" stroke-linecap="round" class="breaker-blade" />
+                <text id="svgBreakerText" x="564" y="202" fill="#e2e8f0" font-size="8.5" font-weight="800" text-anchor="middle">
+                    {% if selected_transformer.is_power_on %}CLOSED (ENERGIZED){% else %}OPEN (ISOLATED){% endif %}
+                </text>
+
+                <rect x="516" y="224" width="96" height="58" rx="4" fill="#04111f" stroke="#334155" stroke-width="1.5" />
+                <text id="svgScadaVolt" x="564" y="244" fill="{% if selected_transformer.is_power_on %}#4ade80{% else %}#f87171{% endif %}" font-size="11" font-weight="800" text-anchor="middle">
+                    {% if selected_transformer.is_power_on %}230 V AC{% else %}0.0 V{% endif %}
+                </text>
+                <text id="svgScadaFreq" x="564" y="260" fill="#38bdf8" font-size="9" font-weight="700" text-anchor="middle">
+                    {% if selected_transformer.is_power_on %}50.0 Hz | ON{% else %}0.0 Hz | OFF{% endif %}
+                </text>
+                <text id="svgMetersBadge" x="564" y="274" fill="#fde047" font-size="7.5" font-weight="800" text-anchor="middle">
+                    {{ selected_transformer_item.connected_count|default:0 }} LIVE / {{ selected_transformer_item.allocated_count|default:0 }} METER(S)
+                </text>
+
+                <!-- FEEDER BUSBAR -> ALLOCATED & CONNECTED METERS RACK -->
+                <path d="M 602 172 L 648 172" stroke="#475569" stroke-width="4" fill="none" />
+                <path d="M 602 172 L 648 172" class="lv-pulse" />
+                <rect x="646" y="18" width="260" height="350" rx="10" fill="#07162b" stroke="#3b6ea5" stroke-width="1.8" />
+                <text x="776" y="37" fill="#93c5fd" font-size="10" font-weight="800" text-anchor="middle">
+                    ALLOCATED &amp; CONNECTED METERS
+                </text>
+                <g id="svgAllocatedMetersBay"></g>
+            </svg>
+        </div>
+
+        <!-- TELEMETRY & CONTROLS -->
+        <div class="transformer-controls">
+            <div class="scada-header">
+                <h3><i class="fa-solid fa-sliders"></i> <span id="scadaCodeTitle">{{ selected_transformer.code }} Telemetry</span></h3>
+                <span class="scada-live-dot">{% if can_control_transformers %}SCADA LIVE{% else %}DEPT VIEW{% endif %}</span>
+            </div>
+
+            <div class="telemetry-grid">
+                <div class="telemetry-box">
+                    <span>Substation Name</span>
+                    <strong id="adminSubstationValue">{{ selected_transformer.substation_name }}</strong>
+                </div>
+                <div class="telemetry-box">
+                    <span>Feeder Zone</span>
+                    <strong id="adminZoneValue">{{ selected_transformer.zone }}</strong>
+                </div>
+                <div class="telemetry-box">
+                    <span>Grid Output Voltage</span>
+                    <strong id="adminVoltageValue">{{ selected_transformer.voltage }}</strong>
+                </div>
+                <div class="telemetry-box">
+                    <span>Line Frequency</span>
+                    <strong id="adminFrequencyValue">{{ selected_transformer.frequency }}</strong>
+                </div>
+                <div class="telemetry-box">
+                    <span>Capacity Rating</span>
+                    <strong id="adminCapacityValue">{{ selected_transformer.capacity_kva }} kVA</strong>
+                </div>
+                <div class="telemetry-box">
+                    <span>Allocated / Connected</span>
+                    <strong id="adminMetersSummary">{{ selected_transformer_item.allocated_count|default:0 }} Meters ({{ selected_transformer_item.connected_count|default:0 }} Live)</strong>
+                </div>
+            </div>
+
+            {% if can_control_transformers %}
+            <div class="power-buttons-wrap">
+                <button type="button"
+                        id="adminPowerOnBtn"
+                        class="power-ctrl-btn btn-on {% if selected_transformer.is_power_on %}active{% endif %}"
+                        onclick="setTransformerPower('on', currentTransformerId)">
+                    <i class="fa-solid fa-power-off"></i>
+                    Power ON
+                </button>
+
+                <button type="button"
+                        id="adminPowerOffBtn"
+                        class="power-ctrl-btn btn-off {% if not selected_transformer.is_power_on %}active{% endif %}"
+                        onclick="setTransformerPower('off', currentTransformerId)">
+                    <i class="fa-solid fa-plug-circle-xmark"></i>
+                    Power OFF
+                </button>
+            </div>
+            {% endif %}
+
+            <div class="power-note" id="adminPowerNote">
+                {% if selected_transformer.is_power_on %}
+                    <strong>{{ selected_transformer.substation_name }}</strong> ({{ selected_transformer.code }}) is energized at <strong>230V AC</strong> feeding connected meters in {{ selected_transformer.zone }}.
+                {% else %}
+                    <strong>{{ selected_transformer.substation_name }}</strong> ({{ selected_transformer.code }}) is <strong>OFF</strong>. Connected meters under this transformer have no supply.
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ALLOCATED & CONNECTED METERS LIST FOR SELECTED TRANSFORMER / SUBSTATION -->
+    <div class="substation-meters-strip" id="allocatedMetersSection">
+        <div class="substation-meters-head">
+            <h4>
+                <i class="fa-solid fa-gauge-high"></i>
+                <span id="allocatedMetersTitle">
+                    Meters in {{ selected_transformer.substation_name }} ({{ selected_transformer.code }})
+                </span>
+            </h4>
+            <span class="tf-badge on" id="allocatedMetersBadge">
+                {{ selected_transformer_item.allocated_count|default:0 }} Allocated &bull; {{ selected_transformer_item.connected_count|default:0 }} Connected
+            </span>
+        </div>
+
+        <div id="meterCutFeedbackBanner" class="meter-feedback-banner" role="status"></div>
+
+        <div class="substation-meters-table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Request ID</th>
+                        <th>Meter No. &amp; Serial</th>
+                        <th>Consumer &amp; Premises</th>
+                        <th>Home / Industry</th>
+                        <th>Supply Status</th>
+                        <th>Power Cut / Supply Remark &amp; Controls</th>
+                    </tr>
+                </thead>
+                <tbody id="allocatedMetersTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+{{ transformers_data|json_script:"transformersDataPayload" }}
+
+<script>
+    const CAN_CONTROL_TRANSFORMERS = {{ can_control_transformers|yesno:"true,false" }};
+    let currentTransformerId = {{ selected_transformer.id|default:1 }};
+    const TRANSFORMERS_MAP = JSON.parse(
+        (document.getElementById('transformersDataPayload') || { textContent: '{}' }).textContent
+    );
+
+    function subSvgEl(tag, attrs) {
+        const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+        Object.keys(attrs || {}).forEach(function (k) { el.setAttribute(k, attrs[k]); });
+        return el;
+    }
+
+    function showMeterCutFeedback(isOk, text) {
+        const banner = document.getElementById('meterCutFeedbackBanner');
+        if (!banner) return;
+        banner.className = 'meter-feedback-banner show ' + (isOk ? 'ok' : 'err');
+        banner.textContent = text;
+    }
+
+    function updateMeterPowerCut(appId, action, remarkInputEl) {
+        const csrfInput = document.querySelector('#csrfTokenHolder input[name="csrfmiddlewaretoken"]');
+        const csrfToken = csrfInput ? csrfInput.value : '';
+        const body = new URLSearchParams({
+            action: action,
+            power_cut_remark: remarkInputEl ? remarkInputEl.value : ''
+        });
+
+        fetch('/admins/connections/' + appId + '/power-cut/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': csrfToken,
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            },
+            body: body.toString()
+        })
+        .then(function (resp) { return resp.json().then(function (data) { return { ok: resp.ok, data: data }; }); })
+        .then(function (res) {
+            if (res.data && res.data.transformer) {
+                TRANSFORMERS_MAP[String(res.data.transformer.transformer_id)] = res.data.transformer;
+                if (res.data.transformer.transformer_id === currentTransformerId) {
+                    renderSubstationMetersVisuals(res.data.transformer);
+                }
+            }
+            showMeterCutFeedback(Boolean(res.ok && res.data.ok), res.data.message || res.data.error || 'Updated.');
+        })
+        .catch(function () {
+            showMeterCutFeedback(false, 'Could not update connection power state.');
+        });
+    }
+
+    function renderSubstationMetersVisuals(data) {
+        const isPowerOn = Boolean(data.is_power_on);
+        const meters = data.meters || [];
+
+        const liveMetersCount = meters.filter(function (m) {
+            return Boolean(m.is_connected) && isPowerOn && !Boolean(m.is_power_cut);
+        }).length;
+
+        const svgMetersBadge = document.getElementById('svgMetersBadge');
+        if (svgMetersBadge) {
+            svgMetersBadge.textContent = liveMetersCount + ' LIVE / ' + (data.allocated_count || 0) + ' METER(S)';
+        }
+
+        const bay = document.getElementById('svgAllocatedMetersBay');
+        if (bay) {
+            bay.innerHTML = '';
+            if (!meters.length) {
+                const emptyText = subSvgEl('text', {
+                    x: 776, y: 192, fill: '#94a3b8', 'font-size': 10, 'font-weight': 700, 'text-anchor': 'middle'
+                });
+                emptyText.textContent = 'NO METERS ALLOCATED YET';
+                bay.appendChild(emptyText);
+                const subEmpty = subSvgEl('text', {
+                    x: 776, y: 210, fill: '#64748b', 'font-size': 8.5, 'font-weight': 600, 'text-anchor': 'middle'
+                });
+                subEmpty.textContent = 'Assign requests to ' + data.code + ' to allocate meters';
+                bay.appendChild(subEmpty);
+            } else {
+                const maxShow = Math.min(meters.length, 5);
+                const busX = 656;
+                const topY = 56;
+                const bottomY = 56 + (maxShow - 1) * 60 + 24;
+
+                // Vertical LV feeder bus inside rack
+                bay.appendChild(subSvgEl('line', {
+                    x1: busX, y1: topY + 24, x2: busX, y2: bottomY,
+                    stroke: isPowerOn ? '#38bdf8' : '#334155', 'stroke-width': 3
+                }));
+
+                meters.slice(0, maxShow).forEach(function (m, idx) {
+                    const y = topY + idx * 60;
+                    const tapY = y + 24;
+                    const isIndCut = Boolean(m.is_connected) && Boolean(m.is_power_cut);
+                    const liveSupply = Boolean(m.is_connected) && isPowerOn && !isIndCut;
+
+                    bay.appendChild(subSvgEl('line', {
+                        x1: busX, y1: tapY, x2: 672, y2: tapY,
+                        stroke: '#334155', 'stroke-width': 2.5
+                    }));
+                    if (liveSupply) {
+                        bay.appendChild(subSvgEl('line', {
+                            x1: busX, y1: tapY, x2: 672, y2: tapY,
+                            class: 'lv-pulse'
+                        }));
+                    }
+
+                    const borderColor = liveSupply
+                        ? '#22c55e'
+                        : (m.is_connected ? '#ef4444' : (m.has_meter ? '#a78bfa' : '#f59e0b'));
+                    const ledColor = liveSupply
+                        ? '#22c55e'
+                        : (m.is_connected ? '#ef4444' : (m.has_meter ? '#a78bfa' : '#f59e0b'));
+
+                    bay.appendChild(subSvgEl('rect', {
+                        x: 672, y: y, width: 224, height: 50, rx: 7,
+                        fill: liveSupply ? '#0f2d24' : (isIndCut ? '#2a1219' : '#0f2036'),
+                        stroke: borderColor, 'stroke-width': 1.6
+                    }));
+
+                    bay.appendChild(subSvgEl('circle', {
+                        cx: 686, cy: y + 17, r: 4.5, fill: ledColor
+                    }));
+
+                    const mtrText = subSvgEl('text', {
+                        x: 697, y: y + 20, fill: '#f8fafc', 'font-size': 9.5, 'font-weight': 800
+                    });
+                    mtrText.textContent = m.has_meter ? m.meter_number : 'PENDING METER';
+                    bay.appendChild(mtrText);
+
+                    const reqText = subSvgEl('text', {
+                        x: 888, y: y + 20, fill: '#7dd3fc', 'font-size': 8.5, 'font-weight': 800, 'text-anchor': 'end'
+                    });
+                    reqText.textContent = m.request_id;
+                    bay.appendChild(reqText);
+
+                    const userLine = subSvgEl('text', {
+                        x: 684, y: y + 37, fill: isIndCut ? '#fca5a5' : '#cbd5e1', 'font-size': 8, 'font-weight': 600
+                    });
+                    const kindLabel = m.property_type === 'Commercial' ? 'Industry' : 'Home';
+                    const stateTag = liveSupply
+                        ? 'LIVE 230V'
+                        : (isIndCut ? 'POWER CUT' : (m.is_connected ? 'GRID OFF' : m.status.toUpperCase()));
+                    const shortName = m.applicant_name.length > 15 ? m.applicant_name.slice(0, 14) + '…' : m.applicant_name;
+                    userLine.textContent = shortName + ' (' + kindLabel + ') • ' + stateTag;
+                    bay.appendChild(userLine);
+                });
+
+                if (meters.length > maxShow) {
+                    const moreTxt = subSvgEl('text', {
+                        x: 784, y: 360, fill: '#93c5fd', 'font-size': 8.5, 'font-weight': 700, 'text-anchor': 'middle'
+                    });
+                    moreTxt.textContent = '+' + (meters.length - maxShow) + ' more meter(s) listed in table below';
+                    bay.appendChild(moreTxt);
+                }
+            }
+        }
+
+        // Update Allocated & Connected Meters table
+        const titleEl = document.getElementById('allocatedMetersTitle');
+        const badgeEl = document.getElementById('allocatedMetersBadge');
+        const tbody = document.getElementById('allocatedMetersTableBody');
+        if (titleEl) {
+            titleEl.textContent = 'Meters in ' + (data.substation_name || 'Substation') + ' (' + data.code + ')';
+        }
+        if (badgeEl) {
+            badgeEl.textContent = (data.allocated_count || 0) + ' Allocated • ' + liveMetersCount + ' Live';
+        }
+        if (tbody) {
+            tbody.innerHTML = '';
+            if (!meters.length) {
+                const tr = document.createElement('tr');
+                const td = document.createElement('td');
+                td.colSpan = 6;
+                td.style.textAlign = 'center';
+                td.style.padding = '18px';
+                td.style.color = '#4b698c';
+                td.textContent = 'No meters or aligned requests under ' + data.code + ' yet.';
+                tr.appendChild(td);
+                tbody.appendChild(tr);
+            } else {
+                meters.forEach(function (m) {
+                    const isIndCut = Boolean(m.is_connected) && Boolean(m.is_power_cut);
+                    const tr = document.createElement('tr');
+
+                    const tdReq = document.createElement('td');
+                    const reqStrong = document.createElement('strong');
+                    reqStrong.textContent = m.request_id;
+                    tdReq.appendChild(reqStrong);
+
+                    const tdMeter = document.createElement('td');
+                    if (m.has_meter) {
+                        const codeEl = document.createElement('code');
+                        const strongM = document.createElement('strong');
+                        strongM.textContent = m.meter_number;
+                        codeEl.appendChild(strongM);
+                        tdMeter.appendChild(codeEl);
+                        const serSmall = document.createElement('div');
+                        serSmall.style.fontSize = '11px';
+                        serSmall.style.color = '#4b698c';
+                        serSmall.textContent = 'Orig: ' + m.original_meter_serial;
+                        tdMeter.appendChild(serSmall);
+                    } else {
+                        const pendSpan = document.createElement('span');
+                        pendSpan.style.color = '#64748b';
+                        pendSpan.textContent = 'Pending Meter Issuance';
+                        tdMeter.appendChild(pendSpan);
+                    }
+
+                    const tdConsumer = document.createElement('td');
+                    const strongName = document.createElement('strong');
+                    strongName.textContent = m.applicant_name;
+                    const userSmall = document.createElement('div');
+                    userSmall.style.fontSize = '11.5px';
+                    userSmall.style.color = '#4b698c';
+                    userSmall.textContent = '@' + m.username + ' • ' + m.house_address;
+                    tdConsumer.appendChild(strongName);
+                    tdConsumer.appendChild(userSmall);
+
+                    const tdCat = document.createElement('td');
+                    const unitBadge = document.createElement('span');
+                    unitBadge.className = 'unit-kind-pill ' + (m.property_type === 'Commercial' ? 'uk-industry' : 'uk-home');
+                    unitBadge.textContent = m.property_type === 'Commercial' ? 'Industry (Commercial)' : 'Home (Domestic)';
+                    const loadLine = document.createElement('div');
+                    loadLine.style.fontSize = '11.5px';
+                    loadLine.style.color = '#365070';
+                    loadLine.textContent = (m.industry_type ? m.industry_type + ' • ' : '') + m.requested_load_kw + ' kW';
+                    tdCat.appendChild(unitBadge);
+                    tdCat.appendChild(loadLine);
+
+                    const tdStage = document.createElement('td');
+                    const pill = document.createElement('span');
+                    if (isIndCut) {
+                        pill.className = 'meter-stage-pill msp-outage';
+                        pill.textContent = 'Individual Power Cut';
+                    } else if (m.is_connected && isPowerOn) {
+                        pill.className = 'meter-stage-pill msp-live';
+                        pill.textContent = 'Connected • Live Supply';
+                    } else if (m.is_connected) {
+                        pill.className = 'meter-stage-pill msp-outage';
+                        pill.textContent = 'Connected • Transformer OFF';
+                    } else if (m.status === 'Meter Issued') {
+                        pill.className = 'meter-stage-pill msp-issued';
+                        pill.textContent = 'Meter Issued (Pending Install)';
+                    } else {
+                        pill.className = 'meter-stage-pill msp-verified';
+                        pill.textContent = m.status + ' (Awaiting Admin)';
+                    }
+                    tdStage.appendChild(pill);
+
+                    const tdAction = document.createElement('td');
+                    if (CAN_CONTROL_TRANSFORMERS && m.is_connected) {
+                        const wrap = document.createElement('div');
+                        wrap.className = 'meter-action-wrap';
+
+                        const remarkInput = document.createElement('input');
+                        remarkInput.type = 'text';
+                        remarkInput.className = 'meter-remark-input';
+                        remarkInput.placeholder = 'Power cut / maintenance remark...';
+                        remarkInput.value = m.power_cut_remark || '';
+
+                        const btnRow = document.createElement('div');
+                        btnRow.className = 'meter-btn-row';
+
+                        const cutRestoreBtn = document.createElement('button');
+                        cutRestoreBtn.type = 'button';
+                        cutRestoreBtn.className = 'meter-mini-btn ' + (isIndCut ? 'mm-restore' : 'mm-cut');
+                        cutRestoreBtn.textContent = isIndCut ? 'Restore Power' : 'Cut Power';
+                        cutRestoreBtn.addEventListener('click', function () {
+                            updateMeterPowerCut(m.id, isIndCut ? 'restore' : 'cut', remarkInput);
+                        });
+
+                        const saveRemarkBtn = document.createElement('button');
+                        saveRemarkBtn.type = 'button';
+                        saveRemarkBtn.className = 'meter-mini-btn mm-remark';
+                        saveRemarkBtn.textContent = 'Update Remark';
+                        saveRemarkBtn.addEventListener('click', function () {
+                            updateMeterPowerCut(m.id, 'remark', remarkInput);
+                        });
+
+                        btnRow.appendChild(cutRestoreBtn);
+                        btnRow.appendChild(saveRemarkBtn);
+                        wrap.appendChild(remarkInput);
+                        wrap.appendChild(btnRow);
+
+                        if (m.power_cut_updated_at) {
+                            const ts = document.createElement('small');
+                            ts.style.color = '#64748b';
+                            ts.style.fontSize = '10.5px';
+                            ts.textContent = 'Updated: ' + m.power_cut_updated_at;
+                            wrap.appendChild(ts);
+                        }
+                        tdAction.appendChild(wrap);
+                    } else {
+                        const remText = document.createElement('div');
+                        remText.style.fontSize = '12px';
+                        remText.style.color = isIndCut ? '#991b1b' : '#365070';
+                        remText.style.fontWeight = isIndCut ? '700' : '500';
+                        remText.textContent = m.power_cut_remark || 'Normal grid supply';
+                        tdAction.appendChild(remText);
+                    }
+
+                    tr.appendChild(tdReq);
+                    tr.appendChild(tdMeter);
+                    tr.appendChild(tdConsumer);
+                    tr.appendChild(tdCat);
+                    tr.appendChild(tdStage);
+                    tr.appendChild(tdAction);
+                    tbody.appendChild(tr);
+                });
+            }
+        }
+    }
+
+    function syncMasterAndSubstationBadges() {
+        const items = Object.values(TRANSFORMERS_MAP);
+        const total = items.length;
+        const online = items.filter(function (t) { return Boolean(t.is_power_on); }).length;
+        const allOn = total > 0 && online === total;
+        const allOff = total > 0 && online === 0;
+
+        const badge = document.getElementById('masterGridBadge');
+        const badgeText = document.getElementById('masterGridBadgeText');
+        const masterOnBtn = document.getElementById('masterPowerOnBtn');
+        const masterOffBtn = document.getElementById('masterPowerOffBtn');
+
+        if (badge && badgeText) {
+            if (allOn) {
+                badge.className = 'master-status-pill all-on';
+                badgeText.textContent = 'ALL TRANSFORMERS ON (' + online + '/' + total + ' ENERGIZED)';
+            } else if (allOff) {
+                badge.className = 'master-status-pill all-off';
+                badgeText.textContent = 'OVERALL POWER OFF (' + online + '/' + total + ' ISOLATED)';
+            } else {
+                badge.className = 'master-status-pill partial';
+                badgeText.textContent = 'PARTIAL SUPPLY (' + online + '/' + total + ' ON)';
+            }
+        }
+        if (masterOnBtn && masterOffBtn) {
+            masterOnBtn.classList.toggle('active', allOn);
+            masterOffBtn.classList.toggle('active', allOff);
+        }
+
+        document.querySelectorAll('.substation-card[data-substation]').forEach(function (card) {
+            const subName = card.getAttribute('data-substation');
+            const subUnits = items.filter(function (t) { return t.substation_name === subName; });
+            const subOnline = subUnits.filter(function (t) { return Boolean(t.is_power_on); }).length;
+            const subBadge = card.querySelector('.sub-online-badge');
+            if (subBadge && subUnits.length) {
+                subBadge.className = 'tf-badge sub-online-badge ' + (subOnline > 0 ? 'on' : 'off');
+                subBadge.textContent = subOnline + '/' + subUnits.length + ' ONLINE';
+            }
+        });
+    }
+
+    function updateCardUI(data) {
+        const id = data.transformer_id;
+        const isOn = Boolean(data.is_power_on);
+        const badge = document.getElementById('tfCardBadge-' + id);
+        const onBtn = document.getElementById('tfCardOn-' + id);
+        const offBtn = document.getElementById('tfCardOff-' + id);
+        if (badge) {
+            badge.className = 'tf-badge ' + (isOn ? 'on' : 'off');
+            badge.textContent = isOn ? 'ON' : 'OFF';
+        }
+        if (onBtn && offBtn) {
+            onBtn.classList.toggle('active', isOn);
+            offBtn.classList.toggle('active', !isOn);
+        }
+        if (data.meters !== undefined) {
+            TRANSFORMERS_MAP[String(id)] = data;
+        }
+    }
+
+    function applyTransformerUI(data) {
+        updateCardUI(data);
+        syncMasterAndSubstationBadges();
+        if (data.transformer_id !== currentTransformerId) {
+            return;
+        }
+        const isOn = Boolean(data.is_power_on);
+        const stage = document.getElementById('transformerStage');
+        const pill = document.getElementById('adminGridStatusPill');
+        const pillText = document.getElementById('adminGridStatusText');
+        const pillIcon = pill ? pill.querySelector('i') : null;
+        const onBtn = document.getElementById('adminPowerOnBtn');
+        const offBtn = document.getElementById('adminPowerOffBtn');
+
+        if (stage) stage.classList.toggle('power-on', isOn);
+        if (pill) pill.className = 'grid-status-pill ' + (isOn ? 'on' : 'off');
+        if (pillIcon) pillIcon.className = 'fa-solid ' + (isOn ? 'fa-plug-circle-check' : 'fa-plug-circle-xmark');
+        if (pillText) pillText.textContent = isOn ? 'POWER SUPPLY ON (ACTIVE)' : 'POWER SUPPLY OFF (OUTAGE)';
+        if (onBtn && offBtn) {
+            onBtn.classList.toggle('active', isOn);
+            offBtn.classList.toggle('active', !isOn);
+        }
+
+        const subName = data.substation_name || 'Main 33/11 kV Substation';
+        document.getElementById('selectedTransformerHeading').textContent =
+            subName + ' — ' + data.transformer_name + ' (' + data.zone + ')';
+        document.getElementById('svgSubstationName').textContent =
+            subName.toUpperCase() + ' • ' + data.code + ' GRID BAY';
+        document.getElementById('scadaCodeTitle').textContent = data.code + ' Telemetry';
+        document.getElementById('adminSubstationValue').textContent = subName;
+        document.getElementById('adminVoltageValue').textContent = data.voltage;
+        document.getElementById('adminFrequencyValue').textContent = data.frequency;
+        document.getElementById('adminZoneValue').textContent = data.zone;
+        document.getElementById('adminCapacityValue').textContent = data.capacity_kva + ' kVA';
+        document.getElementById('adminMetersSummary').textContent =
+            (data.allocated_count || 0) + ' Meters (' + (data.connected_count || 0) + ' Live)';
+        document.getElementById('svgNameplateCode').textContent = data.code + ' STEP-DOWN';
+        document.getElementById('svgNameplateCap').textContent = data.capacity_kva + ' kVA | 11kV/230V';
+        document.getElementById('svgBreakerText').textContent = isOn ? 'CLOSED (ENERGIZED)' : 'OPEN (ISOLATED)';
+
+        const svgScadaVolt = document.getElementById('svgScadaVolt');
+        svgScadaVolt.textContent = isOn ? '230 V AC' : '0.0 V';
+        svgScadaVolt.setAttribute('fill', isOn ? '#4ade80' : '#f87171');
+        document.getElementById('svgScadaFreq').textContent = isOn ? '50.0 Hz | ON' : '0.0 Hz | OFF';
+
+        document.getElementById('adminPowerNote').innerHTML = isOn
+            ? '<strong>' + subName + '</strong> (' + data.code + ') is energized at <strong>230V AC</strong> feeding connected meters in ' + data.zone + '.'
+            : '<strong>' + subName + '</strong> (' + data.code + ') is <strong>OFF</strong>. Connected meters under this transformer have no supply.';
+
+        renderSubstationMetersVisuals(data);
+    }
+
+    function applyOverallGridUpdate(payload) {
+        (payload.transformers || []).forEach(function (tfData) {
+            updateCardUI(tfData);
+            if (tfData.transformer_id === currentTransformerId) {
+                applyTransformerUI(tfData);
+            }
+        });
+        syncMasterAndSubstationBadges();
+    }
+
+    function selectTransformer(tfId) {
+        currentTransformerId = tfId;
+        document.querySelectorAll('.tf-card').forEach(function (card) {
+            card.classList.remove('selected');
+        });
+        const activeCard = document.getElementById('tfCard-' + tfId);
+        if (activeCard) activeCard.classList.add('selected');
+
+        if (TRANSFORMERS_MAP[String(tfId)]) {
+            applyTransformerUI(TRANSFORMERS_MAP[String(tfId)]);
+        }
+
+        fetch("{% url 'power_status_api' %}?transformer_id=" + tfId, {
+            headers: { 'Accept': 'application/json' }
+        })
+        .then(function (resp) { return resp.ok ? resp.json() : null; })
+        .then(function (data) { if (data) applyTransformerUI(data); })
+        .catch(function () {});
+    }
+
+    if (TRANSFORMERS_MAP[String(currentTransformerId)]) {
+        renderSubstationMetersVisuals(TRANSFORMERS_MAP[String(currentTransformerId)]);
+    }
+</script>

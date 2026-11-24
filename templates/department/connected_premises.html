@@ -1,0 +1,173 @@
+{% extends "department/department_base.html" %}
+
+{% block title %}04. Connected Premises &amp; Live Usage | Department Portal{% endblock %}
+
+{% block content %}
+<section class="panel-card" id="deptStep4">
+    <div class="panel-header">
+        <span><i class="fa-solid fa-house-circle-check"></i> 04. Connected Premises &amp; Live Usage Monitor</span>
+        <span class="badge-status bs-green"><i class="fa-solid fa-circle-dot"></i> Live Auto-Refresh ({{ page_obj.paginator.count }} Total)</span>
+    </div>
+    <div class="panel-body">
+        <form method="get" action="{% url 'department_connected_premises' %}" class="filter-toolbar" id="connectedSearchForm">
+            <div class="filter-field search-wide">
+                <label for="connSearchInput">Search Connected Meters</label>
+                <input type="text" id="connSearchInput" name="q" value="{{ search_q }}" placeholder="Request ID, Meter No, Applicant, Address...">
+            </div>
+            <div class="filter-field">
+                <label for="connPropFilter">Category Dropdown</label>
+                <select id="connPropFilter" name="property_type" onchange="this.form.submit()">
+                    <option value="">All Categories</option>
+                    <option value="Domestic" {% if selected_property_type == "Domestic" %}selected{% endif %}>Domestic</option>
+                    <option value="Commercial" {% if selected_property_type == "Commercial" %}selected{% endif %}>Commercial</option>
+                </select>
+            </div>
+            <div class="filter-field">
+                <label for="connTfFilter">Transformer Feeder</label>
+                <select id="connTfFilter" name="transformer_id" onchange="this.form.submit()">
+                    <option value="">All Transformers</option>
+                    {% for tf in transformers %}
+                    <option value="{{ tf.id }}" {% if selected_transformer_filter == tf.id|stringformat:"s" %}selected{% endif %}>
+                        {{ tf.code }} &mdash; {{ tf.substation_name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="filter-field">
+                <label for="connSupplyFilter">Supply Status</label>
+                <select id="connSupplyFilter" name="supply_status" onchange="this.form.submit()">
+                    <option value="">All Supply States</option>
+                    <option value="live" {% if selected_supply_status == "live" %}selected{% endif %}>Connected &bull; Live</option>
+                    <option value="power_cut" {% if selected_supply_status == "power_cut" %}selected{% endif %}>Individual Power Cut</option>
+                    <option value="grid_off" {% if selected_supply_status == "grid_off" %}selected{% endif %}>Transformer OFF</option>
+                </select>
+            </div>
+            <div class="filter-field" style="max-width:130px;">
+                <label for="connPerPage">Rows / Page</label>
+                <select id="connPerPage" name="per_page" onchange="this.form.submit()">
+                    {% for sz in per_page_choices %}
+                    <option value="{{ sz }}" {% if per_page == sz %}selected{% endif %}>{{ sz }} rows</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="filter-btn"><i class="fa-solid fa-magnifying-glass"></i> Apply Filters</button>
+            <a href="{% url 'department_connected_premises' %}" class="filter-reset">Reset</a>
+        </form>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Request ID &amp; Meter</th>
+                        <th>Consumer &amp; Address</th>
+                        <th>Category</th>
+                        <th>Substation &amp; Transformer</th>
+                        <th>Live Supply Status</th>
+                        <th>Live Current Usage / Prepaid Balance</th>
+                        <th>Total Consumed</th>
+                        <th>Supply Remark</th>
+                    </tr>
+                </thead>
+                <tbody id="deptConnectedTableBody">
+                    {% for app in page_obj %}
+                    <tr data-conn-id="{{ app.id }}">
+                        <td>
+                            <strong>{{ app.application_id }}</strong><br>
+                            <small style="color:#07549a;"><code>{{ app.meter_number }}</code></small>
+                        </td>
+                        <td>
+                            <strong>{{ app.applicant_name }}</strong> (@{{ app.user.username }})<br>
+                            <small style="color:#4b698c;">{{ app.house_address }}</small>
+                        </td>
+                        <td>{{ app.property_type }}{% if app.industry_type %} ({{ app.industry_type }}){% endif %}</td>
+                        <td><strong>{{ app.transformer.code }}</strong> &bull; {{ app.transformer.substation_name }}</td>
+                        <td class="live-state-cell">
+                            {% if app.is_power_cut %}
+                                <span class="badge-status bs-red">Individual Power Cut</span>
+                            {% elif not app.transformer.is_power_on %}
+                                <span class="badge-status bs-red">Transformer OFF</span>
+                            {% elif app.is_commercial and app.prepaid_units_balance <= 0 %}
+                                <span class="badge-status bs-red">Bulk Units Exhausted</span>
+                            {% else %}
+                                <span class="badge-status bs-green">Connected &bull; Live</span>
+                            {% endif %}
+                        </td>
+                        <td class="live-usage-cell">
+                            {% if app.is_commercial %}
+                                <strong>{{ app.prepaid_units_balance }} Units Left</strong><br>
+                                <small style="color:#4b698c;">{{ app.live_telemetry.est_runtime_text }} &bull; {{ app.live_telemetry.on_count }}/{{ app.live_telemetry.total_count }} ON</small>
+                            {% else %}
+                                <strong>{{ app.unbilled_units }} Units</strong><br>
+                                <small style="color:#4b698c;">Load: {{ app.live_telemetry.active_kw|floatformat:2 }} kW ({{ app.live_telemetry.on_count }}/{{ app.live_telemetry.total_count }} ON)</small>
+                            {% endif %}
+                        </td>
+                        <td class="live-total-cell"><strong>{{ app.total_units_consumed }} Units</strong></td>
+                        <td class="live-remark-cell">{{ app.power_cut_remark|default:"Normal supply" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" style="text-align:center; color:#4b698c; padding:24px;">
+                            No connected premises match your search/dropdown criteria.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% include "department/_pagination_bar.html" %}
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    (function () {
+        function refreshConnectedLiveUsage() {
+            const rows = Array.from(document.querySelectorAll('#deptConnectedTableBody tr[data-conn-id]'));
+            if (!rows.length) return;
+            const ids = rows.map(function (r) { return r.getAttribute('data-conn-id'); }).join(',');
+            fetch("{% url 'department_live_usage_api' %}?ids=" + encodeURIComponent(ids), {
+                headers: { 'Accept': 'application/json' }
+            })
+            .then(function (r) { return r.ok ? r.json() : null; })
+            .then(function (data) {
+                if (!data || !data.ok) return;
+                if (data.tariff) {
+                    const b = document.getElementById('deptTariffBase');
+                    const d = document.getElementById('deptTariffDom');
+                    const c = document.getElementById('deptTariffComm');
+                    const n = document.getElementById('deptTariffNote');
+                    if (b) b.textContent = Number(data.tariff.base_fare_rs).toFixed(2);
+                    if (d) d.textContent = Number(data.tariff.domestic_rate).toFixed(2);
+                    if (c) c.textContent = Number(data.tariff.commercial_rate).toFixed(2);
+                    if (n && data.tariff.revision_note) n.textContent = data.tariff.revision_note;
+                }
+                const byId = {};
+                (data.items || []).forEach(function (it) { byId[String(it.id)] = it; });
+                rows.forEach(function (row) {
+                    const it = byId[row.getAttribute('data-conn-id')];
+                    if (!it) return;
+                    const st = row.querySelector('.live-state-cell');
+                    const us = row.querySelector('.live-usage-cell');
+                    const tot = row.querySelector('.live-total-cell');
+                    const rem = row.querySelector('.live-remark-cell');
+                    if (st) {
+                        const cls = it.supply_state.indexOf('Live') >= 0 ? 'bs-green' : 'bs-red';
+                        st.innerHTML = '<span class="badge-status ' + cls + '">' + it.supply_state + '</span>';
+                    }
+                    if (us) {
+                        us.innerHTML = it.property_type === 'Commercial'
+                            ? ('<strong>' + Number(it.prepaid_units_balance).toFixed(2) + ' Units Left</strong><br><small style="color:#4b698c;">' + (it.est_runtime_text || 'Commercial Bulk Balance') + ' &bull; ' + (it.on_appliances_count || 0) + '/' + (it.total_appliances_count || 0) + ' ON</small>')
+                            : ('<strong>' + Number(it.unbilled_units).toFixed(2) + ' Units</strong><br><small style="color:#4b698c;">Load: ' + Number(it.active_kw || 0).toFixed(2) + ' kW (' + (it.on_appliances_count || 0) + '/' + (it.total_appliances_count || 0) + ' ON)</small>');
+                    }
+                    if (tot) tot.innerHTML = '<strong>' + Number(it.total_units_consumed).toFixed(2) + ' Units</strong>';
+                    if (rem) rem.textContent = it.power_cut_remark || 'Normal supply';
+                });
+            })
+            .catch(function () {});
+        }
+        setInterval(refreshConnectedLiveUsage, 4000);
+    })();
+</script>
+{% endblock %}

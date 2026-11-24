@@ -1,0 +1,858 @@
+<style>
+    /* =====================================================
+       CREATE ACCOUNT POPUP MODAL
+    ===================================================== */
+
+    .user-modal-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 18px;
+
+        background: rgba(5, 27, 56, 0.68);
+        backdrop-filter: blur(4px);
+    }
+
+    .user-modal-overlay.open {
+        display: flex;
+        animation: userModalFadeIn 0.2s ease;
+    }
+
+    @keyframes userModalFadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    .create-account-card {
+        width: 100%;
+        max-width: 580px;
+        max-height: 90vh;
+
+        background: #ffffff;
+        border: 1px solid #c6d8ed;
+        border-radius: 14px;
+        overflow: hidden;
+
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 22px 55px rgba(4, 24, 52, 0.36);
+        animation: userModalSlideUp 0.22s ease;
+    }
+
+    @keyframes userModalSlideUp {
+        from {
+            opacity: 0;
+            transform: translateY(14px) scale(0.98);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    .user-modal-header {
+        background: linear-gradient(90deg, #063b78, #07549a);
+        color: #ffffff;
+        padding: 16px 22px;
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        flex-shrink: 0;
+    }
+
+    .user-modal-title-group {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .user-modal-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.16);
+        border: 1px solid rgba(255, 255, 255, 0.28);
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 19px;
+        flex-shrink: 0;
+    }
+
+    .user-modal-title-group h3 {
+        font-size: 18px;
+        font-weight: 800;
+        line-height: 1.2;
+        margin: 0;
+    }
+
+    .user-modal-title-group p {
+        font-size: 12px;
+        color: #dbeafe;
+        margin: 3px 0 0;
+    }
+
+    .user-modal-close {
+        width: 34px;
+        height: 34px;
+        border: 0;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.14);
+        color: #ffffff;
+        font-size: 18px;
+        cursor: pointer;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.2s ease;
+        flex-shrink: 0;
+    }
+
+    .user-modal-close:hover {
+        background: rgba(255, 255, 255, 0.26);
+    }
+
+    .create-account-body {
+        padding: 20px 24px 22px;
+        overflow-y: auto;
+    }
+
+    .user-form-alert {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 11px 14px;
+        margin-bottom: 16px;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .user-form-alert.error {
+        background: #fff0f0;
+        border: 1px solid #efb6b6;
+        color: #a32222;
+    }
+
+    .create-account-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px 16px;
+    }
+
+    .create-account-field {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .create-account-field.full-width {
+        grid-column: 1 / -1;
+    }
+
+    .create-account-field label {
+        margin-bottom: 6px;
+        color: #102b4c;
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .user-input-box {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .user-input-box .field-icon {
+        position: absolute;
+        left: 12px;
+        color: #07539a;
+        font-size: 14px;
+        pointer-events: none;
+    }
+
+    .user-input-box input {
+        width: 100%;
+        height: 42px;
+        padding: 10px 38px 10px 36px;
+
+        border: 1.5px solid #c6d8ed;
+        border-radius: 8px;
+        background: #f9fbfe;
+        color: #102b4c;
+
+        font-family: inherit;
+        font-size: 13.5px;
+        font-weight: 500;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    }
+
+    .user-input-box input:focus {
+        outline: none;
+        background: #ffffff;
+        border-color: #07549a;
+        box-shadow: 0 0 0 3px rgba(7, 84, 154, 0.14);
+    }
+
+    .user-input-box.has-error input {
+        border-color: #d93838;
+        background: #fff9f9;
+    }
+
+    .field-error-text {
+        margin-top: 5px;
+        color: #b42318;
+        font-size: 12px;
+        font-weight: 600;
+        line-height: 1.35;
+    }
+
+    .user-password-toggle {
+        position: absolute;
+        right: 7px;
+        width: 28px;
+        height: 28px;
+        border: 0;
+        border-radius: 6px;
+        background: transparent;
+        color: #46658a;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .user-password-toggle:hover {
+        background: #e9f2ff;
+        color: #063b78;
+    }
+
+    /* =====================================================
+       PASSWORD STRENGTH CHECKER
+    ===================================================== */
+
+    .password-strength-box {
+        grid-column: 1 / -1;
+        background: #f6f9fd;
+        border: 1px solid #d4e2f2;
+        border-radius: 10px;
+        padding: 12px 14px;
+    }
+
+    .strength-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 8px;
+        font-size: 12.5px;
+        font-weight: 700;
+        color: #102b4c;
+    }
+
+    .strength-badge {
+        padding: 2px 9px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 800;
+        background: #e2e8f0;
+        color: #475569;
+    }
+
+    .strength-badge.weak {
+        background: #fee2e2;
+        color: #b91c1c;
+    }
+
+    .strength-badge.fair {
+        background: #fef3c7;
+        color: #b45309;
+    }
+
+    .strength-badge.good {
+        background: #dbeafe;
+        color: #1d4ed8;
+    }
+
+    .strength-badge.strong {
+        background: #dcfce7;
+        color: #15803d;
+    }
+
+    .strength-bars {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 6px;
+        margin-bottom: 10px;
+    }
+
+    .strength-bar-seg {
+        height: 6px;
+        border-radius: 999px;
+        background: #dce6f2;
+        transition: background 0.2s ease;
+    }
+
+    .strength-bar-seg.weak { background: #dc2626; }
+    .strength-bar-seg.fair { background: #d97706; }
+    .strength-bar-seg.good { background: #2563eb; }
+    .strength-bar-seg.strong { background: #16a34a; }
+
+    .strength-rules {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 5px 12px;
+        list-style: none;
+        font-size: 12px;
+        color: #475569;
+    }
+
+    .strength-rules li {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        transition: color 0.15s ease;
+    }
+
+    .strength-rules li i {
+        font-size: 12px;
+        color: #94a3b8;
+    }
+
+    .strength-rules li.met {
+        color: #15803d;
+        font-weight: 700;
+    }
+
+    .strength-rules li.met i {
+        color: #16a34a;
+    }
+
+    .password-match-status {
+        margin-top: 5px;
+        font-size: 12px;
+        font-weight: 700;
+        min-height: 16px;
+    }
+
+    .password-match-status.match {
+        color: #15803d;
+    }
+
+    .password-match-status.mismatch {
+        color: #b91c1c;
+    }
+
+    .user-modal-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 18px;
+    }
+
+    .user-submit-btn {
+        flex: 1;
+        height: 44px;
+        border: 0;
+        border-radius: 8px;
+        background: linear-gradient(90deg, #06417f, #07549a);
+        color: #ffffff;
+        font-size: 14px;
+        font-weight: 700;
+        cursor: pointer;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: transform 0.15s ease, box-shadow 0.2s ease;
+    }
+
+    .user-submit-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 16px rgba(6, 59, 120, 0.28);
+    }
+
+    .user-cancel-btn {
+        height: 44px;
+        padding: 0 18px;
+        border: 1.5px solid #c6d8ed;
+        border-radius: 8px;
+        background: #ffffff;
+        color: #173a61;
+        font-size: 13px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: background 0.2s ease;
+    }
+
+    .user-cancel-btn:hover {
+        background: #f0f5fc;
+    }
+
+    .user-modal-footer-switch {
+        margin-top: 16px;
+        padding-top: 14px;
+        border-top: 1px solid #e4ebf3;
+        text-align: center;
+        font-size: 13px;
+        color: #365070;
+    }
+
+    .user-modal-footer-switch button {
+        background: none;
+        border: 0;
+        color: #07549a;
+        font-weight: 800;
+        cursor: pointer;
+        text-decoration: underline;
+        font-size: 13px;
+        margin-left: 4px;
+    }
+
+    @media (max-width: 600px) {
+        .create-account-grid,
+        .strength-rules {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div id="createAccountModal"
+     class="user-modal-overlay{% if open_create_account_modal %} open{% endif %}"
+     role="dialog"
+     aria-modal="true"
+     aria-labelledby="createAccountModalTitle">
+
+    <div class="create-account-card">
+
+        <div class="user-modal-header">
+            <div class="user-modal-title-group">
+                <div class="user-modal-icon">
+                    <i class="fa-solid fa-user-plus"></i>
+                </div>
+                <div>
+                    <h3 id="createAccountModalTitle">Create User Account</h3>
+                    <p>Electricity Department | Portal Login Registration</p>
+                </div>
+            </div>
+
+            <button type="button"
+                    class="user-modal-close"
+                    id="closeCreateAccountModalBtn"
+                    aria-label="Close create account modal">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <div class="create-account-body">
+
+            {% if create_account_form.non_field_errors %}
+            <div class="user-form-alert error" role="alert">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <div>
+                    {% for error in create_account_form.non_field_errors %}
+                        <div>{{ error }}</div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <form method="post" action="{% url 'create_account' %}" id="createAccountForm">
+                {% csrf_token %}
+
+                <div class="create-account-grid">
+
+                    <div class="create-account-field">
+                        <label for="regFullName">Full Name</label>
+                        <div class="user-input-box{% if create_account_form.full_name.errors %} has-error{% endif %}">
+                            <i class="fa-solid fa-user field-icon"></i>
+                            <input type="text"
+                                   id="regFullName"
+                                   name="full_name"
+                                   value="{{ create_account_form.full_name.value|default:'' }}"
+                                   placeholder="Enter your full name"
+                                   required>
+                        </div>
+                        {% for error in create_account_form.full_name.errors %}
+                            <span class="field-error-text">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+
+                    <div class="create-account-field">
+                        <label for="regUsername">Username</label>
+                        <div class="user-input-box{% if create_account_form.username.errors %} has-error{% endif %}">
+                            <i class="fa-solid fa-at field-icon"></i>
+                            <input type="text"
+                                   id="regUsername"
+                                   name="username"
+                                   value="{{ create_account_form.username.value|default:'' }}"
+                                   placeholder="4-30 letters, numbers, _"
+                                   autocomplete="username"
+                                   required>
+                        </div>
+                        {% for error in create_account_form.username.errors %}
+                            <span class="field-error-text">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+
+                    <div class="create-account-field">
+                        <label for="regEmail">Email Address</label>
+                        <div class="user-input-box{% if create_account_form.email.errors %} has-error{% endif %}">
+                            <i class="fa-solid fa-envelope field-icon"></i>
+                            <input type="email"
+                                   id="regEmail"
+                                   name="email"
+                                   value="{{ create_account_form.email.value|default:'' }}"
+                                   placeholder="name@example.com"
+                                   autocomplete="email"
+                                   required>
+                        </div>
+                        {% for error in create_account_form.email.errors %}
+                            <span class="field-error-text">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+
+                    <div class="create-account-field">
+                        <label for="regMobileNumber">Mobile Number</label>
+                        <div class="user-input-box{% if create_account_form.mobile_number.errors %} has-error{% endif %}">
+                            <i class="fa-solid fa-phone field-icon"></i>
+                            <input type="tel"
+                                   id="regMobileNumber"
+                                   name="mobile_number"
+                                   value="{{ create_account_form.mobile_number.value|default:'' }}"
+                                   placeholder="10-digit mobile number"
+                                   required>
+                        </div>
+                        {% for error in create_account_form.mobile_number.errors %}
+                            <span class="field-error-text">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+
+                    <div class="create-account-field">
+                        <label for="regPassword">Password</label>
+                        <div class="user-input-box{% if create_account_form.password.errors %} has-error{% endif %}">
+                            <i class="fa-solid fa-lock field-icon"></i>
+                            <input type="password"
+                                   id="regPassword"
+                                   name="password"
+                                   placeholder="Min 8 chars (A-Z, a-z, 0-9)"
+                                   autocomplete="new-password"
+                                   required>
+                            <button type="button"
+                                    class="user-password-toggle"
+                                    data-toggle-target="regPassword"
+                                    aria-label="Show password">
+                                <i class="fa-regular fa-eye"></i>
+                            </button>
+                        </div>
+                        {% for error in create_account_form.password.errors %}
+                            <span class="field-error-text">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+
+                    <div class="create-account-field">
+                        <label for="regConfirmPassword">Confirm Password</label>
+                        <div class="user-input-box{% if create_account_form.confirm_password.errors %} has-error{% endif %}">
+                            <i class="fa-solid fa-shield-check field-icon"></i>
+                            <input type="password"
+                                   id="regConfirmPassword"
+                                   name="confirm_password"
+                                   placeholder="Re-enter password"
+                                   autocomplete="new-password"
+                                   required>
+                            <button type="button"
+                                    class="user-password-toggle"
+                                    data-toggle-target="regConfirmPassword"
+                                    aria-label="Show confirm password">
+                                <i class="fa-regular fa-eye"></i>
+                            </button>
+                        </div>
+                        <span id="passwordMatchStatus" class="password-match-status"></span>
+                        {% for error in create_account_form.confirm_password.errors %}
+                            <span class="field-error-text">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+
+                    <div class="password-strength-box" id="passwordStrengthMeter">
+                        <div class="strength-header">
+                            <span>Password Strength Checker</span>
+                            <span id="passwordStrengthBadge" class="strength-badge">Not Entered</span>
+                        </div>
+                        <div class="strength-bars">
+                            <span class="strength-bar-seg" id="strengthBar1"></span>
+                            <span class="strength-bar-seg" id="strengthBar2"></span>
+                            <span class="strength-bar-seg" id="strengthBar3"></span>
+                            <span class="strength-bar-seg" id="strengthBar4"></span>
+                        </div>
+                        <ul class="strength-rules">
+                            <li id="ruleLength">
+                                <i class="fa-regular fa-circle"></i>
+                                At least 8 characters
+                            </li>
+                            <li id="ruleUpperLower">
+                                <i class="fa-regular fa-circle"></i>
+                                Uppercase &amp; lowercase letters
+                            </li>
+                            <li id="ruleNumber">
+                                <i class="fa-regular fa-circle"></i>
+                                At least one number (0-9)
+                            </li>
+                            <li id="ruleSpecial">
+                                <i class="fa-regular fa-circle"></i>
+                                Special character (!@#$...)
+                            </li>
+                        </ul>
+                    </div>
+
+                </div>
+
+                <div class="user-modal-actions">
+                    <button type="submit" class="user-submit-btn">
+                        <i class="fa-solid fa-user-check"></i>
+                        <span>Create Account</span>
+                    </button>
+
+                    <button type="button"
+                            class="user-cancel-btn"
+                            id="cancelCreateAccountModalBtn">
+                        Cancel
+                    </button>
+                </div>
+            </form>
+
+            <div class="user-modal-footer-switch">
+                Already have an account?
+                <button type="button" id="switchToUserLoginBtn">Sign In Here</button>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+    (function () {
+        const modal = document.getElementById('createAccountModal');
+        if (!modal) {
+            return;
+        }
+
+        const closeBtn = document.getElementById('closeCreateAccountModalBtn');
+        const cancelBtn = document.getElementById('cancelCreateAccountModalBtn');
+        const switchBtn = document.getElementById('switchToUserLoginBtn');
+        const fullNameInput = document.getElementById('regFullName');
+
+        const passwordInput = document.getElementById('regPassword');
+        const confirmInput = document.getElementById('regConfirmPassword');
+        const strengthBadge = document.getElementById('passwordStrengthBadge');
+        const matchStatus = document.getElementById('passwordMatchStatus');
+        const bars = [
+            document.getElementById('strengthBar1'),
+            document.getElementById('strengthBar2'),
+            document.getElementById('strengthBar3'),
+            document.getElementById('strengthBar4')
+        ];
+        const rules = {
+            length: document.getElementById('ruleLength'),
+            upperLower: document.getElementById('ruleUpperLower'),
+            number: document.getElementById('ruleNumber'),
+            special: document.getElementById('ruleSpecial')
+        };
+
+        function setRuleState(el, met) {
+            if (!el) {
+                return;
+            }
+            const icon = el.querySelector('i');
+            if (met) {
+                el.classList.add('met');
+                if (icon) {
+                    icon.className = 'fa-solid fa-circle-check';
+                }
+            } else {
+                el.classList.remove('met');
+                if (icon) {
+                    icon.className = 'fa-regular fa-circle';
+                }
+            }
+        }
+
+        function evaluatePasswordStrength() {
+            if (!passwordInput || !strengthBadge) {
+                return;
+            }
+            const val = passwordInput.value;
+            const checks = {
+                length: val.length >= 8,
+                upperLower: /[A-Z]/.test(val) && /[a-z]/.test(val),
+                number: /\d/.test(val),
+                special: /[^A-Za-z0-9]/.test(val)
+            };
+
+            setRuleState(rules.length, checks.length);
+            setRuleState(rules.upperLower, checks.upperLower);
+            setRuleState(rules.number, checks.number);
+            setRuleState(rules.special, checks.special);
+
+            const score = Object.values(checks).filter(Boolean).length;
+
+            bars.forEach(function (bar) {
+                if (bar) {
+                    bar.className = 'strength-bar-seg';
+                }
+            });
+            strengthBadge.className = 'strength-badge';
+
+            if (!val) {
+                strengthBadge.textContent = 'Not Entered';
+            } else {
+                const levels = [
+                    { cls: 'weak', label: 'Weak' },
+                    { cls: 'weak', label: 'Weak' },
+                    { cls: 'fair', label: 'Fair' },
+                    { cls: 'good', label: 'Good' },
+                    { cls: 'strong', label: 'Strong' }
+                ];
+                const info = levels[score];
+                strengthBadge.classList.add(info.cls);
+                strengthBadge.textContent = info.label;
+                const activeCount = Math.max(1, score);
+                for (let i = 0; i < activeCount; i++) {
+                    if (bars[i]) {
+                        bars[i].classList.add(info.cls);
+                    }
+                }
+            }
+
+            checkPasswordMatch();
+        }
+
+        function checkPasswordMatch() {
+            if (!passwordInput || !confirmInput || !matchStatus) {
+                return;
+            }
+            const pwd = passwordInput.value;
+            const conf = confirmInput.value;
+            matchStatus.className = 'password-match-status';
+            if (!conf) {
+                matchStatus.textContent = '';
+                return;
+            }
+            if (pwd === conf) {
+                matchStatus.classList.add('match');
+                matchStatus.textContent = 'Passwords match';
+            } else {
+                matchStatus.classList.add('mismatch');
+                matchStatus.textContent = 'Passwords do not match';
+            }
+        }
+
+        if (passwordInput) {
+            passwordInput.addEventListener('input', evaluatePasswordStrength);
+        }
+        if (confirmInput) {
+            confirmInput.addEventListener('input', checkPasswordMatch);
+        }
+
+        function openCreateAccountModal() {
+            const navLinks = document.getElementById('navLinks');
+            if (navLinks) {
+                navLinks.classList.remove('open');
+            }
+            document.querySelectorAll('.nav-dropdown.open').forEach(function (dd) {
+                dd.classList.remove('open');
+            });
+            if (typeof window.closeUserLoginModal === 'function') {
+                window.closeUserLoginModal();
+            }
+            if (typeof window.closeAdminLoginModal === 'function') {
+                window.closeAdminLoginModal();
+            }
+            if (typeof window.closeDeptLoginModal === 'function') {
+                window.closeDeptLoginModal();
+            }
+
+            modal.classList.add('open');
+            document.body.style.overflow = 'hidden';
+
+            if (fullNameInput) {
+                setTimeout(function () {
+                    fullNameInput.focus();
+                }, 40);
+            }
+        }
+
+        function closeCreateAccountModal() {
+            modal.classList.remove('open');
+            document.body.style.overflow = '';
+            if (window.location.hash === '#create-account') {
+                history.replaceState(null, '', window.location.pathname + window.location.search);
+            }
+        }
+
+        window.openCreateAccountModal = openCreateAccountModal;
+        window.closeCreateAccountModal = closeCreateAccountModal;
+
+        document.querySelectorAll('a[href="#create-account"], a[href$="/create-account/"]').forEach(function (trigger) {
+            trigger.addEventListener('click', function (event) {
+                event.preventDefault();
+                openCreateAccountModal();
+            });
+        });
+
+        if (closeBtn) {
+            closeBtn.addEventListener('click', closeCreateAccountModal);
+        }
+        if (cancelBtn) {
+            cancelBtn.addEventListener('click', closeCreateAccountModal);
+        }
+        if (switchBtn) {
+            switchBtn.addEventListener('click', function () {
+                closeCreateAccountModal();
+                if (typeof window.openUserLoginModal === 'function') {
+                    window.openUserLoginModal();
+                }
+            });
+        }
+
+        modal.addEventListener('click', function (event) {
+            if (event.target === modal) {
+                closeCreateAccountModal();
+            }
+        });
+
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape' && modal.classList.contains('open')) {
+                closeCreateAccountModal();
+            }
+        });
+
+        modal.querySelectorAll('.user-password-toggle').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                const targetId = btn.getAttribute('data-toggle-target');
+                const input = document.getElementById(targetId);
+                if (!input) {
+                    return;
+                }
+                const isHidden = input.type === 'password';
+                input.type = isHidden ? 'text' : 'password';
+                const icon = btn.querySelector('i');
+                if (icon) {
+                    icon.className = isHidden ? 'fa-regular fa-eye-slash' : 'fa-regular fa-eye';
+                }
+            });
+        });
+
+        if (modal.classList.contains('open') || window.location.hash === '#create-account') {
+            openCreateAccountModal();
+        }
+    })();
+</script>
